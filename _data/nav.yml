@@ -1,13 +1,13 @@
-- title: Install
-  href: https://docs.hhvm.com/hhvm/getting-started/getting-started
+- title: 安装
+  href: https://docs.hhvm-cn.com/hhvm/getting-started/getting-started
   category: external
 
-- title: Blog
+- title: 博客
   href: /blog/
   category: blog
 
-- title: Docs
-  href: http://docs.hhvm.com/hhvm/
+- title: 文档
+  href: http://docs.hhvm-cn.com/hhvm/
   category: external
 
 - title: GitHub
@@ -15,7 +15,7 @@
   category: external
 
 - title: Hack
-  href: http://hacklang.org/
+  href: http://hacklang-cn.org/
   category: external
 
 - title: Facebook
@@ -30,7 +30,7 @@
   href: http://webchat.freenode.net/?channels=hhvm
   category: external
 
-- title: Module Support
+- title: 模块支持
   href: http://hhvm.h4cc.de/
   category: external
 

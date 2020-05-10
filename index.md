@@ -4,32 +4,32 @@ title: HHVM
 id: home
 ---
 
-## What is HHVM?
+## HHVM 是什么？
 
-HHVM is an [open-source](http://github.com/facebook/hhvm) virtual machine designed for executing programs written in [Hack](http://hacklang.org/). HHVM uses a just-in-time (JIT) compilation approach to achieve great runtime performance while maintaining amazing development flexibility.
+HHVM 是一款 [开源](http://github.com/facebook/hhvm) 的虚拟机，用于执行 [Hack](http://hacklang-cn.org/) 语言编写的程序。 HHVM 使用即时编译 (JIT) 方法来实现出色的运行时性能，同时保持不可思议的开发灵活性。
 
-HHVM supports the [Hack](http://hacklang.org/) programming language. We are moving fast, making changes daily and releasing often. If you notice a regression in the typechecker or the runtime, please [open issues](https://github.com/facebook/hhvm/issues/new) when you find them.
+HHVM 支持 [Hack](http://hacklang-cn.org/) 编程语言。我们将会频繁迭代，并且会经常发布新版本。如果你发现类型检查器或运行时出现了 bug，请 [提交 issue](https://github.com/facebook/hhvm/issues/new) 告诉我们。
 
 <div class="gridBlock">
   <div class="blockElement twoByGridBlock alignLeft">
     <div class="blockContent">
-      <h3>HHVM Features</h3>
+      <h3>HHVM 特性</h3>
       <ul>
-        <li>The <a href="http://hacklang.org/">Hack Language</a></li>
-        <li><a href="http://www.hhvm.com/blog/2027/faster-and-cheaper-the-evolution-of-the-hhvm-jit">JIT Compilation</a></li>
-        <li><a href="https://github.com/facebook/hhvm/wiki/Extension-API">HNI</a></li>
-        <li><a href="http://docs.hhvm.com/hhvm/basic-usage/proxygen">Proxygen</a> and <a href="http://docs.hhvm.com/hhvm/advanced-usage/fastCGI">FastCGI support</a></li>
-        <li><code>hphpd</code> debugger</li>
-        <li>... and <a href="http://docs.hhvm.com/hhvm/">more</a></li>
+        <li><a href="http://hacklang-cn.org/">Hack 编程语言</a></li>
+        <li><a href="http://www.hhvm-cn.com/blog/2027/faster-and-cheaper-the-evolution-of-the-hhvm-jit">即时编译</a></li>
+        <li><a href="https://github.com/facebook/hhvm/wiki/Extension-API">HHVM 本地接口 (HNI)</a></li>
+        <li>内置支持 <a href="http://docs.hhvm-cn.com/hhvm/basic-usage/proxygen">Proxygen</a> 和 <a href="http://docs.hhvm-cn.com/hhvm/advanced-usage/fastCGI">FastCGI</a></li>
+        <li><code>HPHPd</code> 调试器</li>
+        <li><a href="http://docs.hhvm-cn.com/hhvm/">更多</a> ...</li>
       </ul>
     </div>
   </div>
 
   <div class="blockElement twoByGridBlock alignLeft">
     <div class="blockContent">
-      <h3>The JIT Compiler</h3>
+      <h3>JIT 编译器</h3>
       <p>
-        Rather than directly interpret or <a href="https://en.wikipedia.org/wiki/HipHop_for_PHP#History_Before_HHVM">compile source code directly to C++</a>, HHVM compiles Hack into an intermediate bytecode. This bytecode is then translated into <a href="https://en.wikipedia.org/wiki/X64">x64</a> machine code dynamically at runtime by a just-in-time (<a href="https://en.wikipedia.org/wiki/Just-in-time_compilation">JIT</a>) compiler. This compilation process allows for all sorts of optimizations that cannot be made in a statically compiled binary, thus enabling higher performance of your Hack programs.
+        HHVM 并不是<a href="https://zh.wikipedia.org/zh-cn/HipHop_for_PHP#%E6%AD%B7%E5%8F%B2">将源代码直接通过解释或编译转换成 C++ 的代码</a>，而是将 Hack 语言的代码编译为中间字节码。然后，中间字节码在运行时由即时编译器 (<a href="https://zh.wikipedia.org/zh-cn/%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91">JIT</a>) 动态优化后翻译成 <a href="https://zh.wikipedia.org/zh-cn/X86-64">x64</a> 机器码。在这个编译过程中，会进行各种无法在静态编译的二进制文件中进行的优化，从而使你的 Hack 程序具有更高的性能。
       </p>
     </div>
   </div>
