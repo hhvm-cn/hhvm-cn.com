@@ -3,7 +3,7 @@ permalink: /blog/:year/:month/:day/:title.html
 title: HHVM
 tagline: 用高性能的 Hack 高效开发
 fbappid: "1615782811974223"
-gacode: "UA-49208336-2"
+gacode: "UA-166019294-2"
 
 # baseurl determines the subpath of your site. For example if you're using an
 # organisation.github.io/reponame/ basic site URL, then baseurl would be set
