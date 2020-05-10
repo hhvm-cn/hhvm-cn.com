@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:url" content="http://hhvm-cn.com/blog/1301/hhvm-2-2-0" />
+  <meta property="og:site_name" content="HHVM"/>
+  <meta property="og:title" content="HHVM 2.2.0" />
+  <meta property="og:image" content="http://hhvm-cn.com/static/og_image.png" />
+  <meta property="og:description" content="We released a new version of HHVM today. A big change is that we are now packaging for many of the popular distros." />
+
+  <link rel="stylesheet" href="/css/main.css" media="screen">
+  <link rel="icon" href="/static/favicon.png" type="image/x-icon">
+  
+
+  <title>HHVM 2.2.0 | HHVM</title>
+  <meta name="description" content="We released a new version of HHVM today. A big change is that we are now packaging for many of the popular distros.">
+
+  <link rel="canonical" href="http://hhvm-cn.com/blog/1301/hhvm-2-2-0">
+  <link rel="alternate" type="application/rss+xml" title="HHVM" href="http://hhvm-cn.com/feed.xml" />
+</head>
+
+  <body class="docsNavVisible">
+    <div id="fixed_header" class="fixedHeaderContainer visible">
+  <div class="headerWrapper wrapper">
+    <header>
+      <a href="http://hhvm-cn.com/">
+        <img src="/static/logo.svg">
+        <h2>HHVM</h2>
+      </a>
+
+      <div class="navigationWrapper navigationFull" id="flat_nav">
+        <nav class="navigation">
+          <ul>
+            
+              <li class="navItem">
+                
+                  <a href="https://docs.hhvm-cn.com/hhvm/getting-started/getting-started">安装</a>
+                
+              </li>
+            
+              <li class="navItem navItemActive">
+                
+                  <a href="/blog/">博客</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://docs.hhvm-cn.com/hhvm/">文档</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://github.com/facebook/hhvm">GitHub</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://hacklang-cn.org/">Hack</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="https://www.facebook.com/hhvm/">Facebook</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="https://twitter.com/HipHopVM">Twitter</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://webchat.freenode.net/?channels=hhvm">IRC</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://hhvm.h4cc.de/">模块支持</a>
+                
+              </li>
+            
+            
+          </ul>
+        </nav>
+      </div>
+      <div class="navigationWrapper navigationSlider" id="navigation_wrap">
+        <div id="header_nav">
+  <div class="navSlideout">
+    <i class="menuExpand" id="header_nav_expander"><span></span><span></span><span></span></i>
+  </div>
+  <nav class="slidingNav">
+    <ul>
+      
+      <li class="navItem">
+        <a href="https://docs.hhvm-cn.com/hhvm/getting-started/getting-started" target="_blank">安装</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="/blog/">博客</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://docs.hhvm-cn.com/hhvm/" target="_blank">文档</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://github.com/facebook/hhvm" target="_blank">GitHub</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://hacklang-cn.org/" target="_blank">Hack</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="https://www.facebook.com/hhvm/" target="_blank">Facebook</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="https://twitter.com/HipHopVM" target="_blank">Twitter</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://webchat.freenode.net/?channels=hhvm" target="_blank">IRC</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://hhvm.h4cc.de/" target="_blank">模块支持</a>
+      </li>
+      
+      
+    </ul>
+  </nav>
+</div>
+<script>
+  var event = document.createEvent('Event');
+  event.initEvent('slide', true, true);
+  document.addEventListener('slide', function (e) {
+    document.body.classList.toggle('sliderActive');
+  }, false);
+  var headerNav = document.getElementById('header_nav');
+  var headerNavExpander = document.getElementById('header_nav_expander');
+  headerNavExpander.addEventListener('click', function(e) {
+    headerNav.classList.toggle('navSlideoutActive');
+    document.dispatchEvent(event);
+  }, false);
+</script>
+      </div>
+    </header>
+  </div>
+</div>
+
+    <div class="navPusher">
+      <div class="docMainWrapper wrapper">
+      <div class="docsNavContainer">
+  <nav class="toc" id="doc_nav">
+    <div class="toggleNav" id="collection_nav">
+      <section class="navWrapper wrapper">
+        <div class="navBreadcrumb wrapper">
+          <div class="navToggle" id="collection_nav_toggler">
+            <i></i>
+          </div>
+          <h2>
+            <a href="/blog/">Blog</a>
+            
+          </h2>
+        </div>
+        <div class="navGroups">
+          
+            
+            
+            <div class="navGroup navGroupActive navGroupCurrent">
+  <h3><i>+</i><span>All Posts</span></h3>
+  <ul>
+    
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/05/04/hhvm-4.56.html">HHVM 4.56</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/30/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/29/hhvm-4.55.html">HHVM 4.55</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/21/hhvm-4.54.html">HHVM 4.54</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/13/hhvm-4.53.html">HHVM 4.53</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/07/hhvm-4.52.html">HHVM 4.52</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/31/hhvm-4.51.html">HHVM 4.51</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/24/hhvm-4.50.html">HHVM 4.50</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/18/hhvm-4.49.html">HHVM 4.49</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/09/hhvm-4.48.html">HHVM 4.48</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/03/hhvm-4.47.html">HHVM 4.47</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/24/hhvm-4.46.html">HHVM 4.46</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/20/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/19/hhvm-4.45.html">HHVM 4.45</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/10/hhvm-4.44.html">HHVM 4.44</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/03/hhvm-4.43.html">HHVM 4.43</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/27/hhvm-4.42.html">HHVM 4.42</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/21/hhvm-4.41.html">HHVM 4.41</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/13/hhvm-4.40.html">HHVM 4.40</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/07/hhvm-4.39.html">HHVM 4.39</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/02/hhvm-4.38.html">HHVM 4.38</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/17/cancelling-hhvm-4.37.html">Holiday schedule: cancelling HHVM 4.37</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/16/hhvm-4.36.html">HHVM 4.36</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/10/hhvm-4.35.html">HHVM 4.35</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/02/hhvm-4.34.html">HHVM 4.34</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/25/hhvm-4.33.html">HHVM 4.33</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/19/hhvm-4.32.html">HHVM 4.32 (LTS)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/19/distribution-support.html">Support lifecycle for older distributions</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/11/hhvm-4.31.html">HHVM 4.31.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/06/hhvm-4.30.html">HHVM 4.30.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/29/hhvm-4.29.html">HHVM 4.29.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/28/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/23/hhvm-4.28.html">HHVM 4.28</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/14/hhvm-4.27.0.html">HHVM 4.27.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/09/hhvm-4.26.0.html">HHVM 4.26.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/01/deprecating-references.html">Deprecating &$references</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/30/hhvm-4.25.0.html">HHVM 4.25.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/25/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/23/hhvm-4.24.0.html">HHVM 4.24.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/17/hhvm-4.23.0.html">HHVM 4.23.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/09/hhvm-4.22.0.html">HHVM 4.22.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/03/the-hhvm-4.21.0.html">HHVM 4.21.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/03/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/27/hhvm-4.20.0.html">HHVM 4.20.0 and 4.20.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/19/hhvm-4.19.0.html">HHVM 4.19.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/14/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/12/hhvm-4.18.0.html">HHVM 4.18.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/07/bugfixes.html">Bugfixes for 3.30, 4.8, and 4.12-17</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/05/hhvm-4.17.0.html">HHVM 4.17.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/29/hhvm-4.16.0.html">HHVM 4.16.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/22/hhvm-4.15.0.html">HHVM 4.15.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/15/hhvm-4.14.0.html">HHVM 4.14.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/09/hhvm-4.13.0.html">HHVM 4.13.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/01/hhvm-4.12.0.html">HHVM 4.12.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/24/hhvm-4.11.0.html">HHVM 4.11.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/18/hhvm-4.10.0.html">HHVM 4.10.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/13/hhvm-4.9.1.html">HHVM 4.9.1, repository changes</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/10/hhvm-4.9.0.html">HHVM 4.9.0, and security updates for 3.30, and 4.3-4.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/03/hhvm-4.8.0.html">HHVM 4.8.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/28/hhvm-4.7.0.html">HHVM 4.7.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/21/hhvm-4.6.0.html">HHVM 4.6.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/13/hhvm-4.5.0.html">HHVM 4.5.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/06/hhvm-4.4.0.html">HHVM 4.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/30/hhvm-4.3.0.html">HHVM 4.3.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/23/hhvm-4.2.0.html">HHVM 4.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/09/hhvm-4.1.0.html">HHVM 4.1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/03/hhvm-4.0.4.html">HHVM 4.0.4, 3.30.5, and 3.27.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/28/hhvm-4.0.3.html">HHVM 4.0.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/19/hhvm-4.0.2.html">HHVM 4.0.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/14/hhvm-4.0.1.html">HHVM 4.0.1, 3.30.4, and 3.27.7: CVE-2019-3552</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/11/hhvm-4.0.0.html">HHVM 4.0.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/01/hhvm-3.30.3.html">HHVM 3.30.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/01/14/hhvm-3.30.2.html">HHVM 3.30.2 and 3.27.6</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/12/18/hhvm-3.30.1.html">HHVM 3.30.1 and 3.27.5</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/12/17/hhvm-3.30.html">HHVM 3.30</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/30/hhvm-3.29.1.html">HHVM 3.29.1 and 3.27.4</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/22/hhvm-3.29.html">HHVM 3.29</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/01/hhvm-3.28.3.html">HHVM 3.28.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/28/hhvm-3.28.2.html">HHVM 3.28.2 and 3.27.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/26/introducing-hacktest.html">Introducing HackTest</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/12/end-of-php-support-future-of-hack.html">Ending PHP Support, and The Future Of Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/30/hhvm-3.28.1.html">HHVM 3.28.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/28/hhvm-3.28.0.html">HHVM 3.28.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/15/hhvm-3.27.2.html">HHVM 3.27.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/07/19/hhvm-3.27.1.html">HHVM 3.27.1 and 3.24.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/06/18/hhvm-3.27.0.html">HHVM 3.27.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/24/hhvm-3.26.3.html">HHVM 3.26.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/15/hhvm-3.26.2.html">HHVM 3.26.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/11/hhvm-3.26.1.html">HHVM 3.26.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/07/hhvm-3.26.html">HHVM 3.26 - Introducing HackC</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/04/hhvm-3.25.3.html">HHVM 3.25.3, HHVM 3.24.7, and 3.21.11</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/04/11/relicensing-hack.html">Relicensing Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/30/hhvm-3.25.2.html">HHVM 3.25.2, HHVM 3.24.6, and 3.21.10 (CVE-2018-6334)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/22/hhvm-3.25.1.html">HHVM 3.25.1, HHVM 3.24.5, and 3.21.9</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/15/hhvm-3.25.html">HHVM 3.25.0, 3.24.4, and 3.21.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/02/hhvm-3.24.3.html">HHVM 3.24.3 and 3.21.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/02/07/hhvm-3.24.2.html">HHVM 3.24.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/30/hhvm-3.24.1.html">HHVM 3.24.1, 3.21.6, and 3.18.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/16/hhvm-3.24.html">HHVM 3.24</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/12/hhvm-3.23.4.html">HHVM 3.23.4, 3.21.5, and 3.18.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/02/hhvm-3.23.3.html">HHVM 3.23.3, 3.21.4, and 3.18.6</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/11/17/hhvm-3-23.html">HHVM 3.23</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/11/14/gpg-key-migration.html">GPG Key Migration</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/10/26/the-hack-standard-library-1-0.html">The Hack Standard Library: v1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/09/26/hhvm-3-22.html">HHVM 3.22</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/09/18/the-future-of-hhvm.html">The Future of HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/08/02/hhvm-3-21.html">HHVM 3.21</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/06/07/hhvm-3-20.html">HHVM 3.20</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/04/13/hhvm-3-19.html">HHVM 3.19</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/03/23/concurrent-jit-compilation.html">Concurrent JIT Compilation</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/03/09/how-the-cyber-elephant-got-his-arm.html">How the Cyber-Elephant Got His ARM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/02/17/region-jit.html">HHVM's Profile-guided Region JIT</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/02/15/hhvm-3-18.html">HHVM 3.18</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/01/26/new-year-new-me.html">New Year, New Me</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/11711/hhvm-3-15">HHVM 3.15</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10925/improved-user-documentation">Improved User Documentation</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10859/php-7-support">PHP 7 Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10649/improving-arrays-in-hack">Improving Arrays in Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10205/llvm-code-generation-in-hhvm">LLVM Code Generation in HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10379/hhvm-3-10-0">HHVM 3.10.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10043/experimental-mac-os-x-support">Experimental Mac OS X Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9995/hhvm-3-9-0">HHVM 3.9.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9803/hhvm-3-8-0">HHVM 3.8.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9773/cve-2015-4663">CVE-2015-4663</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9581/trait-and-interface-requirements-in-hack">Trait and interface requirements in Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9293/lockdown-results-and-hhvm-performance">Lockdown Results and HHVM Performance</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9215/covariance-contravariance-and-super-type-constraints">Covariance, Contravariance, and super Type Constraints</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9089/hhvm-lockdown">HHVM Lockdown</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9059/hhvm-3-7-0">HHVM 3.7.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8981/announcing-our-book-hack-hhvm">Announcing our book: “Hack & HHVM”</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8939/etsys-transition-to-hhvm">Etsy's Transition to HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8849/hhvm-3-6-0">HHVM 3.6.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8537/announcing-a-specification-for-hack">Announcing a Specification for Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8405/coming-soon-in-hhvm">Coming Soon in HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7637/hhvm-3-5-0">HHVM 3.5.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7205/wikipedia-on-hhvm">Wikipedia on HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7349/lts-updates">LTS Updates</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7091/async-cooperative-multitasking-for-hack">Async - Cooperative Multitasking for Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6989/wp-engine-and-box-now-use-hhvm">WP Engine and Box now use HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6899/hhvm-3-4-0">HHVM 3.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6863/announcing-the-hack-transpiler">Announcing the Hack Transpiler</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6473/hack-overriding-constructors-new-static-and-__consistentconstruct">Hack: Overriding Constructors, "new static", and __ConsistentConstruct</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6767/hhvm-3-3-1">HHVM 3.3.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6515/using-xhp-with-bootstrap">Using XHP with Bootstrap</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6443/hack-recent-updates">Hack: Recent Updates</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6323/the-journey-of-a-thousand-bytecodes">The Journey of a Thousand Bytecodes</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6239/hhvm-3-3-0">HHVM 3.3.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6083/hhvm-long-term-support">HHVM Long Term Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6005/hack-community-roundup-3">Hack Community Roundup #3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5723/announcing-a-specification-for-php">Announcing a specification for PHP</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5609/hhvm-3-2-0">HHVM 3.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5399/faster-github-commits">Faster GitHub Commits</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5429/hack-community-roundup-2">Hack Community Roundup #2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5195/hhvm-3-1-0">HHVM 3.1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4811/hack-community-roundup">Hack Community Roundup</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4841/compatibility-update">Compatibility Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4685/hack-developer-day-2014-keep-hacking">Hack Developer Day 2014: Keep Hacking</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4601/debug-packages">Debug Packages</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4349/hhvm-3-0-0">HHVM 3.0.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4325/hacking-hack-on-heroku">Hacking Hack on Heroku</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4223/introducing-hack-a-programming-language-for-hhvm">Introducing Hack - A Programming Language for HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4103/hhvm-2-4-2">HHVM 2.4.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3611/tracking-parity">Tracking Parity</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3689/implementing-mysqli">Implementing MySQLi</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3743/hhvm-the-next-six-months">HHVM: The Next Six Months</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3287/hhvm-2-4-0">HHVM 2.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3203/nightly-packages">Nightly Packages</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2813/we-are-the-98-5-and-the-16">We are the 98.5% (and the 16%)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1817/fastercgi-with-hhvm">FasterCGI with HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2393/hhvm-2-3-0-and-travis-ci">HHVM 2.3.0 and Travis CI</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2027/faster-and-cheaper-the-evolution-of-the-hhvm-jit">Faster and Cheaper: The Evolution of the hhvm JIT</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1499/locking-down-for-performance-and-parity">Locking Down for Performance and Parity </a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1379/hhvm-on-heroku">HHVM on Heroku</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1301/hhvm-2-2-0">HHVM 2.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/875/wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code">Wow HHVM is fast...too bad it doesn’t run my code</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/713/hhvm-optimization-tips">HHVM Optimization Tips</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/575/joining-retirement-testing-and-bankruptcy">Joining, Retirement, Testing, and Bankruptcy</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/521/the-adminserver">The AdminServer</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/431/on-garbage-collection">On Garbage Collection</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/401/spammers-are-still-a-thing-it-seems">Spammers are still a thing, it seems</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/311/adding-an-opcode-to-hhbc">Adding an opcode to HHBC</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4061/go-faster">Go Faster!</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3095/getting-wordpress-running-on-hhvm">Getting WordPress running on HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3089/wordpress-3-4-2-running-on-hiphop-hhvm">WordPress 3.4.2 running on HHVM</a></li>
+
+      
+    
+  </ul>
+</div>
+          
+        </div>
+      </section>
+    </div>
+  </nav>
+</div>
+<script>
+  var docsevent = document.createEvent('Event');
+  docsevent.initEvent('docs_slide', true, true);
+  document.addEventListener('docs_slide', function (e) {
+    document.body.classList.toggle('docsSliderActive');
+  }, false);
+
+  var collectionNav = document.getElementById('collection_nav');
+  var collectionNavToggler = 
+    document.getElementById('collection_nav_toggler');
+  collectionNavToggler.addEventListener('click', function(e) {
+    collectionNav.classList.toggle('toggleNavActive');
+    document.dispatchEvent(docsevent);
+  });
+
+  var groups = document.getElementsByClassName('navGroup');
+  for(var i = 0; i < groups.length; i++) {
+    var thisGroup = groups[i];
+    thisGroup.onclick = function() {
+      for(var j = 0; j < groups.length; j++) {
+        var group = groups[j];
+        group.classList.remove('navGroupActive');
+      }
+      this.classList.add('navGroupActive');
+    }
+  }
+</script>
+
+
+      <div class="mainContainer blogContainer postContainer">
+  <div id="main_wrap" class="wrapper mainWrapper">
+    <div class="lonePost">
+<div class="post">
+  
+  <header class="post-header">
+    
+    <div class="authorPhoto">
+      <img src="https://graph.facebook.com/218471/picture/" alt="" title="" />
+    </div>
+    
+    
+    <p class="post-authorName">Paul Tarjan</p>
+    
+    <h1 class="post-title">HHVM 2.2.0</h1>
+    <p class="post-meta">Posted October 18, 2013</p>
+  </header>
+
+  <article class="post-content">
+  
+    <p>We released a new version of HHVM today. A big change is that we are now packaging for many of the popular distros.</p>
+
+<!--truncate-->
+
+<ul>
+  <li>
+    <p><a href="https://github.com/facebook/hhvm/wiki/Prebuilt-Packages-on-Ubuntu-12.04">Ubuntu 12.04</a> / <a href="https://github.com/facebook/hhvm/wiki/Prebuilt-Packages-on-Ubuntu-13.04">13.04</a> / <a href="https://github.com/facebook/hhvm/wiki/Prebuilt-Packages-on-Ubuntu-13.10">13.10</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/facebook/hhvm/wiki/Prebuilt-Packages-on-Mint-15">Mint 15</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/facebook/hhvm/wiki/Prebuilt-Packages-on-Debian-7">Debian 7</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/facebook/hhvm/wiki/Prebuilt-Packages-on-Fedora-19">Fedora 19</a></p>
+  </li>
+</ul>
+
+<p>If your favorite one isn’t there, leave a comment and we’ll try to add it. Or if you want to become the packager for that distro, great! Bundle it up and then update the <a href="https://github.com/facebook/hhvm/wiki#installing-pre-built-packages-for-hhvm">wiki</a>.</p>
+
+<p>The new packages have their files moved around a bit. Everything is now named <strong>hhvm</strong> in there, so if your scripts relied on anything named <strong>hiphop-php</strong> please update them.</p>
+
+<p>This release was a 17% CPU reduction for running facebook.com compared to HHVM 2.1.0. It also supports many <a href="http://www.hhvm.com/blog/875/wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code">more frameworks out of the box</a> like Symfony, CodeIgniter, Laravel, and many more.</p>
+
+<p>Some big changes you might notice are</p>
+
+<ul>
+  <li>
+    <p>Reading .phar files works</p>
+  </li>
+  <li>
+    <p>Redis support</p>
+  </li>
+  <li>
+    <p>php.ini support</p>
+  </li>
+  <li>
+    <p>Many new SPL classes were added and fixed</p>
+  </li>
+  <li>
+    <p>ArrayObject and ArrayIterator had some bugs fixed</p>
+  </li>
+  <li>
+    <p>Many fixes to shutdown handlers and autoload handlers</p>
+  </li>
+  <li>
+    <p>Jemalloc is now the default memory allocator</p>
+  </li>
+</ul>
+
+<p>Here is the full HHVM 2.2.0 Changelog for your enjoyment:</p>
+
+<ul>
+  <li>
+    <p>Fixed issue that caused memory_get_usage to report double the actual usage.</p>
+  </li>
+  <li>
+    <p>Direct invocation of callable arrays: $f = [$cls_or_instance, ‘method’]; $f()</p>
+  </li>
+  <li>
+    <p>ASAN clean</p>
+  </li>
+  <li>
+    <p>Support dynamically loadable extensions</p>
+  </li>
+  <li>
+    <p>Support loading mini-systemlibs from extensions</p>
+  </li>
+  <li>
+    <p>Fix issues with <code class="highlighter-rouge">__toString()</code> functions that return non-string values</p>
+  </li>
+  <li>
+    <p>Smarter memory allocation and scheduling for NUMA systems</p>
+  </li>
+  <li>
+    <p>Improve profiler performance in the jit</p>
+  </li>
+  <li>
+    <p>Fix several Zend compatibility issues</p>
+  </li>
+  <li>
+    <p>Fix several bugs uncovered by ASAN</p>
+  </li>
+  <li>
+    <p>Add collection support to array_keys, array_values, and array_combine</p>
+  </li>
+  <li>
+    <p>Return a set-like array from Set::toArray</p>
+  </li>
+  <li>
+    <p>Add <code class="highlighter-rouge">to(Vector|Map|StableMap|Set)</code> methods to collections</p>
+  </li>
+  <li>
+    <p>Collections convert to boolean false when empty</p>
+  </li>
+  <li>
+    <p>get_class_vars invokes the autoloader when necessary</p>
+  </li>
+  <li>
+    <p>Rework the Zend compatibility layer to be more robust</p>
+  </li>
+  <li>
+    <p>Allow traits to implement interfaces</p>
+  </li>
+  <li>
+    <p>Support arbitrary expressions inside empty()</p>
+  </li>
+  <li>
+    <p>HNI (HipHop Native Interface) for calling C++ functions from Php</p>
+  </li>
+  <li>
+    <p>Fix PropertyAccessorMap::isset</p>
+  </li>
+  <li>
+    <p>Expose more POSIX constants</p>
+  </li>
+  <li>
+    <p>Fixed behavior of stream_get_contents when default args are used.</p>
+  </li>
+  <li>
+    <p>Implement str_getcsv, and fix some fgetcsv related issues.</p>
+  </li>
+  <li>
+    <p>[IPv6] Fix stream_socket_recvfrom &amp; stream_socket_sendto.</p>
+  </li>
+  <li>
+    <p>[IPv6] Fix socket_sentto_recvfrom_ipv6_udp Zend compatibility.</p>
+  </li>
+  <li>
+    <p>Optimize closure invocation and <code class="highlighter-rouge">__invoke</code> (~3x faster to invoke)</p>
+  </li>
+  <li>
+    <p>string and object allocation optimizations (reduced memory usage for both)</p>
+  </li>
+  <li>
+    <p>Fix order of custom attributes and visibility in ctor arg promotion</p>
+  </li>
+  <li>
+    <p>Implement CachingIterator</p>
+  </li>
+  <li>
+    <p>Implement RecursiveCachingIterator</p>
+  </li>
+  <li>
+    <p>Generalized heuristic for choosing when to inline in the jit</p>
+  </li>
+  <li>
+    <p>Introduced a Zend compatibility layer to compile extensions</p>
+  </li>
+  <li>
+    <p>Use gcc-4.8.1 by default</p>
+  </li>
+  <li>
+    <p>Improve hhvm commandline parsing logic</p>
+  </li>
+  <li>
+    <p>Fix register_shutdown in session_set_save_handler to match PHP 5.4</p>
+  </li>
+  <li>
+    <p>Add “native” functions for use in Systemlib</p>
+  </li>
+  <li>
+    <p>PHP extension source-compatitblility layer</p>
+  </li>
+  <li>
+    <p>Fix ArrayIterator constructor PHP compatibility</p>
+  </li>
+  <li>
+    <p>Enable building against libmemcached 1.0.8</p>
+  </li>
+  <li>
+    <p>Debugger: $_ not cleared but still printed after exception</p>
+  </li>
+  <li>
+    <p>Fix clone of SplPriorityQueue</p>
+  </li>
+  <li>
+    <p>Debugger: Fix bugs when multiple threads hit the same breakpoint</p>
+  </li>
+  <li>
+    <p>Fix several namespace bugs</p>
+  </li>
+  <li>
+    <p>Several PHP compatibility fixes for ArrayObject and ArrayIterator</p>
+  </li>
+  <li>
+    <p>Fix list assignment with collection literals</p>
+  </li>
+  <li>
+    <p>HHVM should compile with libmemcached 1.0.9+</p>
+  </li>
+  <li>
+    <p>Support “(new Vector {..})-&gt;method()” style syntax</p>
+  </li>
+  <li>
+    <p>use trigger_error in PHP for Redis user errors</p>
+  </li>
+  <li>
+    <p>multiple simplexml fixes</p>
+  </li>
+  <li>
+    <p>fixed serialize/unserialize for SplObjectStorage</p>
+  </li>
+  <li>
+    <p>Implement ReflectionParameter::IsCallable()</p>
+  </li>
+  <li>
+    <p>Async stack traces in the debugger via the “wa” command</p>
+  </li>
+  <li>
+    <p>Fix late static binding in static closures</p>
+  </li>
+  <li>
+    <p>Fix breakpoints on generators</p>
+  </li>
+  <li>
+    <p>Add SplObserver and SplSubject interfaces</p>
+  </li>
+  <li>
+    <p>Update Iterable interface and add toArray() method</p>
+  </li>
+  <li>
+    <p>Allow <code class="highlighter-rouge">__get</code> for undefined properties</p>
+  </li>
+  <li>
+    <p>Implement get_included_files()</p>
+  </li>
+  <li>
+    <p>Limit use of huge pages</p>
+  </li>
+  <li>
+    <p>Implement stream_is_local</p>
+  </li>
+  <li>
+    <p>Implement read support for .phar</p>
+  </li>
+  <li>
+    <p>Implement assert with string arguments</p>
+  </li>
+  <li>
+    <p>Implement RecursiveArrayIterator</p>
+  </li>
+  <li>
+    <p>Implement php_strip_whitespace()</p>
+  </li>
+  <li>
+    <p>Support for timeouts in cli mode</p>
+  </li>
+  <li>
+    <p>Closure allocation optimizations (~2x faster to allocate a closure)</p>
+  </li>
+  <li>
+    <p>Implement Redis session handler</p>
+  </li>
+  <li>
+    <p>New memory profiler, hhprof, with pprof compatible output</p>
+  </li>
+  <li>
+    <p>Update isset($string[$k]) and empty($string[$k) to PHP 5.5 semantics</p>
+  </li>
+  <li>
+    <p>Fixed a few parser bugs</p>
+  </li>
+  <li>
+    <p>Fixed a few bugs with <code class="highlighter-rouge">token_get_all()</code></p>
+  </li>
+  <li>
+    <p>Fix (string)$obj semantics when <code class="highlighter-rouge">__toString()</code> is not defined</p>
+  </li>
+  <li>
+    <p>Optimize vector-shaped Arrays (arrays with keys in range 0..size-1)</p>
+  </li>
+  <li>
+    <p>Enable HHBC by default in debug builds</p>
+  </li>
+  <li>
+    <p>Implement SplObjectStorage::getInfo()</p>
+  </li>
+  <li>
+    <p>Initial rough draft of xhpast2, a replacement for xhpast</p>
+  </li>
+  <li>
+    <p>fix compilation on Ubuntu 13.04</p>
+  </li>
+  <li>
+    <p>OSX changes, next round</p>
+  </li>
+  <li>
+    <p>Modify PHP’s <code class="highlighter-rouge">ext/standard/math/tests/(pow | abs).phpt</code> to be HHVM friendly</p>
+  </li>
+  <li>
+    <p>add XHP comment syntax based on http://www.w3.org/TR/REC-xml/#sec-comments</p>
+  </li>
+</ul>
+
+    
+      
+      
+        
+          <h3> Comments </h3>
+          <br/>
+          <ul>
+          
+        
+        <li><b>Nick</b>: Can you define what "many many more" means?  Do all of the frameworks from the previous post now work?</li>
+      
+        
+        <li><b>John</b>: CentOS too please!</li>
+      
+        
+        <li><b>James</b>: Since the previous Arch package on the AUR was out-of-date, I've made a new one that should work perfectly here: https:&#47;&#47;aur.archlinux.org&#47;packages&#47;hhvm&#47;</li>
+      
+        
+        <li><b>KroKite</b>: When will it start supporting ` mysqli `. I am curious. 
+Does `2.2.0` supports centos 6+ too.. :)
+
+17%  CPU usage reduction is kool :)</li>
+      
+        
+        <li><b>Jan Safranek</b>: Hello, please port it for FreeBSD! :) Thank You</li>
+      
+        
+        <li><b>Andy Grunwald</b>: Hey,
+
+thanks for this! Is FreeBSD support planned for 2.2.0 ?
+In the github wiki there is a page for this: https:&#47;&#47;github.com&#47;facebook&#47;hhvm&#47;wiki&#47;Building-and-installing-HHVM-on-FreeBSD-from-ports
+But sadly only the 2.1.0 port is available.
+
+Thx for feedback!</li>
+      
+        
+        <li><b>Paul Tarjan</b>: Awesome, thank you. Can you update the wiki to point to yours?</li>
+      
+        
+        <li><b>euskadi31</b>: Can you add Gentoo ?</li>
+      
+        
+        <li><b>David</b>: Thanks. Could you also package for openSUSE, please?</li>
+      
+        
+        <li><b>Lucas Costa</b>: Thaaaaaaaaaaank yoooooou!</li>
+      
+        
+        <li><b>Brian</b>: Another vote for Centos!</li>
+      
+        
+        <li><b>Mickey Mouse</b>: Thanks for your hard work, guys!
+
+I don't know about the plans, but I see a real possibility of this replacing the PHPimplementation we have today, if you call it that since there's no spec.
+
+I would most definitely move all my productions sites to the HHVM if that happened. Only thing I would like to have is better integrated testing tools or I don't know, its just too boring to test on PHP today, compared to ruby and python.</li>
+      
+        
+        <li><b>Jabbon</b>: Centos 6.x plz!!!!!!</li>
+      
+        
+        <li><b>Paul Tarjan</b>: There are instructions here that looked pretty complicated: https:&#47;&#47;github.com&#47;facebook&#47;hhvm&#47;wiki&#47;Building-and-Installing-on-FreeBSD-8.2 Can you take a look and see if they are up to date and fix them if they are not, then I can package it next time.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: Yes, mysqli is on the near-term roadmap. A few months is my guess. I would love a pull request for it if you need it faster :)
+
+As for CentOS 6 I tried to follow these instructions https:&#47;&#47;github.com&#47;facebook&#47;hhvm&#47;wiki&#47;Building-and-installing-HHVM-on-CentOS-6.4 and libmemcached wouldn't even compile so I didn't continue. Can you update the instructions and I can package it next time then?</li>
+      
+        
+        <li><b>Paul Tarjan</b>: I'm not an active FreeBSD user but if you want to update the package, please do and edit the wiki accordingly.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: A member of the community just added https:&#47;&#47;github.com&#47;javer&#47;gentoo-overlay&#47;tree&#47;master&#47;dev-php&#47;hhvm . I'm not sure if it works, but please try it out and fix anything that is broken.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: I tried but I'm not very familiar with that distro. Can you make a wiki page on how to compile it on openSUSE? Then I'll add a package next release.</li>
+      
+        
+        <li><b>Drew Paroski</b>: Click on the link (http:&#47;&#47;www.hhvm.com&#47;blog&#47;875&#47;wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code) for more details on which frameworks work on HHVM at present.</li>
+      
+        
+        <li><b>dandecoded</b>: Yessss!!! Thank you HHVM!</li>
+      
+        
+        <li><b>Naresh</b>: centos 6.x version is available at http:&#47;&#47;nareshv.blogspot.in&#47;2013&#47;10&#47;install-hhvm-220-final-release-on.html</li>
+      
+        
+        <li><b>Tomsilav</b>: Good job and another vote for CentOS. 
+
+We are planning to start testing and adjusting our internal PHP framework to run under HHVM, so another tester is joining soon :)
+
+Btw, does HHVM have (or is it planned) support for async HTTP&#47;Websockets - allowing us to implement handlers for "realtime web apps"? 
+
+again, good job</li>
+      
+        
+        <li><b>Rob</b>: I noticed you added support for redis sessions. Is there anyway I can use memcache as a session handler?</li>
+      
+        
+        <li><b>Aleksey</b>: Windows?
+
+--
+OpenSUSE nice too :)</li>
+      
+        
+        <li><b>Paul Tarjan</b>: can you update https:&#47;&#47;github.com&#47;facebook&#47;hhvm&#47;wiki&#47;HHVM-Pre-built-packages-for-Centos-6.4 please?</li>
+      
+        
+        <li><b>Paul Tarjan</b>: Not right now, but if you sent us a pull request, we would happily take it.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: Thanks. Let us know any bugs you run into.
+
+For async, is there a PHP equivalent? Cursory googling just shows some frameworks that probably work already. Please try them and report back.</li>
+      
+        
+        <li><b>David</b>: There already is a wiki about compiling on openSUSE.
+
+http:&#47;&#47;en.opensuse.org&#47;SDB:Compiling_software</li>
+      
+        
+        <li><b>Adrian Luca</b>: Tested HHVM on TurnkeyLinux 13 (Debian 7)  &#47;  Virtualbox 1GB RAM and it works very nice. 
+
+<code>  hhvm -m server -c &#47;etc&#47;hhvm&#47;config.hdf <&#47;code> 
+(I had to specify the config file manually because it doesn't read the default in etc)
+
+It should be mentioned somewhere that it actually needs 1.2GB of RAM for the server to startup.(I used a swap file)
+
+The scope was testing drupal 7, drupal 8 alpha4 so:
+
+- D7 installed smooth but:
+ -- cannot create &#47; upload files 
+ -- no php-gd (i think) and cannot acces the admin page to switch to imagemagick. 
+ -- no clean urls for now
+
+- D8 installed in minimal mode, with errors and cannot acces the admin or frontpage.
+
+Thank you for your effort and sharing :)  .</li>
+      
+        
+        <li><b>Gabriel</b>: Is ZF2 now supported? I see the <a href="https:&#47;&#47;github.com&#47;facebook&#47;hhvm&#47;wiki&#47;Extensions" title="wiki" rel="nofollow">wiki<&#47;a> says that the intl package is now available for hhvm.</li>
+      
+        
+        <li><b>slashrsm</b>: Are custom stream wrappers already supported in HHVM? I remember that they were not ~8 months ago but couldn't find out if they are now.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: Yup. Enjoy.</li>
+      
+        
+        <li><b>Joshua Katz</b>: Now that this update is recommended I will now give this a test. Does anyone know how to run HHVM as a service so I can easily manage my web server?</li>
+      
+        
+        <li><b>Louie</b>: I tried Laravel 4, I got to the application itself but somehow, routes doesn't work... I don't know why.. and also I had to manually enter index.php instead of the hhvm pointing it to index.php by default...
+
+I tried
+Route::get('users',function(){
+   return "Point to controller when its done!!";
+});
+
+Anyone who can shed some light?</li>
+      
+        
+        <li><b>Lucas Costa</b>: Paul (or anyone else) help me! I'm trying to run gettext on HHVM, like stated in the changelog, but I'm getting "Undefined function" for gettext() an _(). 
+
+Thanks in advance!</li>
+      
+        
+        <li><b>Lucas Costa</b>: Sean Cannella on GitHub:
+That is a mistake in the changelog. gettext is being run via the experimental Zend compatibility layer that can run PHP extensions built for Zend as-is which is still, as the name suggests, experimental.
+
+Paul Tarjan on GitHub:
+Sorry, this is still being worked on and isn't available for use. Changelog updated.</li>
+      
+        
+        <li><b>qianzhihe</b>: hi, could you please share this wordpress theme?
+we just wanna to build a chinese hhvm documents site, and help the people who is not good at english can learn hhvm easily.
+	
+thanks.</li>
+      
+        
+        <li><b>Thomas</b>: Hey,
+
+can anyone point me to the key used for signing the Ubuntu-packages?
+Thanks in advance!</li>
+      
+        
+        <li><b>Webprogramming.ws &raquo; Blog Archive &raquo; HHVM 2.2.0 &laquo; HipHop Virtual Machine</b>: [&#8230;] http:&#47;&#47;www.hhvm.com&#47;blog&#47;1301&#47;hhvm-2-2-0 [&#8230;]</li>
+      
+        
+        <li><b>wwbmmm</b>: When will Zend compatibility layer be available? It is very useful for us.</li>
+      
+        
+        <li><b>Alex</b>: I have 2 questions:
+
+1.Does HHVM produce a value for boolean false.On true PHP  returns 1 but on false doesn't show nothing.
+2.Does HHVM works with PDO ?
+
+Thank you !</li>
+      
+        
+        <li><b>Paul Tarjan</b>: As soon as I'm confident it works. My metric is "take an existing extension, try to compile it, see how much has to change". If the amount of unimplemented functions is too high, I have to keep iterating.
+
+Right now, I'm trying to see if I can get our headers to have C linkage so you don't even have to do the C -> C++ conversion.
+
+If you want to try it out now, feel free to compile your code against the headers I have there and see what doens't link.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: 1) We match php.net's implementation
+2) Yes</li>
+      
+        
+        <li><b>Alex</b>: But in hack( strict type checker mode) what it returns for false value? 
+It is a pain on large scripts  PHP does not show something for boolean false.</li>
+      
+        
+        <li><b>iry</b>: centos is not supported by  the packager for that distro!!!</li>
+      
+        
+        <li><b>Mihail</b>: Also need Centos 6.</li>
+      
+        
+        <li><b>carlos</b>: happened with mysqli, for when will be?</li>
+      
+        
+        <li><b>Aniruddh Singh</b>: Is there an oci8 (Oracle) extension for hhvm?</li>
+      
+        
+        <li><b>Rohit</b>: Can you please provide HHVM for fedora 14 ?</li>
+      
+        
+        <li><b>Dima</b>: Vote for CentOS 6.5!</li>
+      
+        
+        <li><b>patlecat</b>: I need Hack&#47;HHVM for openSUSE with the Yii-Framework! And Windows would be nice for development.</li>
+      
+        
+        <li><b>Jinank</b>: I need Hack&#47;HHVM for openSUSE 13.1 too.</li>
+      
+        
+        <li><b>HHVM 2.2.0 mit neuen Paketquellen f&uuml;r wichtige Linux-Distributionen - entwickler.de</b>: [&#8230;] in Version 2.2.0, sowie das Changelog, in dem alle Ver&auml;nderungen aufgelistet werden findet Ihr in der offiziellen Ank&uuml;ngigung. Zum Download geht es unter folgendem Link. F&uuml;r die Pre Built Packages m&uuml;sst Ihr eine Paketquelle [&#8230;]</li>
+      
+      
+        </ul>
+        <br/>
+      
+    
+  
+  
+    <div class="fb-like pluginWrapper likeButtonWrapper" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
+<script>
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '1615782811974223',
+    xfbml      : true,
+    version    : 'v2.3'
+  });
+  };
+
+  (function(d, s, id){
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "//connect.facebook.net/en_US/sdk.js";
+   fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+    <div class="pluginWrapper twitterSharePlugin">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-hashtags="HHVM">Tweet</a>
+</div>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  
+  </article>
+</div>
+
+</div>
+  </div>
+</div>
+
+
+      </div>
+      <div class="footerContainer">
+  <div id="footer_wrap" class="wrapper footerWrapper">
+    <div class="footerBlocks">
+      <div id="fb_oss" class="footerSection fbOpenSourceFooter">
+          <svg class="facebookOSSLogoSvg" viewBox="0 0 1133.9 1133.9" x="0px" y="0px">
+            <g>
+              <path class="logoRing outerRing" d="M 498.3 3.7 c 153.6 88.9 307.3 177.7 461.1 266.2 c 7.6 4.4 10.3 9.1 10.3 17.8 c -0.3 179.1 -0.2 358.3 0 537.4 c 0 8.1 -2.4 12.8 -9.7 17.1 c -154.5 88.9 -308.8 178.1 -462.9 267.5 c -9 5.2 -15.5 5.3 -24.6 0.1 c -153.9 -89.2 -307.9 -178 -462.1 -266.8 C 3 838.8 0 833.9 0 825.1 c 0.3 -179.1 0.2 -358.3 0 -537.4 c 0 -8.6 2.6 -13.6 10.2 -18 C 164.4 180.9 318.4 92 472.4 3 C 477 -1.5 494.3 -0.7 498.3 3.7 Z M 48.8 555.3 c 0 79.9 0.2 159.9 -0.2 239.8 c -0.1 10 3 15.6 11.7 20.6 c 137.2 78.8 274.2 157.8 411 237.3 c 9.9 5.7 17 5.7 26.8 0.1 c 137.5 -79.8 275.2 -159.2 412.9 -238.5 c 7.4 -4.3 10.5 -8.9 10.5 -17.8 c -0.3 -160.2 -0.3 -320.5 0 -480.7 c 0 -8.8 -2.8 -13.6 -10.3 -18 C 772.1 218 633.1 137.8 494.2 57.4 c -6.5 -3.8 -11.5 -4.5 -18.5 -0.5 C 336.8 137.4 197.9 217.7 58.8 297.7 c -7.7 4.4 -10.2 9.2 -10.2 17.9 C 48.9 395.5 48.8 475.4 48.8 555.3 Z" />
+              <path class="logoRing middleRing" d="M 184.4 555.9 c 0 -33.3 -1 -66.7 0.3 -100 c 1.9 -48 24.1 -86 64.7 -110.9 c 54.8 -33.6 110.7 -65.5 167 -96.6 c 45.7 -25.2 92.9 -24.7 138.6 1 c 54.4 30.6 108.7 61.5 162.2 93.7 c 44 26.5 67.3 66.8 68 118.4 c 0.9 63.2 0.9 126.5 0 189.7 c -0.7 50.6 -23.4 90.7 -66.6 116.9 c -55 33.4 -110.8 65.4 -167.1 96.5 c -43.4 24 -89 24.2 -132.3 0.5 c -57.5 -31.3 -114.2 -64 -170 -98.3 c -41 -25.1 -62.9 -63.7 -64.5 -112.2 C 183.5 621.9 184.3 588.9 184.4 555.9 Z M 232.9 556.3 c 0 29.5 0.5 59.1 -0.1 88.6 c -0.8 39.2 16.9 67.1 50.2 86.2 c 51.2 29.4 102.2 59.2 153.4 88.4 c 31.4 17.9 63.6 18.3 95 0.6 c 53.7 -30.3 107.1 -61.2 160.3 -92.5 c 29.7 -17.5 45 -44.5 45.3 -78.8 c 0.6 -61.7 0.5 -123.5 0 -185.2 c -0.3 -34.4 -15.3 -61.5 -44.9 -79 C 637.7 352.6 583 320.8 527.9 290 c -27.5 -15.4 -57.2 -16.1 -84.7 -0.7 c -56.9 31.6 -113.4 64 -169.1 97.6 c -26.4 15.9 -40.7 41.3 -41.1 72.9 C 232.6 491.9 232.9 524.1 232.9 556.3 Z" />
+              <path class="logoRing innerRing" d="M 484.9 424.4 c 69.8 -2.8 133.2 57.8 132.6 132 C 617 630 558.5 688.7 484.9 689.1 c -75.1 0.4 -132.6 -63.6 -132.7 -132.7 C 352.1 485 413.4 421.5 484.9 424.4 Z M 401.3 556.7 c -3.4 37.2 30.5 83.6 83 84.1 c 46.6 0.4 84.8 -37.6 84.9 -84 c 0.1 -46.6 -37.2 -84.4 -84.2 -84.6 C 432.2 472.1 397.9 518.3 401.3 556.7 Z" />
+            </g>
+          </svg>
+        <h2>Facebook Open Source</h2>
+      </div>
+      <div class="footerSection">
+        <a class="footerLink" href="https://code.facebook.com/projects/" target="_blank">开源项目</a>
+        <a class="footerLink" href="https://github.com/facebook/" target="_blank">GitHub</a>
+        <a class="footerLink" href="https://twitter.com/fbOpenSource" target="_blank">Twitter</a>
+      </div>
+      <div class="footerSection rightAlign">
+        <a class="footerLink" href="https://github.com/hhvm-cn/hhvm-cn.com" target="_blank">帮助我们翻译</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49208336-2', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    </div>
+  </body>
+</html>

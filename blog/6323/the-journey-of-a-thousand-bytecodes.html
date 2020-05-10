@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:url" content="http://hhvm-cn.com/blog/6323/the-journey-of-a-thousand-bytecodes" />
+  <meta property="og:site_name" content="HHVM"/>
+  <meta property="og:title" content="The Journey of a Thousand Bytecodes" />
+  <meta property="og:image" content="http://hhvm-cn.com/static/og_image.png" />
+  <meta property="og:description" content="Compilers are fun.  They take nice, human readable languages like PHP or Hack and turn them into lean, mean, CPU executin’ turing machines.  Some of these ar..." />
+
+  <link rel="stylesheet" href="/css/main.css" media="screen">
+  <link rel="icon" href="/static/favicon.png" type="image/x-icon">
+  
+
+  <title>The Journey of a Thousand Bytecodes | HHVM</title>
+  <meta name="description" content="Compilers are fun.  They take nice, human readable languages like PHP or Hack and turn them into lean, mean, CPU executin’ turing machines.  Some of these ar...">
+
+  <link rel="canonical" href="http://hhvm-cn.com/blog/6323/the-journey-of-a-thousand-bytecodes">
+  <link rel="alternate" type="application/rss+xml" title="HHVM" href="http://hhvm-cn.com/feed.xml" />
+</head>
+
+  <body class="docsNavVisible">
+    <div id="fixed_header" class="fixedHeaderContainer visible">
+  <div class="headerWrapper wrapper">
+    <header>
+      <a href="http://hhvm-cn.com/">
+        <img src="/static/logo.svg">
+        <h2>HHVM</h2>
+      </a>
+
+      <div class="navigationWrapper navigationFull" id="flat_nav">
+        <nav class="navigation">
+          <ul>
+            
+              <li class="navItem">
+                
+                  <a href="https://docs.hhvm-cn.com/hhvm/getting-started/getting-started">安装</a>
+                
+              </li>
+            
+              <li class="navItem navItemActive">
+                
+                  <a href="/blog/">博客</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://docs.hhvm-cn.com/hhvm/">文档</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://github.com/facebook/hhvm">GitHub</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://hacklang-cn.org/">Hack</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="https://www.facebook.com/hhvm/">Facebook</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="https://twitter.com/HipHopVM">Twitter</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://webchat.freenode.net/?channels=hhvm">IRC</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://hhvm.h4cc.de/">模块支持</a>
+                
+              </li>
+            
+            
+          </ul>
+        </nav>
+      </div>
+      <div class="navigationWrapper navigationSlider" id="navigation_wrap">
+        <div id="header_nav">
+  <div class="navSlideout">
+    <i class="menuExpand" id="header_nav_expander"><span></span><span></span><span></span></i>
+  </div>
+  <nav class="slidingNav">
+    <ul>
+      
+      <li class="navItem">
+        <a href="https://docs.hhvm-cn.com/hhvm/getting-started/getting-started" target="_blank">安装</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="/blog/">博客</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://docs.hhvm-cn.com/hhvm/" target="_blank">文档</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://github.com/facebook/hhvm" target="_blank">GitHub</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://hacklang-cn.org/" target="_blank">Hack</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="https://www.facebook.com/hhvm/" target="_blank">Facebook</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="https://twitter.com/HipHopVM" target="_blank">Twitter</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://webchat.freenode.net/?channels=hhvm" target="_blank">IRC</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://hhvm.h4cc.de/" target="_blank">模块支持</a>
+      </li>
+      
+      
+    </ul>
+  </nav>
+</div>
+<script>
+  var event = document.createEvent('Event');
+  event.initEvent('slide', true, true);
+  document.addEventListener('slide', function (e) {
+    document.body.classList.toggle('sliderActive');
+  }, false);
+  var headerNav = document.getElementById('header_nav');
+  var headerNavExpander = document.getElementById('header_nav_expander');
+  headerNavExpander.addEventListener('click', function(e) {
+    headerNav.classList.toggle('navSlideoutActive');
+    document.dispatchEvent(event);
+  }, false);
+</script>
+      </div>
+    </header>
+  </div>
+</div>
+
+    <div class="navPusher">
+      <div class="docMainWrapper wrapper">
+      <div class="docsNavContainer">
+  <nav class="toc" id="doc_nav">
+    <div class="toggleNav" id="collection_nav">
+      <section class="navWrapper wrapper">
+        <div class="navBreadcrumb wrapper">
+          <div class="navToggle" id="collection_nav_toggler">
+            <i></i>
+          </div>
+          <h2>
+            <a href="/blog/">Blog</a>
+            
+          </h2>
+        </div>
+        <div class="navGroups">
+          
+            
+            
+            <div class="navGroup navGroupActive navGroupCurrent">
+  <h3><i>+</i><span>All Posts</span></h3>
+  <ul>
+    
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/05/04/hhvm-4.56.html">HHVM 4.56</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/30/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/29/hhvm-4.55.html">HHVM 4.55</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/21/hhvm-4.54.html">HHVM 4.54</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/13/hhvm-4.53.html">HHVM 4.53</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/07/hhvm-4.52.html">HHVM 4.52</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/31/hhvm-4.51.html">HHVM 4.51</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/24/hhvm-4.50.html">HHVM 4.50</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/18/hhvm-4.49.html">HHVM 4.49</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/09/hhvm-4.48.html">HHVM 4.48</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/03/hhvm-4.47.html">HHVM 4.47</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/24/hhvm-4.46.html">HHVM 4.46</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/20/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/19/hhvm-4.45.html">HHVM 4.45</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/10/hhvm-4.44.html">HHVM 4.44</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/03/hhvm-4.43.html">HHVM 4.43</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/27/hhvm-4.42.html">HHVM 4.42</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/21/hhvm-4.41.html">HHVM 4.41</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/13/hhvm-4.40.html">HHVM 4.40</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/07/hhvm-4.39.html">HHVM 4.39</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/02/hhvm-4.38.html">HHVM 4.38</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/17/cancelling-hhvm-4.37.html">Holiday schedule: cancelling HHVM 4.37</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/16/hhvm-4.36.html">HHVM 4.36</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/10/hhvm-4.35.html">HHVM 4.35</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/02/hhvm-4.34.html">HHVM 4.34</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/25/hhvm-4.33.html">HHVM 4.33</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/19/hhvm-4.32.html">HHVM 4.32 (LTS)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/19/distribution-support.html">Support lifecycle for older distributions</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/11/hhvm-4.31.html">HHVM 4.31.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/06/hhvm-4.30.html">HHVM 4.30.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/29/hhvm-4.29.html">HHVM 4.29.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/28/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/23/hhvm-4.28.html">HHVM 4.28</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/14/hhvm-4.27.0.html">HHVM 4.27.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/09/hhvm-4.26.0.html">HHVM 4.26.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/01/deprecating-references.html">Deprecating &$references</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/30/hhvm-4.25.0.html">HHVM 4.25.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/25/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/23/hhvm-4.24.0.html">HHVM 4.24.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/17/hhvm-4.23.0.html">HHVM 4.23.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/09/hhvm-4.22.0.html">HHVM 4.22.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/03/the-hhvm-4.21.0.html">HHVM 4.21.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/03/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/27/hhvm-4.20.0.html">HHVM 4.20.0 and 4.20.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/19/hhvm-4.19.0.html">HHVM 4.19.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/14/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/12/hhvm-4.18.0.html">HHVM 4.18.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/07/bugfixes.html">Bugfixes for 3.30, 4.8, and 4.12-17</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/05/hhvm-4.17.0.html">HHVM 4.17.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/29/hhvm-4.16.0.html">HHVM 4.16.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/22/hhvm-4.15.0.html">HHVM 4.15.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/15/hhvm-4.14.0.html">HHVM 4.14.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/09/hhvm-4.13.0.html">HHVM 4.13.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/01/hhvm-4.12.0.html">HHVM 4.12.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/24/hhvm-4.11.0.html">HHVM 4.11.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/18/hhvm-4.10.0.html">HHVM 4.10.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/13/hhvm-4.9.1.html">HHVM 4.9.1, repository changes</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/10/hhvm-4.9.0.html">HHVM 4.9.0, and security updates for 3.30, and 4.3-4.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/03/hhvm-4.8.0.html">HHVM 4.8.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/28/hhvm-4.7.0.html">HHVM 4.7.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/21/hhvm-4.6.0.html">HHVM 4.6.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/13/hhvm-4.5.0.html">HHVM 4.5.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/06/hhvm-4.4.0.html">HHVM 4.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/30/hhvm-4.3.0.html">HHVM 4.3.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/23/hhvm-4.2.0.html">HHVM 4.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/09/hhvm-4.1.0.html">HHVM 4.1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/03/hhvm-4.0.4.html">HHVM 4.0.4, 3.30.5, and 3.27.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/28/hhvm-4.0.3.html">HHVM 4.0.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/19/hhvm-4.0.2.html">HHVM 4.0.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/14/hhvm-4.0.1.html">HHVM 4.0.1, 3.30.4, and 3.27.7: CVE-2019-3552</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/11/hhvm-4.0.0.html">HHVM 4.0.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/01/hhvm-3.30.3.html">HHVM 3.30.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/01/14/hhvm-3.30.2.html">HHVM 3.30.2 and 3.27.6</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/12/18/hhvm-3.30.1.html">HHVM 3.30.1 and 3.27.5</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/12/17/hhvm-3.30.html">HHVM 3.30</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/30/hhvm-3.29.1.html">HHVM 3.29.1 and 3.27.4</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/22/hhvm-3.29.html">HHVM 3.29</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/01/hhvm-3.28.3.html">HHVM 3.28.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/28/hhvm-3.28.2.html">HHVM 3.28.2 and 3.27.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/26/introducing-hacktest.html">Introducing HackTest</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/12/end-of-php-support-future-of-hack.html">Ending PHP Support, and The Future Of Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/30/hhvm-3.28.1.html">HHVM 3.28.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/28/hhvm-3.28.0.html">HHVM 3.28.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/15/hhvm-3.27.2.html">HHVM 3.27.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/07/19/hhvm-3.27.1.html">HHVM 3.27.1 and 3.24.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/06/18/hhvm-3.27.0.html">HHVM 3.27.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/24/hhvm-3.26.3.html">HHVM 3.26.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/15/hhvm-3.26.2.html">HHVM 3.26.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/11/hhvm-3.26.1.html">HHVM 3.26.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/07/hhvm-3.26.html">HHVM 3.26 - Introducing HackC</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/04/hhvm-3.25.3.html">HHVM 3.25.3, HHVM 3.24.7, and 3.21.11</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/04/11/relicensing-hack.html">Relicensing Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/30/hhvm-3.25.2.html">HHVM 3.25.2, HHVM 3.24.6, and 3.21.10 (CVE-2018-6334)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/22/hhvm-3.25.1.html">HHVM 3.25.1, HHVM 3.24.5, and 3.21.9</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/15/hhvm-3.25.html">HHVM 3.25.0, 3.24.4, and 3.21.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/02/hhvm-3.24.3.html">HHVM 3.24.3 and 3.21.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/02/07/hhvm-3.24.2.html">HHVM 3.24.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/30/hhvm-3.24.1.html">HHVM 3.24.1, 3.21.6, and 3.18.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/16/hhvm-3.24.html">HHVM 3.24</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/12/hhvm-3.23.4.html">HHVM 3.23.4, 3.21.5, and 3.18.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/02/hhvm-3.23.3.html">HHVM 3.23.3, 3.21.4, and 3.18.6</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/11/17/hhvm-3-23.html">HHVM 3.23</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/11/14/gpg-key-migration.html">GPG Key Migration</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/10/26/the-hack-standard-library-1-0.html">The Hack Standard Library: v1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/09/26/hhvm-3-22.html">HHVM 3.22</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/09/18/the-future-of-hhvm.html">The Future of HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/08/02/hhvm-3-21.html">HHVM 3.21</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/06/07/hhvm-3-20.html">HHVM 3.20</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/04/13/hhvm-3-19.html">HHVM 3.19</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/03/23/concurrent-jit-compilation.html">Concurrent JIT Compilation</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/03/09/how-the-cyber-elephant-got-his-arm.html">How the Cyber-Elephant Got His ARM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/02/17/region-jit.html">HHVM's Profile-guided Region JIT</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/02/15/hhvm-3-18.html">HHVM 3.18</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/01/26/new-year-new-me.html">New Year, New Me</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/11711/hhvm-3-15">HHVM 3.15</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10925/improved-user-documentation">Improved User Documentation</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10859/php-7-support">PHP 7 Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10649/improving-arrays-in-hack">Improving Arrays in Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10205/llvm-code-generation-in-hhvm">LLVM Code Generation in HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10379/hhvm-3-10-0">HHVM 3.10.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10043/experimental-mac-os-x-support">Experimental Mac OS X Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9995/hhvm-3-9-0">HHVM 3.9.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9803/hhvm-3-8-0">HHVM 3.8.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9773/cve-2015-4663">CVE-2015-4663</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9581/trait-and-interface-requirements-in-hack">Trait and interface requirements in Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9293/lockdown-results-and-hhvm-performance">Lockdown Results and HHVM Performance</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9215/covariance-contravariance-and-super-type-constraints">Covariance, Contravariance, and super Type Constraints</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9089/hhvm-lockdown">HHVM Lockdown</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9059/hhvm-3-7-0">HHVM 3.7.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8981/announcing-our-book-hack-hhvm">Announcing our book: “Hack & HHVM”</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8939/etsys-transition-to-hhvm">Etsy's Transition to HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8849/hhvm-3-6-0">HHVM 3.6.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8537/announcing-a-specification-for-hack">Announcing a Specification for Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8405/coming-soon-in-hhvm">Coming Soon in HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7637/hhvm-3-5-0">HHVM 3.5.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7205/wikipedia-on-hhvm">Wikipedia on HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7349/lts-updates">LTS Updates</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7091/async-cooperative-multitasking-for-hack">Async - Cooperative Multitasking for Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6989/wp-engine-and-box-now-use-hhvm">WP Engine and Box now use HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6899/hhvm-3-4-0">HHVM 3.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6863/announcing-the-hack-transpiler">Announcing the Hack Transpiler</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6473/hack-overriding-constructors-new-static-and-__consistentconstruct">Hack: Overriding Constructors, "new static", and __ConsistentConstruct</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6767/hhvm-3-3-1">HHVM 3.3.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6515/using-xhp-with-bootstrap">Using XHP with Bootstrap</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6443/hack-recent-updates">Hack: Recent Updates</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6323/the-journey-of-a-thousand-bytecodes">The Journey of a Thousand Bytecodes</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6239/hhvm-3-3-0">HHVM 3.3.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6083/hhvm-long-term-support">HHVM Long Term Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6005/hack-community-roundup-3">Hack Community Roundup #3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5723/announcing-a-specification-for-php">Announcing a specification for PHP</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5609/hhvm-3-2-0">HHVM 3.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5399/faster-github-commits">Faster GitHub Commits</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5429/hack-community-roundup-2">Hack Community Roundup #2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5195/hhvm-3-1-0">HHVM 3.1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4811/hack-community-roundup">Hack Community Roundup</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4841/compatibility-update">Compatibility Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4685/hack-developer-day-2014-keep-hacking">Hack Developer Day 2014: Keep Hacking</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4601/debug-packages">Debug Packages</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4349/hhvm-3-0-0">HHVM 3.0.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4325/hacking-hack-on-heroku">Hacking Hack on Heroku</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4223/introducing-hack-a-programming-language-for-hhvm">Introducing Hack - A Programming Language for HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4103/hhvm-2-4-2">HHVM 2.4.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3611/tracking-parity">Tracking Parity</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3689/implementing-mysqli">Implementing MySQLi</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3743/hhvm-the-next-six-months">HHVM: The Next Six Months</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3287/hhvm-2-4-0">HHVM 2.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3203/nightly-packages">Nightly Packages</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2813/we-are-the-98-5-and-the-16">We are the 98.5% (and the 16%)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1817/fastercgi-with-hhvm">FasterCGI with HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2393/hhvm-2-3-0-and-travis-ci">HHVM 2.3.0 and Travis CI</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2027/faster-and-cheaper-the-evolution-of-the-hhvm-jit">Faster and Cheaper: The Evolution of the hhvm JIT</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1499/locking-down-for-performance-and-parity">Locking Down for Performance and Parity </a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1379/hhvm-on-heroku">HHVM on Heroku</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1301/hhvm-2-2-0">HHVM 2.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/875/wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code">Wow HHVM is fast...too bad it doesn’t run my code</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/713/hhvm-optimization-tips">HHVM Optimization Tips</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/575/joining-retirement-testing-and-bankruptcy">Joining, Retirement, Testing, and Bankruptcy</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/521/the-adminserver">The AdminServer</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/431/on-garbage-collection">On Garbage Collection</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/401/spammers-are-still-a-thing-it-seems">Spammers are still a thing, it seems</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/311/adding-an-opcode-to-hhbc">Adding an opcode to HHBC</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4061/go-faster">Go Faster!</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3095/getting-wordpress-running-on-hhvm">Getting WordPress running on HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3089/wordpress-3-4-2-running-on-hiphop-hhvm">WordPress 3.4.2 running on HHVM</a></li>
+
+      
+    
+  </ul>
+</div>
+          
+        </div>
+      </section>
+    </div>
+  </nav>
+</div>
+<script>
+  var docsevent = document.createEvent('Event');
+  docsevent.initEvent('docs_slide', true, true);
+  document.addEventListener('docs_slide', function (e) {
+    document.body.classList.toggle('docsSliderActive');
+  }, false);
+
+  var collectionNav = document.getElementById('collection_nav');
+  var collectionNavToggler = 
+    document.getElementById('collection_nav_toggler');
+  collectionNavToggler.addEventListener('click', function(e) {
+    collectionNav.classList.toggle('toggleNavActive');
+    document.dispatchEvent(docsevent);
+  });
+
+  var groups = document.getElementsByClassName('navGroup');
+  for(var i = 0; i < groups.length; i++) {
+    var thisGroup = groups[i];
+    thisGroup.onclick = function() {
+      for(var j = 0; j < groups.length; j++) {
+        var group = groups[j];
+        group.classList.remove('navGroupActive');
+      }
+      this.classList.add('navGroupActive');
+    }
+  }
+</script>
+
+
+      <div class="mainContainer blogContainer postContainer">
+  <div id="main_wrap" class="wrapper mainWrapper">
+    <div class="lonePost">
+<div class="post">
+  
+  <header class="post-header">
+    
+    <div class="authorPhoto">
+      <img src="https://graph.facebook.com/622128601/picture/" alt="" title="" />
+    </div>
+    
+    
+    <p class="post-authorName">Sara Golemon</p>
+    
+    <h1 class="post-title">The Journey of a Thousand Bytecodes</h1>
+    <p class="post-meta">Posted October 03, 2014</p>
+  </header>
+
+  <article class="post-content">
+  
+    <p>Compilers are fun.  They take nice, human readable languages like PHP or Hack and turn them into lean, mean, CPU executin’ turing machines.  Some of these are simple enough a CS student can write one up in a weekend, some are the products of decades of fine tuning and careful architecting.  Somewhere in that proud tradition stands HHVM; In fact it’s several compilers stacked in an ever-growing chain of logic manipulation and abstractions.  This article will attempt to take the reader through the HHVM compilation process from PHP-script to x86 machine code, one step at a time.</p>
+
+<!--truncate-->
+
+<p><strong>Step One: Lexing</strong></p>
+
+<p>The first step of our journey should be familiar to many PHP users since it’s actually exposed to user space as the <a href="http://php.net/token_get_all">token_get_all</a>() function.   In this phase, we reduce a human-readable PHP script to a series of tokens; Numeric identifiers which the compiler will be able to recognize as having some intrinsic meaning.  For this, HHVM uses a tool called Flex to generate a program from a meta definition at <a href="https://github.com/facebook/hhvm/blob/master/hphp/parser/hphp.ll">hphp/parser/hphp.ll</a>.</p>
+
+<p>The several rules in this file describe the how to recognize token-words.  For example, encountering “echo” inside of a &lt;?php tag, but not within a string, should yield a T_ECHO token, but encountering it elsewhere should yield common strings, html or other token types.  The following example shows the token breakdown of a simple PHP script:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>&lt;?php
+echo $a + $b;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>If we ran this through token_get_all(), we’d get the following sequence of tokens:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>T_OPEN_TAG // This represents the "&lt;?php" token
+T_WHITESPACE("\n")
+T_ECHO
+T_WHITESPACE(" ")
+T_VARIABLE("$a")
+T_WHITESPACE(" ")
+'+'
+T_WHITESPACE(" ")
+T_VARIABLE("$b")
+';'
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Notice that simple, single character tokens aren’t given a name, they’re simply passed through as the characters which they are.  Now that we have a set of machine-readable tokens, we can start to build expressions from them.</p>
+
+<p><strong>Step Two: Parsing</strong></p>
+
+<p>The rules found in <a href="https://github.com/facebook/hhvm/blob/master/hphp/parser/hphp.y">hphp/parser/hphp.y</a> are used by Bison to create a parser engine.  This piece of the compiler reads in tokens, fed to it by the lexer, to build an Abstract Syntax Tree (AST); A representation of the expressions contained in your PHP script.</p>
+
+<p>Considering a slightly more complex piece of script:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>&lt;?php
+echo "Does 1+2 equal 3?";
+if ((1+2) == 3) {
+  echo "Yes it does!";
+} else {
+  echo "No it doesn't...";
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We generate an AST which looks something like the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre>EchoStatement
+  ConstantExpression("Does 1+2 equal 3?")
+IfBranchStatement
+  BinaryOpExpression(EQUAL)
+    BinaryOpExpression(ADD)
+      ConstantExpression(1)
+      ConstantExpression(2)
+    ConstantExpression(3)
+  EchoStatement
+    ConstantExpression("Yes it does!")
+  EchoStatement
+    ConstantExpression("No it doesn't...")
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Here we can see that our disorganized tokens have been grouped together such that logical expressions are nested into groups the way we, as humans, would expect to make sense of them.  This is at the heart of the definition of the language and it’s what determines everything from order of operations (precedence) to the association of one statement into another.</p>
+
+<p><strong>Step Two and a Half: Optimization</strong></p>
+
+<p>I call this two and a half, because we’re not really changing the representation of the original script’s code at this point. Rather, we’re reducing expressions which can be simplified before the code is ever run (also, some of this happens in step 3).  For example, we can evaluate “1+2” to 3, and our AST becomes:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>EchoStatement
+  ConstantExpression("Does 1+2 equal 3?")
+IfBranchStatement
+  BinaryOpExpression(EQUAL)
+    ConstantExpression(3)
+    ConstantExpression(3)
+  EchoStatement
+    ConstantExpression("Yes it does!")
+  EchoStatement
+    ConstantExpression("No it doesn't...")
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Then evaluate <code class="highlighter-rouge">3 == 3</code> to <code class="highlighter-rouge">true</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>EchoStatement
+  ConstantExpression("Does 1+2 equal 3?")
+IfBranchStatement
+  ConstantExpression(true)
+  EchoStatement
+    ConstantExpression("Yes it does!")
+  EchoStatement
+    ConstantExpression("No it doesn't...")
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Now we know that we’ll always take the truth branch and never take the false branch, so:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>EchoStatement
+  ConstantExpression("Does 1+2 equal 3?")
+EchoStatement
+  ConstantExpression("Yes it does!")
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Which of course can be reduced to a single EchoStatement.  This script was obviously a bit contrived to show off this optimizer stage, but it’s worth seeing what’s possible.</p>
+
+<p><em>Question</em>: What’s the difference between a Statement and an Expression?
+<em>Answer</em>: Statements are terminal, they have no output value to be consumed by later nodes in the AST, and must therefor appear only as top-level siblings in an HHVM AST.  Expressions produce a value as a result, and may, as such, be used as input to other expressions or statements.</p>
+
+<p><strong>Step 3: Compilation to Bytecode</strong></p>
+
+<p>The last stage of our compiler’s “front end” brings us through <a href="https://github.com/facebook/hhvm/blob/master/hphp/compiler/analysis/emitter.cpp">hphp/compiler/analysis/emitter.cpp</a> where we turn that AST into bytecodes which can be executed by HHVM’s interpreter.  We do this by “visiting” each expression from the base of the tree upwards, with each expression describing itself as a series of bytecodes.</p>
+
+<p>For example, an echo statement has one or more children which, by virtue of being expressions themselves, may in turn be made up of other expressions.  For each child expression of an EchoStatement we first visit the expression, which will produce a number of bytecodes resulting in a single value having been pushed onto the “stack”. We then emit a “Print” bytecode which will pop that value, outputting its contents, then push it’s own result value of int(1).  Because Echo is a Statement, however, and therefore must not have an output value, we immediately pop it back off using PopC.</p>
+
+<p><em>Question</em>: Why push a value to the stack if Echo is a Statement, and not an Expression?
+<em>Answer</em>: Because Echo cheats by reusing the same bytecode meant for the <a href="http://php.net/print">print</a>() expression, which if you’ll recall, does have a return value.  The PopC instruction throws that away as unneeded.</p>
+
+<p><em>Question</em>: Isn’t that inefficient?
+<em>Answer</em>: Yes, but only in interp mode, this disappears by the time we reach the JIT.</p>
+
+<p>Let’s take a look at that in practice:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>&lt;?php
+echo "Hello ", $name, "\n";
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Produces an AST for an EchoStatement with three child expressions:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>EchoStatement
+  ConstantExpression("Hello ")
+  VariableExpression($name)
+  ConstantExpression("\n")
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Which visits the EchoStatement, who in turns visits each child:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>String "Hello " // Push "Hello " onto the stack
+Print  // Consume "Hello " from the stack, and push int(1)
+PopC  // Consume int(1) and throw it away
+CGetL 0  // Fetch Local#0 ($name) from the symbol table and push it onto the stack
+Print  // etc... etc... etc...
+PopC
+String "\n"
+Print
+PopC
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Generating Bytecode Dumps</strong></p>
+
+<p>To see byte codes for a given script, similar to how PHP allows you to view Opcodes via VLD, you have two options. The first is to run it through HHVM as usual with the -vEval.DumpBytecode=1 option. This format is designed for human readability and is meant primarily for runtime development and debugging.  For example, a simple Hello World program:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>&lt;?php
+echo "Hello World\n";
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Becomes:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre>$ hhvm -vEval.DumpBytecode=1 /tmp/hello-world.php
+
+Pseudo-main at 0
+maxStackCells: 1
+numLocals: 0
+numIterators: 0
+
+// line 2
+0: String "Hello World\n"
+5: Print
+6: PopC
+7: Int 1
+16: RetC
+
+Pseudo-main at 0
+maxStackCells: 1
+numLocals: 0
+numIterators: 0
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>If you’re wondering about the Int 1/RetC at the end, that’s the implicit “return 1;” which comes at the end of every file (which doesn’t explicitly return something) so that the include expression has a return value.  Remember, the “global scope” acts like a nameless function which is invoked implicitly on startup, and shares its variable scope with all other top-level psuedo-main functions.</p>
+
+<p>The second option is nearly identical in invocation, but produces noticeably different output:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>$ hhvm -vEval.DumpHhas=1 /tmp/hello.php
+
+.filepath "/tmp/hello.php";
+
+.main {
+  String "Hello World\n"
+  Print
+  PopC
+  Int 1
+  RetC
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This is actually HHVM’s third language (PHP and Hack being the first two), HipHop Assembly. This hidden language, which is normally only recognized in Systemlib files, allows developers to bypass the first two steps of compilation and create raw bytecodes. You can find an existing example of this (<a href="https://github.com/facebook/hhvm/blob/master/hphp/system/php/array_map.hhas">hphp/system/php/array_map.hhas</a>) in the implementation of <a href="http://php.net/array_map">array_map</a>() where HHVM uses a custom bytecode explicitly designed to make the function more efficient.</p>
+
+<p>For more on the meaning and uses of all of HHVM bytecodes, see <a href="https://github.com/facebook/hhvm/blob/master/hphp/doc/bytecode.specification">hphp/doc/bytecode.specification</a>.</p>
+
+<p><strong><em>Note</em>: You should not develop applications or libraries in HHAS. The syntax of HHAS and the behavior of specific bytecodes are NOT GUARANTEED between releases of HHVM and there is almost never any benefit to be had over writing scripts in normal PHP. The coverage in this article is meant for informational purposes only.</strong></p>
+
+<p><strong>Step 3.5: HHBBC Optimization</strong></p>
+
+<p>The optimizations we performed in step 2.5 were nice quick, obvious things we could shake out during the normal course of on-the-fly code compilation, but they’re not the only improvements we can make.  When building in RepoAuthoritative mode, it’s possible to look at the program a bit deeper and cut out even more unnecessary work.  Consider this script:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>&lt;?php
+
+define('FOO', "Hello World\n");
+echo FOO;
+
+$x = 1 + 2;
+if ($x == 3) {
+  echo "X is three\n";
+} else {
+  echo "X is not three\n";
+}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Again, a human can look at this and know that a simplified version of this script could be heavily reduced, but keeping track of that state is too complex for the first-pass compiler to do.  So we see bytecode looking like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="rouge-code"><pre>$ hhvm -vEval.DumpBytecode=1 /tmp/three.php
+
+// line 3
+  0: String "Hello World\n"
+  5: DefCns "FOO"
+ 10: PopC
+ // line 4
+ 11: Cns "FOO"
+ 16: Print
+ 17: PopC
+// line 6
+ 18: Int 3
+ 27: SetL 0
+ 29: PopC
+// line 7
+ 30: Int 3
+ 39: CGetL2 0
+ 41: Eq
+ 42: JmpZ 17 (59)
+// line 8
+ 47: String "X is three\n"
+ 52: Print
+ 53: PopC
+// line 11
+ 54: Jmp 12 (66)
+// line 10
+ 59: String "X is not three\n"
+ 64: Print
+ 65: PopC
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>If we pre-compile this with RepoAuthoritative mode, however, the compiler spends a little more time on those bytecodes and notices the obvious patterns.  The “Cns” being looked up was just defined, so propagate that straight in.   Also, that local being fetched by CGetL was just set from a constant, bring that constant forward as well.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre>// line 3
+  0: String "Hello World\n"
+  5: DefCns "FOO"
+ 10: PopC
+ // line 4
+ 11: String "Hello World\n"
+ 16: Print
+ 17: PopC
+// line 6
+ 18: Int 3
+ 27: SetL 0
+ 29: PopC
+// line 7
+ 30: Int 3
+ 39: Int 3
+ 41: Eq
+ 42: JmpZ 17 (59)
+// line 8
+ 47: String "X is three\n"
+ 52: Print
+ 53: PopC
+// line 11
+ 54: Jmp 12 (66)
+// line 10
+ 59: String "X is not three\n"
+ 64: Print
+ 65: PopC
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Which of course, now means that the “Eq”/”JmpZ” have known behavior and we can just fall-through to the truth block, making the false block unreachable, so we can take it out too.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre>$ hhvm --hphp -l0 -k1 -o /tmp/three.repo /tmp/three.php
+$ hhvm --hhbbc --no-logging -o /tmp/three.repo.hhbbc /tmp/three.repo
+$ hhvm -vRepo.Authoritative=true -vRepo.Commit.Path=/tmp/three.repo.hhbbc \
+       --file=/tmp/three.php
+
+// line 3
+  0: String "Hello World\n"
+  5: DefCns "FOO"
+ 10: PopC
+ // line 4
+ 11: String "Hello World\n"
+ 16: Print
+ 17: PopC
+// line 6
+ 18: Int 3
+ 27: SetL 0
+ 29: PopC
+// line 8
+ 47: String "X is three\n"
+ 52: Print
+ 53: PopC
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>And we have a simpler, saner looking script.  HHBBC, which performs many other optimiztions than this, can be found under <a href="https://github.com/facebook/hhvm/tree/master/hphp/hhbbc">hphp/hhbbc</a>.</p>
+
+<p><strong>Interp Mode Runtime</strong></p>
+
+<p>Now that we have a stream of opcodes, we have enough information to actually execute the script! This execution happens primarily in <a href="https://github.com/facebook/hhvm/blob/master/hphp/runtime/vm/bytecode.cpp">hphp/runtime/vm/bytecode.cpp</a> with each bytecode being executed by methods named iopWhatever(), where “Whatever” is the name of the bytecode being executed. This mode of script execution is known as “Interpreter Mode”, or “Interp” for short. At this stage we’re roughly equivalent to how PHP5 compiles and executes Opcodes.  Note that this is also the point at which RepoAuthoritative mode stops, as this is the extent of static analysis. All further compilation steps happen at runtime and are unique to HHVM (relative to PHP).</p>
+
+<p><strong>Step 4: Intermediate Representation</strong></p>
+
+<p>As our code is run, the engine gets a “feel” for what sorts of types enter each execution unit (function/method), and is able to apply this to larger-scale program analysis. When we enter a function with new argument types, we begin emitting instructions from <a href="https://github.com/facebook/hhvm/blob/master/hphp/runtime/vm/jit/hhbc-translator.cpp">hphp/runtime/vm/jit/hhbc-translator.cpp</a> in the form of HHIR (HipHop Intermediate Representation) which you can see by “tracing” program execution.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>$ TRACE=printir:1 hhvm /tmp/hello.php
+
+[...lots of output, run it yourself to see...]
+B2 (Preds B0)
+  --- bc 5, spOff 1 ()
+    5: Print
+    (07) PrintStr "Hello World\n"
+[...more output, -&gt;B# represents a jump to that block...]
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Notice that the Print bytecode got reduced back to a single logical instruction along with its argument.  That’s because at this point the runtime has already analyzed that the stack value which came from the String bytecode belongs with this instruction, and this one only, and that its type is known ahead of time.  I know this feel a little backwards since we knew this earlier on in the compilation as well, but stay with me for a bit…</p>
+
+<p>For details on each IR instruction, check out <a href="https://github.com/facebook/hhvm/blob/master/hphp/doc/ir.specification">hphp/doc/ir.specification</a>.</p>
+
+<p><strong>Step 5: Virtual Assembly</strong></p>
+
+<p>We’ve nearly reached machine code! In <a href="https://github.com/facebook/hhvm/blob/master/hphp/runtime/vm/jit/code-gen-x64.cpp">hphp/runtime/vm/jit/code-gen-x64.cpp</a> [1], the cgWhatever() helper methods take an IR instruction from the previous step and translate it into a series of architecture agnostic “machine code” instructions. While a lot of assemblers might be concerned about moving values into appropriate registers and issuing type/size-specific cpu instructions, this form stops slightly short and focuses on the job at hand with arguments and addresses being relegated to “virtual” registers and instructions. For example, Vasm code to test the result value of a previous expression, and jump on a non-zero value might look like the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>v &lt;&lt; cmp{ inst-&gt;src(0), 0 };
+v &lt;&lt; jcc{ CC_E, {inst-&gt;next()} };
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We don’t need to care, at this point, what register inst-&gt;src(0) refers to (e.g. rax, ebx, ch, dl, rdi, esi, etc…), only that it is the same register which came from some prior instruction’s -&gt;dest() (destination). Similarly, we’re not concerned with how equality is checked. On x86 this might be done by testing the Zero flag, on others it may be by checking the negation of a “Difference” flag.  Lastly, we don’t need to know where the next instruction’s entry point is at. It could be one byte ahead (meaning no jump need be performed at all), 64 bytes on (calling for a short jump), or at the other end of our memory model entirely (necessitating a long jump). The next, and final step of compilation will take care of all of these details for us.</p>
+
+<p>[1] <em>This file is somewhat misnamed due to legacy reasons and Vasm having only recently been introduced. It is (almost) not x86_64 specific.</em></p>
+
+<p><strong>Step 6: Emitting machine code</strong></p>
+
+<p>Now that we’ve followed our code from PHP to AST, HHBC, HHIR, and Vasm, we’re finally ready to write it into a block of executable memory to be run by the CPU directly without further involvement from HHVM’s compiler.</p>
+
+<p>This actually occurs somewhat in parallel with the Vasm stage as we’re shifting virtual instructions into the compiler (v, in the example above). To see what is produced, we can simply turn up the detail on our TRACE.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="rougeHighlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>$ TRACE=printir:2 hhvm /tmp/comparison.php
+
+[...lots and lots of output...]
+  0x30c00030: cmp qword ptr [rbp+0x8], 0
+  0x30c00036: jz 0x30c0003b
+[...even more output...]
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Here we see those same Vasm instructions expressed, in this case, as x86_64 assembly. The cmp instruction is selected because we are comparing all 64bit of a quad-word stack address to 0. Pulling its value from a stack offset like that is a pretty good indication it was a function argument, though it could have been something else. As this is x86_64, we evaluation a truth compare by examining the zero flag with jz (jump on zero) targeting a location slightly further down (the target of inst-&gt;next()).</p>
+
+<p>And there you have it. How HHVM’s sausage is made in six easy steps. Now you’re ready to get hacking on the compiler and make PHP run even faster!</p>
+
+    
+      
+      
+        
+          <h3> Comments </h3>
+          <br/>
+          <ul>
+          
+        
+        <li><b>Sara Golemon explains HHVM and how it compiles PHP﻿ | Die wunderbare Welt von Isotopp</b>: [&#8230;] The Journey of a Thousand Bytecodes Compilers are fun. &nbsp;They take nice, human readable languages like PHP or Hack and turn them into lean, mean, CPU executin&#8217; turing machines. &nbsp;Some of these are simple enough a CS student can write one up in a weekend, some are the products of decades of fine tuning and careful architecting. &nbsp;Somewhere in that proud&hellip; [&#8230;]</li>
+      
+        
+        <li><b>Abbas Naderi Afooshteh</b>: Everything except for step 4 (translator) seems trivial as all interpreters have some sort of it. They even have a sort of step 4 (pyc for python) but that's the major component of HHVM afaik, and you haven't described how it gets the feel at all.
+
+Overall the post was fun.</li>
+      
+        
+        <li><b>Sara Golemon</b>: Yeah, this article was a high-level nosebleed sort of coverage.  Hope to do some followups at some point exploring each stage in a bit more detail.</li>
+      
+        
+        <li><b>Mitsu</b>: When HHVM will be ready for Windows platform? I'm waiting for this various months ago... :(</li>
+      
+        
+        <li><b>HHVM - ātrāks PHP un ne tikai - Kristaps Kaupe</b>: [&#8230;] Kam interesē&nbsp;vēl tehniskākas detaļas par to, kā HHVM ir būvēts un darbojas, var palasīt Sāras Golemones rakstu &#8220;The Journey of a Thousand Bytecodes&#8220;. [&#8230;]</li>
+      
+        
+        <li><b>Sara Golemon</b>: We have a semi-working win32 build (emphasis on "semi"), it's going to take some effort to get this solid enough for casual use, but we are working on it.</li>
+      
+        
+        <li><b>Sina Salet</b>: Brilliant</li>
+      
+        
+        <li><b>PHP Annotated Monthly &#8211; October 2014 | JetBrains PhpStorm Blog</b>: [&#8230;] does HHVM convert PHP code into x86 machine code? Good question!&nbsp;Sara Goleman explains&nbsp;in an elaborate blog [&#8230;]</li>
+      
+        
+        <li><b>6 und ein paar halbe Schritte: So funktioniert die HHVM - entwickler.de</b>: [&#8230;] &ndash; bisher. Denn keine Geringere als Sara Golemon sorgt jetzt f&uuml;r Aufkl&auml;rung. In ihrem Blogpost The Journey of a Thousand Bytecodes erkl&auml;rt sie in sechs (und zwei halben) Schritten, vom Lexing &uuml;ber das Parsing und die Optimierung [&#8230;]</li>
+      
+      
+        </ul>
+        <br/>
+      
+    
+  
+  
+    <div class="fb-like pluginWrapper likeButtonWrapper" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
+<script>
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '1615782811974223',
+    xfbml      : true,
+    version    : 'v2.3'
+  });
+  };
+
+  (function(d, s, id){
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "//connect.facebook.net/en_US/sdk.js";
+   fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+    <div class="pluginWrapper twitterSharePlugin">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-hashtags="HHVM">Tweet</a>
+</div>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  
+  </article>
+</div>
+
+</div>
+  </div>
+</div>
+
+
+      </div>
+      <div class="footerContainer">
+  <div id="footer_wrap" class="wrapper footerWrapper">
+    <div class="footerBlocks">
+      <div id="fb_oss" class="footerSection fbOpenSourceFooter">
+          <svg class="facebookOSSLogoSvg" viewBox="0 0 1133.9 1133.9" x="0px" y="0px">
+            <g>
+              <path class="logoRing outerRing" d="M 498.3 3.7 c 153.6 88.9 307.3 177.7 461.1 266.2 c 7.6 4.4 10.3 9.1 10.3 17.8 c -0.3 179.1 -0.2 358.3 0 537.4 c 0 8.1 -2.4 12.8 -9.7 17.1 c -154.5 88.9 -308.8 178.1 -462.9 267.5 c -9 5.2 -15.5 5.3 -24.6 0.1 c -153.9 -89.2 -307.9 -178 -462.1 -266.8 C 3 838.8 0 833.9 0 825.1 c 0.3 -179.1 0.2 -358.3 0 -537.4 c 0 -8.6 2.6 -13.6 10.2 -18 C 164.4 180.9 318.4 92 472.4 3 C 477 -1.5 494.3 -0.7 498.3 3.7 Z M 48.8 555.3 c 0 79.9 0.2 159.9 -0.2 239.8 c -0.1 10 3 15.6 11.7 20.6 c 137.2 78.8 274.2 157.8 411 237.3 c 9.9 5.7 17 5.7 26.8 0.1 c 137.5 -79.8 275.2 -159.2 412.9 -238.5 c 7.4 -4.3 10.5 -8.9 10.5 -17.8 c -0.3 -160.2 -0.3 -320.5 0 -480.7 c 0 -8.8 -2.8 -13.6 -10.3 -18 C 772.1 218 633.1 137.8 494.2 57.4 c -6.5 -3.8 -11.5 -4.5 -18.5 -0.5 C 336.8 137.4 197.9 217.7 58.8 297.7 c -7.7 4.4 -10.2 9.2 -10.2 17.9 C 48.9 395.5 48.8 475.4 48.8 555.3 Z" />
+              <path class="logoRing middleRing" d="M 184.4 555.9 c 0 -33.3 -1 -66.7 0.3 -100 c 1.9 -48 24.1 -86 64.7 -110.9 c 54.8 -33.6 110.7 -65.5 167 -96.6 c 45.7 -25.2 92.9 -24.7 138.6 1 c 54.4 30.6 108.7 61.5 162.2 93.7 c 44 26.5 67.3 66.8 68 118.4 c 0.9 63.2 0.9 126.5 0 189.7 c -0.7 50.6 -23.4 90.7 -66.6 116.9 c -55 33.4 -110.8 65.4 -167.1 96.5 c -43.4 24 -89 24.2 -132.3 0.5 c -57.5 -31.3 -114.2 -64 -170 -98.3 c -41 -25.1 -62.9 -63.7 -64.5 -112.2 C 183.5 621.9 184.3 588.9 184.4 555.9 Z M 232.9 556.3 c 0 29.5 0.5 59.1 -0.1 88.6 c -0.8 39.2 16.9 67.1 50.2 86.2 c 51.2 29.4 102.2 59.2 153.4 88.4 c 31.4 17.9 63.6 18.3 95 0.6 c 53.7 -30.3 107.1 -61.2 160.3 -92.5 c 29.7 -17.5 45 -44.5 45.3 -78.8 c 0.6 -61.7 0.5 -123.5 0 -185.2 c -0.3 -34.4 -15.3 -61.5 -44.9 -79 C 637.7 352.6 583 320.8 527.9 290 c -27.5 -15.4 -57.2 -16.1 -84.7 -0.7 c -56.9 31.6 -113.4 64 -169.1 97.6 c -26.4 15.9 -40.7 41.3 -41.1 72.9 C 232.6 491.9 232.9 524.1 232.9 556.3 Z" />
+              <path class="logoRing innerRing" d="M 484.9 424.4 c 69.8 -2.8 133.2 57.8 132.6 132 C 617 630 558.5 688.7 484.9 689.1 c -75.1 0.4 -132.6 -63.6 -132.7 -132.7 C 352.1 485 413.4 421.5 484.9 424.4 Z M 401.3 556.7 c -3.4 37.2 30.5 83.6 83 84.1 c 46.6 0.4 84.8 -37.6 84.9 -84 c 0.1 -46.6 -37.2 -84.4 -84.2 -84.6 C 432.2 472.1 397.9 518.3 401.3 556.7 Z" />
+            </g>
+          </svg>
+        <h2>Facebook Open Source</h2>
+      </div>
+      <div class="footerSection">
+        <a class="footerLink" href="https://code.facebook.com/projects/" target="_blank">开源项目</a>
+        <a class="footerLink" href="https://github.com/facebook/" target="_blank">GitHub</a>
+        <a class="footerLink" href="https://twitter.com/fbOpenSource" target="_blank">Twitter</a>
+      </div>
+      <div class="footerSection rightAlign">
+        <a class="footerLink" href="https://github.com/hhvm-cn/hhvm-cn.com" target="_blank">帮助我们翻译</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49208336-2', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    </div>
+  </body>
+</html>

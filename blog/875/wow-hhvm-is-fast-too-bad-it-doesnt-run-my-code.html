@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:url" content="http://hhvm-cn.com/blog/875/wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code" />
+  <meta property="og:site_name" content="HHVM"/>
+  <meta property="og:title" content="Wow HHVM is fast...too bad it doesn’t run my code" />
+  <meta property="og:image" content="http://hhvm-cn.com/static/og_image.png" />
+  <meta property="og:description" content="HHVM is a highly performant PHP runtime. In fact, it is nearly 40% faster than HPHPc, and only getting faster. For example, the HHVM team just rewrote the JI..." />
+
+  <link rel="stylesheet" href="/css/main.css" media="screen">
+  <link rel="icon" href="/static/favicon.png" type="image/x-icon">
+  
+
+  <title>Wow HHVM is fast...too bad it doesn’t run my code | HHVM</title>
+  <meta name="description" content="HHVM is a highly performant PHP runtime. In fact, it is nearly 40% faster than HPHPc, and only getting faster. For example, the HHVM team just rewrote the JI...">
+
+  <link rel="canonical" href="http://hhvm-cn.com/blog/875/wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code">
+  <link rel="alternate" type="application/rss+xml" title="HHVM" href="http://hhvm-cn.com/feed.xml" />
+</head>
+
+  <body class="docsNavVisible">
+    <div id="fixed_header" class="fixedHeaderContainer visible">
+  <div class="headerWrapper wrapper">
+    <header>
+      <a href="http://hhvm-cn.com/">
+        <img src="/static/logo.svg">
+        <h2>HHVM</h2>
+      </a>
+
+      <div class="navigationWrapper navigationFull" id="flat_nav">
+        <nav class="navigation">
+          <ul>
+            
+              <li class="navItem">
+                
+                  <a href="https://docs.hhvm-cn.com/hhvm/getting-started/getting-started">安装</a>
+                
+              </li>
+            
+              <li class="navItem navItemActive">
+                
+                  <a href="/blog/">博客</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://docs.hhvm-cn.com/hhvm/">文档</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://github.com/facebook/hhvm">GitHub</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://hacklang-cn.org/">Hack</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="https://www.facebook.com/hhvm/">Facebook</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="https://twitter.com/HipHopVM">Twitter</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://webchat.freenode.net/?channels=hhvm">IRC</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://hhvm.h4cc.de/">模块支持</a>
+                
+              </li>
+            
+            
+          </ul>
+        </nav>
+      </div>
+      <div class="navigationWrapper navigationSlider" id="navigation_wrap">
+        <div id="header_nav">
+  <div class="navSlideout">
+    <i class="menuExpand" id="header_nav_expander"><span></span><span></span><span></span></i>
+  </div>
+  <nav class="slidingNav">
+    <ul>
+      
+      <li class="navItem">
+        <a href="https://docs.hhvm-cn.com/hhvm/getting-started/getting-started" target="_blank">安装</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="/blog/">博客</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://docs.hhvm-cn.com/hhvm/" target="_blank">文档</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://github.com/facebook/hhvm" target="_blank">GitHub</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://hacklang-cn.org/" target="_blank">Hack</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="https://www.facebook.com/hhvm/" target="_blank">Facebook</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="https://twitter.com/HipHopVM" target="_blank">Twitter</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://webchat.freenode.net/?channels=hhvm" target="_blank">IRC</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://hhvm.h4cc.de/" target="_blank">模块支持</a>
+      </li>
+      
+      
+    </ul>
+  </nav>
+</div>
+<script>
+  var event = document.createEvent('Event');
+  event.initEvent('slide', true, true);
+  document.addEventListener('slide', function (e) {
+    document.body.classList.toggle('sliderActive');
+  }, false);
+  var headerNav = document.getElementById('header_nav');
+  var headerNavExpander = document.getElementById('header_nav_expander');
+  headerNavExpander.addEventListener('click', function(e) {
+    headerNav.classList.toggle('navSlideoutActive');
+    document.dispatchEvent(event);
+  }, false);
+</script>
+      </div>
+    </header>
+  </div>
+</div>
+
+    <div class="navPusher">
+      <div class="docMainWrapper wrapper">
+      <div class="docsNavContainer">
+  <nav class="toc" id="doc_nav">
+    <div class="toggleNav" id="collection_nav">
+      <section class="navWrapper wrapper">
+        <div class="navBreadcrumb wrapper">
+          <div class="navToggle" id="collection_nav_toggler">
+            <i></i>
+          </div>
+          <h2>
+            <a href="/blog/">Blog</a>
+            
+          </h2>
+        </div>
+        <div class="navGroups">
+          
+            
+            
+            <div class="navGroup navGroupActive navGroupCurrent">
+  <h3><i>+</i><span>All Posts</span></h3>
+  <ul>
+    
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/05/04/hhvm-4.56.html">HHVM 4.56</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/30/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/29/hhvm-4.55.html">HHVM 4.55</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/21/hhvm-4.54.html">HHVM 4.54</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/13/hhvm-4.53.html">HHVM 4.53</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/07/hhvm-4.52.html">HHVM 4.52</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/31/hhvm-4.51.html">HHVM 4.51</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/24/hhvm-4.50.html">HHVM 4.50</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/18/hhvm-4.49.html">HHVM 4.49</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/09/hhvm-4.48.html">HHVM 4.48</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/03/hhvm-4.47.html">HHVM 4.47</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/24/hhvm-4.46.html">HHVM 4.46</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/20/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/19/hhvm-4.45.html">HHVM 4.45</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/10/hhvm-4.44.html">HHVM 4.44</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/03/hhvm-4.43.html">HHVM 4.43</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/27/hhvm-4.42.html">HHVM 4.42</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/21/hhvm-4.41.html">HHVM 4.41</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/13/hhvm-4.40.html">HHVM 4.40</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/07/hhvm-4.39.html">HHVM 4.39</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/02/hhvm-4.38.html">HHVM 4.38</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/17/cancelling-hhvm-4.37.html">Holiday schedule: cancelling HHVM 4.37</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/16/hhvm-4.36.html">HHVM 4.36</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/10/hhvm-4.35.html">HHVM 4.35</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/02/hhvm-4.34.html">HHVM 4.34</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/25/hhvm-4.33.html">HHVM 4.33</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/19/hhvm-4.32.html">HHVM 4.32 (LTS)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/19/distribution-support.html">Support lifecycle for older distributions</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/11/hhvm-4.31.html">HHVM 4.31.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/06/hhvm-4.30.html">HHVM 4.30.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/29/hhvm-4.29.html">HHVM 4.29.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/28/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/23/hhvm-4.28.html">HHVM 4.28</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/14/hhvm-4.27.0.html">HHVM 4.27.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/09/hhvm-4.26.0.html">HHVM 4.26.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/01/deprecating-references.html">Deprecating &$references</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/30/hhvm-4.25.0.html">HHVM 4.25.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/25/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/23/hhvm-4.24.0.html">HHVM 4.24.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/17/hhvm-4.23.0.html">HHVM 4.23.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/09/hhvm-4.22.0.html">HHVM 4.22.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/03/the-hhvm-4.21.0.html">HHVM 4.21.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/03/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/27/hhvm-4.20.0.html">HHVM 4.20.0 and 4.20.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/19/hhvm-4.19.0.html">HHVM 4.19.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/14/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/12/hhvm-4.18.0.html">HHVM 4.18.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/07/bugfixes.html">Bugfixes for 3.30, 4.8, and 4.12-17</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/05/hhvm-4.17.0.html">HHVM 4.17.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/29/hhvm-4.16.0.html">HHVM 4.16.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/22/hhvm-4.15.0.html">HHVM 4.15.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/15/hhvm-4.14.0.html">HHVM 4.14.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/09/hhvm-4.13.0.html">HHVM 4.13.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/01/hhvm-4.12.0.html">HHVM 4.12.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/24/hhvm-4.11.0.html">HHVM 4.11.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/18/hhvm-4.10.0.html">HHVM 4.10.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/13/hhvm-4.9.1.html">HHVM 4.9.1, repository changes</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/10/hhvm-4.9.0.html">HHVM 4.9.0, and security updates for 3.30, and 4.3-4.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/03/hhvm-4.8.0.html">HHVM 4.8.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/28/hhvm-4.7.0.html">HHVM 4.7.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/21/hhvm-4.6.0.html">HHVM 4.6.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/13/hhvm-4.5.0.html">HHVM 4.5.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/06/hhvm-4.4.0.html">HHVM 4.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/30/hhvm-4.3.0.html">HHVM 4.3.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/23/hhvm-4.2.0.html">HHVM 4.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/09/hhvm-4.1.0.html">HHVM 4.1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/03/hhvm-4.0.4.html">HHVM 4.0.4, 3.30.5, and 3.27.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/28/hhvm-4.0.3.html">HHVM 4.0.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/19/hhvm-4.0.2.html">HHVM 4.0.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/14/hhvm-4.0.1.html">HHVM 4.0.1, 3.30.4, and 3.27.7: CVE-2019-3552</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/11/hhvm-4.0.0.html">HHVM 4.0.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/01/hhvm-3.30.3.html">HHVM 3.30.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/01/14/hhvm-3.30.2.html">HHVM 3.30.2 and 3.27.6</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/12/18/hhvm-3.30.1.html">HHVM 3.30.1 and 3.27.5</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/12/17/hhvm-3.30.html">HHVM 3.30</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/30/hhvm-3.29.1.html">HHVM 3.29.1 and 3.27.4</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/22/hhvm-3.29.html">HHVM 3.29</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/01/hhvm-3.28.3.html">HHVM 3.28.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/28/hhvm-3.28.2.html">HHVM 3.28.2 and 3.27.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/26/introducing-hacktest.html">Introducing HackTest</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/12/end-of-php-support-future-of-hack.html">Ending PHP Support, and The Future Of Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/30/hhvm-3.28.1.html">HHVM 3.28.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/28/hhvm-3.28.0.html">HHVM 3.28.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/15/hhvm-3.27.2.html">HHVM 3.27.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/07/19/hhvm-3.27.1.html">HHVM 3.27.1 and 3.24.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/06/18/hhvm-3.27.0.html">HHVM 3.27.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/24/hhvm-3.26.3.html">HHVM 3.26.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/15/hhvm-3.26.2.html">HHVM 3.26.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/11/hhvm-3.26.1.html">HHVM 3.26.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/07/hhvm-3.26.html">HHVM 3.26 - Introducing HackC</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/04/hhvm-3.25.3.html">HHVM 3.25.3, HHVM 3.24.7, and 3.21.11</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/04/11/relicensing-hack.html">Relicensing Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/30/hhvm-3.25.2.html">HHVM 3.25.2, HHVM 3.24.6, and 3.21.10 (CVE-2018-6334)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/22/hhvm-3.25.1.html">HHVM 3.25.1, HHVM 3.24.5, and 3.21.9</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/15/hhvm-3.25.html">HHVM 3.25.0, 3.24.4, and 3.21.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/02/hhvm-3.24.3.html">HHVM 3.24.3 and 3.21.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/02/07/hhvm-3.24.2.html">HHVM 3.24.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/30/hhvm-3.24.1.html">HHVM 3.24.1, 3.21.6, and 3.18.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/16/hhvm-3.24.html">HHVM 3.24</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/12/hhvm-3.23.4.html">HHVM 3.23.4, 3.21.5, and 3.18.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/02/hhvm-3.23.3.html">HHVM 3.23.3, 3.21.4, and 3.18.6</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/11/17/hhvm-3-23.html">HHVM 3.23</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/11/14/gpg-key-migration.html">GPG Key Migration</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/10/26/the-hack-standard-library-1-0.html">The Hack Standard Library: v1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/09/26/hhvm-3-22.html">HHVM 3.22</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/09/18/the-future-of-hhvm.html">The Future of HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/08/02/hhvm-3-21.html">HHVM 3.21</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/06/07/hhvm-3-20.html">HHVM 3.20</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/04/13/hhvm-3-19.html">HHVM 3.19</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/03/23/concurrent-jit-compilation.html">Concurrent JIT Compilation</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/03/09/how-the-cyber-elephant-got-his-arm.html">How the Cyber-Elephant Got His ARM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/02/17/region-jit.html">HHVM's Profile-guided Region JIT</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/02/15/hhvm-3-18.html">HHVM 3.18</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/01/26/new-year-new-me.html">New Year, New Me</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/11711/hhvm-3-15">HHVM 3.15</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10925/improved-user-documentation">Improved User Documentation</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10859/php-7-support">PHP 7 Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10649/improving-arrays-in-hack">Improving Arrays in Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10205/llvm-code-generation-in-hhvm">LLVM Code Generation in HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10379/hhvm-3-10-0">HHVM 3.10.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10043/experimental-mac-os-x-support">Experimental Mac OS X Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9995/hhvm-3-9-0">HHVM 3.9.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9803/hhvm-3-8-0">HHVM 3.8.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9773/cve-2015-4663">CVE-2015-4663</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9581/trait-and-interface-requirements-in-hack">Trait and interface requirements in Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9293/lockdown-results-and-hhvm-performance">Lockdown Results and HHVM Performance</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9215/covariance-contravariance-and-super-type-constraints">Covariance, Contravariance, and super Type Constraints</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9089/hhvm-lockdown">HHVM Lockdown</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9059/hhvm-3-7-0">HHVM 3.7.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8981/announcing-our-book-hack-hhvm">Announcing our book: “Hack & HHVM”</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8939/etsys-transition-to-hhvm">Etsy's Transition to HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8849/hhvm-3-6-0">HHVM 3.6.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8537/announcing-a-specification-for-hack">Announcing a Specification for Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8405/coming-soon-in-hhvm">Coming Soon in HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7637/hhvm-3-5-0">HHVM 3.5.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7205/wikipedia-on-hhvm">Wikipedia on HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7349/lts-updates">LTS Updates</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7091/async-cooperative-multitasking-for-hack">Async - Cooperative Multitasking for Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6989/wp-engine-and-box-now-use-hhvm">WP Engine and Box now use HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6899/hhvm-3-4-0">HHVM 3.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6863/announcing-the-hack-transpiler">Announcing the Hack Transpiler</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6473/hack-overriding-constructors-new-static-and-__consistentconstruct">Hack: Overriding Constructors, "new static", and __ConsistentConstruct</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6767/hhvm-3-3-1">HHVM 3.3.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6515/using-xhp-with-bootstrap">Using XHP with Bootstrap</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6443/hack-recent-updates">Hack: Recent Updates</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6323/the-journey-of-a-thousand-bytecodes">The Journey of a Thousand Bytecodes</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6239/hhvm-3-3-0">HHVM 3.3.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6083/hhvm-long-term-support">HHVM Long Term Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6005/hack-community-roundup-3">Hack Community Roundup #3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5723/announcing-a-specification-for-php">Announcing a specification for PHP</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5609/hhvm-3-2-0">HHVM 3.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5399/faster-github-commits">Faster GitHub Commits</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5429/hack-community-roundup-2">Hack Community Roundup #2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5195/hhvm-3-1-0">HHVM 3.1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4811/hack-community-roundup">Hack Community Roundup</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4841/compatibility-update">Compatibility Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4685/hack-developer-day-2014-keep-hacking">Hack Developer Day 2014: Keep Hacking</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4601/debug-packages">Debug Packages</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4349/hhvm-3-0-0">HHVM 3.0.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4325/hacking-hack-on-heroku">Hacking Hack on Heroku</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4223/introducing-hack-a-programming-language-for-hhvm">Introducing Hack - A Programming Language for HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4103/hhvm-2-4-2">HHVM 2.4.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3611/tracking-parity">Tracking Parity</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3689/implementing-mysqli">Implementing MySQLi</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3743/hhvm-the-next-six-months">HHVM: The Next Six Months</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3287/hhvm-2-4-0">HHVM 2.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3203/nightly-packages">Nightly Packages</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2813/we-are-the-98-5-and-the-16">We are the 98.5% (and the 16%)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1817/fastercgi-with-hhvm">FasterCGI with HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2393/hhvm-2-3-0-and-travis-ci">HHVM 2.3.0 and Travis CI</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2027/faster-and-cheaper-the-evolution-of-the-hhvm-jit">Faster and Cheaper: The Evolution of the hhvm JIT</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1499/locking-down-for-performance-and-parity">Locking Down for Performance and Parity </a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1379/hhvm-on-heroku">HHVM on Heroku</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1301/hhvm-2-2-0">HHVM 2.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/875/wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code">Wow HHVM is fast...too bad it doesn’t run my code</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/713/hhvm-optimization-tips">HHVM Optimization Tips</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/575/joining-retirement-testing-and-bankruptcy">Joining, Retirement, Testing, and Bankruptcy</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/521/the-adminserver">The AdminServer</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/431/on-garbage-collection">On Garbage Collection</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/401/spammers-are-still-a-thing-it-seems">Spammers are still a thing, it seems</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/311/adding-an-opcode-to-hhbc">Adding an opcode to HHBC</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4061/go-faster">Go Faster!</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3095/getting-wordpress-running-on-hhvm">Getting WordPress running on HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3089/wordpress-3-4-2-running-on-hiphop-hhvm">WordPress 3.4.2 running on HHVM</a></li>
+
+      
+    
+  </ul>
+</div>
+          
+        </div>
+      </section>
+    </div>
+  </nav>
+</div>
+<script>
+  var docsevent = document.createEvent('Event');
+  docsevent.initEvent('docs_slide', true, true);
+  document.addEventListener('docs_slide', function (e) {
+    document.body.classList.toggle('docsSliderActive');
+  }, false);
+
+  var collectionNav = document.getElementById('collection_nav');
+  var collectionNavToggler = 
+    document.getElementById('collection_nav_toggler');
+  collectionNavToggler.addEventListener('click', function(e) {
+    collectionNav.classList.toggle('toggleNavActive');
+    document.dispatchEvent(docsevent);
+  });
+
+  var groups = document.getElementsByClassName('navGroup');
+  for(var i = 0; i < groups.length; i++) {
+    var thisGroup = groups[i];
+    thisGroup.onclick = function() {
+      for(var j = 0; j < groups.length; j++) {
+        var group = groups[j];
+        group.classList.remove('navGroupActive');
+      }
+      this.classList.add('navGroupActive');
+    }
+  }
+</script>
+
+
+      <div class="mainContainer blogContainer postContainer">
+  <div id="main_wrap" class="wrapper mainWrapper">
+    <div class="lonePost">
+<div class="post">
+  
+  <header class="post-header">
+    
+    <div class="authorPhoto">
+      <img src="https://graph.facebook.com/611217057/picture/" alt="" title="" />
+    </div>
+    
+    
+    <p class="post-authorName">Joel Marcey</p>
+    
+    <h1 class="post-title">Wow HHVM is fast...too bad it doesn’t run my code</h1>
+    <p class="post-meta">Posted September 12, 2013</p>
+  </header>
+
+  <article class="post-content">
+  
+    <p>HHVM is a highly performant PHP runtime. In fact, it is nearly 40% faster than <a href="http://en.wikipedia.org/wiki/HipHop_for_PHP#History_Before_HHVM">HPHPc</a>, and only getting faster. For example, the HHVM team just rewrote the JIT to use an <a href="https://github.com/facebook/hiphop-php/blob/master/hphp/doc/ir.specification">SSA intermediate representation (IR)</a>. HHIR (HipHop Intermediate Representation) is a strongly typed, SSA-form intermediate representation, positioned between HHBC (HipHop Bytecode) and machine code. It allows HHVM to perform optimizations that were very difficult to perform with the old JIT, using the context of the current runtime environment (e.g., reference counting elision).</p>
+
+<!--truncate-->
+
+<p><img src="/static/images/posts/ir_chart-e13788785293871.png" alt="HHVM Performance with addition of IR" /></p>
+<center><i>HHVM Performance with addition of IR</i></center>
+
+<p>Facebook continues to use fewer resources because of the continual performance increases provided by HHVM. However, there is a problem…</p>
+
+<p><img src="/static/images/posts/hhvm_fatal-e13788786622871.png" alt="HHVM fatals on Laravel unit tests." /></p>
+<center><i>HHVM fatals on Laravel unit tests.</i></center>
+
+<p>Performance is critical, but it isn’t everything. In order to gain broader adoption for HHVM, being able to run popular frameworks is a must; in other words, we can have the highest performing PHP runtime, but if doesn’t run real-world code without a lot of pain, then it won’t be used widely. Understanding this, we are putting serious resources around parity with the PHP runtime.</p>
+
+<p>The table below shows the team’s current progress towards parity with <a href="https://github.com/search?l=php&amp;q=stars%3A%3E1&amp;s=stars&amp;type=Repositories">20+ of the most popular frameworks used with PHP today</a>. These frameworks come with unit tests that are run via <a href="https://github.com/sebastianbergmann/phpunit/">PHPUnit</a>. The unit tests provide a good indication of how well a framework will ultimately run when used in production. The unit tests were run on CentOS 6 from the latest branch of the framework from GitHub, on the latest development build of HHVM.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Framework</th>
+      <th>% Unit Tests Pass on HHVM</th>
+      <th>% Unit Tests Failing on HHVM</th>
+      <th>% Unit Tests Causing HHVM to Fatal/Seg Fault [1]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://github.com/sebastianbergmann/phpunit">PHPUnit</a> [2]</td>
+      <td>90</td>
+      <td>10</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/composer/composer">Composer</a></td>
+      <td>97</td>
+      <td>3</td>
+      <td>&lt; 1</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/symfony/symfony">Symfony</a></td>
+      <td>91</td>
+      <td>9</td>
+      <td>&lt; 1</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/cakephp/cakephp">CakePHP</a></td>
+      <td>0</td>
+      <td>Tests won’t run [3]</td>
+      <td>Tests won’t run</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/kurtpayne/wordpress-unit-tests">Wordpress</a></td>
+      <td>76</td>
+      <td>24</td>
+      <td>&lt; 1</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/joomla/joomla-platform">Joomla</a></td>
+      <td>0</td>
+      <td>Tests won’t run [4]</td>
+      <td>Tests won’t run</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/phpbb/phpbb3">phpBB</a></td>
+      <td>0</td>
+      <td>100 [5]</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/phpmyadmin/phpmyadmin">PHPMyAdmin</a></td>
+      <td>0</td>
+      <td>Tests won’t run [6]</td>
+      <td>Tests won’t run</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/laravel/laravel">Laravel</a></td>
+      <td>95</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/zendframework/zf2">zf2</a></td>
+      <td>0</td>
+      <td>Tests won’t run [7]</td>
+      <td>Tests won’t run</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/yiisoft/yii">yii</a></td>
+      <td>92</td>
+      <td>8</td>
+      <td>&lt;1</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/codeguy/Slim">Slim</a></td>
+      <td>99</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/facebook/facebook-php-sdk">Facebook PHP SDK</a></td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/doctrine/doctrine2">Doctrine</a></td>
+      <td>0</td>
+      <td>Tests won’t run [8]</td>
+      <td>Tests won’t run</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/kriswallsmith/assetic">Assetic</a></td>
+      <td>80</td>
+      <td>20</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/fabpot/Twig">Twig</a></td>
+      <td>78</td>
+      <td>22</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/drupal/drupal">Drupal</a></td>
+      <td>98</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/j4mie/paris">Paris</a> [9]</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/j4mie/idiorm">Idiorm</a> [9]</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/EllisLab/CodeIgniter">CodeIgniter</a></td>
+      <td>81</td>
+      <td>19</td>
+      <td>&lt; 1</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/magento/magento2">Magento</a></td>
+      <td>0</td>
+      <td>Tests won’t run [10]</td>
+      <td>Tests won’t run</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>It is clear that HHVM is lacking in full support for these frameworks. The first step is to implement the functionality that is causing the HHVM to fatal with some of these unit tests. From the results, in addition to bugs, the HHVM team now knows that it is lacking in support for:</p>
+
+<ul>
+  <li>
+    <p>Intl (internationalization), MySQLi, ZipArchive, RegexIterator</p>
+  </li>
+  <li>
+    <p>Unimplemented functions such as <code class="highlighter-rouge">str_getcsv</code>, <code class="highlighter-rouge">stream_context_get_options</code></p>
+  </li>
+  <li>
+    <p>Richer DOM, Phar and FileInfo support</p>
+  </li>
+  <li>
+    <p>Support for php.ini and associated options</p>
+  </li>
+  <li>
+    <p>Better autoloading support</p>
+  </li>
+</ul>
+
+<p>After ensuring that all unit tests can be run to completion (i.e. no more fatals), the team will continue to implement the functionality that is causing the tests to fail. In parallel, the team will be working to implement any functionality required to allow these frameworks to run on HHVM in the real world (e.g., ensuring the base cases and tutorials can run). Blog posts will be coming soon on how to run the unit tests for each framework on HHVM and/or getting the actual frameworks to run on HHVM (hopefully with less and less workarounds as functionality is implemented).</p>
+
+<p>The HHVM team’s goal is to reach at least parity with the PHP runtime on these (and other) frameworks (the PHP runtime passes the unit tests anywhere from 95-100%) [11]. Plans are in the works to have a near-live dashboard showing the progress on reaching this goal. If you do not see an important framework in our list that should be added to our testing, please comment below and we will add it.</p>
+
+<p>Moving forward, the HHVM team is going to increase the amount of information around the status of HHVM. Parity status is just one piece of this puzzle. Here is an idea of the plans for the HHVM team in the next 6-12 months:</p>
+
+<ul>
+  <li>
+    <p>Top PHP Framework parity</p>
+  </li>
+  <li>
+    <p>Updated HHVM documentation</p>
+  </li>
+  <li>
+    <p>First class support for open source contributions</p>
+  </li>
+  <li>
+    <p>Easy install of HHVM on Linux</p>
+  </li>
+  <li>
+    <p>PHP language improvements (e.g., type hints for scalars)</p>
+  </li>
+</ul>
+
+<p>While our small team is aggressively trying to improve HHVM, we know that we cannot address all compatibility concerns as quickly as we would like. Thus, <a href="https://github.com/facebook/hiphop-php#contributing">we sincerely welcome contributions</a>, particularly any that can help HHVM reach parity with your desired workload(s). The team will be happy to review and assist with pull requests. Particular thanks to <a href="https://github.com/danslo">Daniel Sloof</a>, <a href="https://github.com/staabm">Markus Staab</a>, <a href="https://github.com/javer">Vadim Borodavko</a>, <a href="https://github.com/kristapsk">Kristaps Kaupe</a>, <a href="https://github.com/huzhiguang">huzhiguang</a>, and the many others in the community currently pushing commits to our source base.</p>
+
+<p>If you do not have a specific workload or application in mind, but still would like to be involved in HHVM, please look at the issues tagged <em><a href="https://github.com/facebook/hiphop-php/issues?labels=zend+incompatibility&amp;page=1&amp;state=open">zend incompatibility</a></em> for known conflicts with the PHP runtime. Tests can be added easily (see the <a href="https://github.com/facebook/hiphop-php/blob/master/hphp/test/README.md">README</a>) and <a href="https://travis-ci.org/">Travis-CI</a> is integrated, which provides quick and reliable test results on commits. Visit us on IRC channel <a href="http://webchat.freenode.net/?channels=hhvm">#hhvm on freenode</a> if you need further guidance.</p>
+
+<p>We know there is work to do, but the HHVM team’s #1 priority right now is being able to run all the (sane) PHP code in the wild.</p>
+
+<h4 id="footnotes">Footnotes</h4>
+
+<ol>
+  <li>
+    <p>Tests that cause HHVM to fatal were commented out and replaced with a return of <code class="highlighter-rouge">$this-&gt;fail("HHVM Fatals");</code> which causes the test to fail, but allow the test suite to continue running.</p>
+  </li>
+  <li>
+    <p>The PHPUnit self-check tests were not run with PHPUnit directly; rather it comes with a self install test that was run, from the source root, via a command similar to ‘<code class="highlighter-rouge">hhvm phpunit.php --verbose</code>’. Also, as of now, the tests will only complete when provided with a <code class="highlighter-rouge">--debug</code> or <code class="highlighter-rouge">--verbose</code> flag; otherwise there is a segmentation fault. That said, PHPUnit does run well enough to be used to execute the unit tests for all the other frameworks.</p>
+  </li>
+  <li>
+    <p>CakePHP has a class named <code class="highlighter-rouge">String</code>. HHVM does not allow, by default, for classes to have names of primitives. HHVM has other bugs around <code class="highlighter-rouge">preg_replace_callback()</code> and autoloading of classes (<a href="https://github.com/facebook/hiphop-php/pull/959">https://github.com/facebook/hiphop-php/pull/959</a>).</p>
+  </li>
+  <li>
+    <p>The Joomla unit tests do not currently run because of autoloading issues related to: <a href="https://github.com/facebook/hiphop-php/pull/959">https://github.com/facebook/hiphop-php/pull/959</a></p>
+  </li>
+  <li>
+    <p>All 2010 phpBB unit tests fail, and all fail for one reason. There is a method called <code class="highlighter-rouge">setValue()</code> that takes two parameters, but throughout the testing only one parameter is provided (and no default value for the second parameter is given). HHVM does not allow this.</p>
+  </li>
+  <li>
+    <p>PHPMyAdmin requires mysqli immediately, and HHVM does not support this.</p>
+  </li>
+  <li>
+    <p>zf2 requires the Intl (internationalization) extension, and HHVM does not support this.</p>
+  </li>
+  <li>
+    <p>Doctrine2 has certain classes that implement interfaces, but these classes do not implement these interfaces fully. HHVM requires classes that implement interfaces to be compatible with the interfaces they implement.</p>
+  </li>
+  <li>
+    <p>A pull request was made for Paris and Idiorm to change their tests to better support HHVM, but to also be more correct: <a href="https://github.com/j4mie/idiorm/pull/143">https://github.com/j4mie/idiorm/pull/143</a></p>
+  </li>
+  <li>
+    <p>Magento fatals immediately with the following error message: “HipHop Fatal error: Class Mock_Mage_Core_Controller_Varien_ActionAbstract_839dc612 contains abstract method (dispatch) and must therefore be declared abstract or implement the remaining methods”. We believe it is a problem with the HHVM <code class="highlighter-rouge">ReflectionMethod</code> implementation.</p>
+  </li>
+  <li>
+    <p>The PHP runtime tests were run with a source-code compiled version of PHP 5.5.4 on CentOS 6, with the following configuration:</p>
+  </li>
+</ol>
+
+<p><code class="highlighter-rouge">./configure --prefix=/home/joelm/php55 --with-mysql --with-pdo-mysql --with-curl --with-openssl --with-mcrypt --enable-mbstring --enable-pcntl --with-mysqli --enable-intl --with-pdo-pgsql --with-pgsql --with-libxml-dir --enable-opcache --enable-calendar --enable-sockets --enable-zip --enable-soap --with-zlib --with-gd --with-bz2</code></p>
+
+    
+      
+      
+        
+          <h3> Comments </h3>
+          <br/>
+          <ul>
+          
+        
+        <li><b>Pasquale Vazzana</b>: Keep up the good work!</li>
+      
+        
+        <li><b>Yermo</b>: I've found the members of your team in IRC extremely helpful and open to bug reports and questions. I confess I was surprised.  
+
+I was convinced there was no way hhvm could run my codebase, a framework&#47;platform not that unlike Drupal,  because of how large, involved and most depressingly old it is. To my shock and amazement it runs almost 100%, and I'm confident with a little more effort it will be 100%. And it's <b>FAST</b>.
+
+What's simply nuts is the assertion that in some cases the JIT compiler does a better job (i.e. is faster) than a static C++ compiler can, something that I still have a hard time wrapping my brain around.</li>
+      
+        
+        <li><b>Bnaya</b>: I hope namespaces is also on the loop. Thank you for that great project!!</li>
+      
+        
+        <li><b>aleksandar</b>: I am sure that including Magento in the "top frameworks" list will be appriciated by it's large community.
+
+In case u need help with unit tests let us know :-)</li>
+      
+        
+        <li><b>Lelala</b>: The performance issue isn't quite that important, usually can throw more (cheap today)hardware at the problem.
+Sure, in a datacenter there may be an issue, but in real world, there is not...</li>
+      
+        
+        <li><b>Joseph Redfern</b>: Awesome stuff. FYI, the sorting on the table doesn't work - seems to be treating the numbers as strings.</li>
+      
+        
+        <li><b>Ilmari Oranen</b>: I'm very excited to see when Drupal unit test pass reaches 100%. 
+
+Supporting the gazillion modules is a different thing, but could be possible with the support of the Drupal community  :-)</li>
+      
+        
+        <li><b>yosef</b>: What would be very neat of you to add is to make it similar to php5-fpm as possible(allowing us to just as easily add hhvm to replace the php5-fpm) or to simpley run as a seperate server from php5-fpm and await requests of our NGINX. 
+so far HHVM configuration has been more confusing than that of PHP5-FPM and I fail to configure it on my own.
+my setup is simple, if the file extension is php then just send it to a unix  socket of php5-fpm.sock, the php5-fpm doesn't care from what folder it is sent to, however hhvm seems like it cares of the paths and folders which makes it quite difficult to figure out how to configure, good work tho and hope you get it beyond your expectations.</li>
+      
+        
+        <li><b>Lukas</b>: "Doctrine2 has certain classes that implement interfaces, but these classes do not implement these interfaces fully. HHVM requires classes that implement interfaces to be compatible with the interfaces they implement."
+
+could you explain a bit more what you mean by that? see also https:&#47;&#47;twitter.com&#47;jmikola&#47;status&#47;378374068648419328</li>
+      
+        
+        <li><b>Jose Diaz-Gonzalez</b>: It would be nice if you included the methodology for running tests here. I am part of the CakePHP core team, and we'd love to have full compatibility with HipHop, though we can't do that without knowing how you did setup&#47;ran test :)
+
+Feel free to ping me if you have any questions.</li>
+      
+        
+        <li><b>Ahemd Enan</b>: Great Stuff  !,  i think wordpress is the most important cms&#47;framework for php  and it's have very large community from different language , please  lets us know more about unit tests  even we can make especial one for hhvm</li>
+      
+        
+        <li><b>Joel Marcey</b>: aleksandar, thanks for your comment. I have added Magento to the table with a footnote as to why the unit tests won't run. We are pretty sure it is a bug on our end. Once that is fixed, we will see what other failures we may have :)</li>
+      
+        
+        <li><b>Joel Marcey</b>: Jose Diaz-Gonzalez, I am planning to update our GitHub wiki with information on the setup and processes we used to run these tests. I hope to get that documented very soon.</li>
+      
+        
+        <li><b>Sam</b>: How about Guzzle?
+
+http:&#47;&#47;guzzlephp.org&#47;</li>
+      
+        
+        <li><b>Slavin</b>: I honestly fail to see the whole idea of keep trying to make PHP fast. It's not used in enterprise projects, nor was it intended to be. I have nothing but respect for building (or almost) a blazing fast VM. PHP got so popular because of it's ease of installation. Take that away and there's nothing left. Having said that, I do hope that this project actually goes somewhere.</li>
+      
+        
+        <li><b>ENTERPRISE OR GTFO</b>: Enterprise projects? You sound like Ballmer.
+
+You can remove these:
+- Wordpress
+- Joomla
+- PHPBB
+- Drupal (< 8)
+- Magento
+
+Nobody that would care about scaling an application would use such bloated, insecure and poorly architected applications.</li>
+      
+        
+        <li><b>Jeff</b>: Looking forward to Magento support!</li>
+      
+        
+        <li><b>Alex</b>: +1 To Enterprise or GTFO.
+
+And forget supporting frameworks - what about MongoDB, Postgres support ?</li>
+      
+        
+        <li><b>Daniel Lowrey</b>: <blockquote>Unimplemented functions such as str_getcsv, stream_context_options<&#47;blockquote>
+
+Uh, there's no such thing as a <code>stream_context_options<&#47;code> function. I assume this refers to an inability to use <i>any<&#47;i> stream context functionality? If so, this is a major shortcoming for support in my own work.
+
+<b>Can you please clarify this point?</b></li>
+      
+        
+        <li><b>Joel Marcey</b>: Good catch, thanks. It should have been <code>stream_context_get_options<&#47;code>. I fixed it.</li>
+      
+        
+        <li><b>Noticias 14-10-2013 - La Web de Programaci&oacute;n</b>: [&#8230;] La m&aacute;quina virtual de Facebook para PHP va aumentando su rendimiento a muy buen ritmo, aunque todav&iacute;a no tenga soporte total del lenguaje. [&#8230;]</li>
+      
+        
+        <li><b>Yonni</b>: What about Zend Framework 1 &amp; Zend Framework 2? Any relevant test runs with those?</li>
+      
+        
+        <li><b>Marco Pivetta</b>: I've been playing around with HHVM today and it really looks promising!
+
+The only "hard stop" I had so far is PHPUnit containing un-recognized syntax such as:
+
+<code>HipHop Fatal error: syntax error, unexpected '(', expecting T_LNUMBER or ';' in &#47;vagrant&#47;ProxyManager&#47;vendor&#47;phpunit&#47;phpunit&#47;PHPUnit&#47;Util&#47;XML.php on line 825<&#47;code>
+
+Had other problems such as the constant <code>PHP_VERSION_ID<&#47;code> not being undefined, or missing classes such as <code>RecursiveArrayIterator<&#47;code> or missing implementations for the reflection API (mainly seems to crash when you extend internal classes).
+
+That's unfortunate, but I can see HipHop VM is now really something easy to install and to use! That surely helps in getting the community to report issues!
+
+As for the installers: please start signing your .deb packages :-)</li>
+      
+        
+        <li><b>Lucas Costa</b>: Thanks! Hope to see you guys around here often!</li>
+      
+        
+        <li><b>Joel Marcey</b>: We have zf2 in the table. It won't run because of the lack of internationalization support by HHVM. However, we are working on that aspect and working with people who may modify the test suite to help us exit more gracefully than a fatal with the lack of that extension.</li>
+      
+        
+        <li><b>raciloni</b>: Can you add <a href="http:&#47;&#47;fatfreeframework.com&#47;home" rel="nofollow">Fat-Free framework<&#47;a> to your table, It's a realy promising micro-framework, and I'd like to see it supported by HHVM.</li>
+      
+        
+        <li><b>RouteXL</b>: I can't get my Slim project to run on HHVM. Were there any specific configurations made for this framework, or was it ran plain vanilla? I guess there are some rewriterules required to redirect custom endpoints...</li>
+      
+        
+        <li><b>John</b>: I agree with Alex. The only reason I can't use HHVM is because it lacks MongoDB support. There was a promise from Sarah (a year ago or so) that you guys will try to make php extensions easily compilable to HHVM, but still, nothing happened.</li>
+      
+        
+        <li><b>Brian Cavanagh</b>: If you could only get New Relic Integrated into this I would start transitioning clients tomorrow!  I would be scared to lose all the diagnostic information that NR provides my Enterprise Clients</li>
+      
+        
+        <li><b>Rod</b>: Why throw money at a problem instead of using this if you can, for free? I at least hope it's your own money and not someone else's.</li>
+      
+        
+        <li><b>Дайджест интересных новостей и материалов из мира PHP за последние две недели (8&mdash;22 сентября 2013) | Juds</b>: [&#8230;] HHVM быстр&hellip; жаль мой код не запускается&nbsp;&mdash; Не смотря на заманчивую производительность, HHVM поддерживает далеко не все возможности PHP. В посте приведена таблица со списком фреймворков и информацией об их работоспособности в HHVM на основе данных о выполнимости юнит-тестов. Приоритетная цель для команды HHVM &mdash; обеспечить 100% работу этих фреймворков на HHVM. Помощь контрибьюторов&nbsp;приветствуется. [&#8230;]</li>
+      
+        
+        <li><b>PHP: Installing HipHop PHP on Ubuntu &laquo; {5} Setfive &#8211; Talking to the World</b>: [&#8230;] couple of weeks ago, a blog post came across &#47;r&#47;php titled Wow HHVM is fast&hellip;too bad it doesn&rsquo;t run my code. The post is pretty interesting, it takes a look at what the test pass % is for a variety of PHP [&#8230;]</li>
+      
+        
+        <li><b>ivan panfilov</b>: I love this project. But really don't waste time for frameworks and other bullshit stuff. Coz 100% this is not help for improviing performace. Support only standart PHP for people who really needed in perfomance and who writing application 
+withaout 100 tons of boilerplate crap.</li>
+      
+        
+        <li><b>RouteXL</b>: Referring to my previous question regarding the Slim framework, I got it to work using this config:
+
+<code>
+Server {
+  SourceRoot = &#47;var&#47;www
+  DefaultDocument = index.php
+}
+
+VirtualHost {
+  www {
+    Pattern = .*
+    ServerVariables {
+        PHP_SELF = &#47;index.php
+        SCRIPT_NAME = &#47;index.php
+    }
+    RewriteRules {
+      index {
+        pattern = ^(.*)$
+        to = index.php&#47;$1
+        qsa = true
+      }
+    }
+  }
+}
+<&#47;code></li>
+      
+        
+        <li><b>Jakub</b>: I would love to see passing tests for media wiki. 
+
+Thanks for a great project.</li>
+      
+        
+        <li><b>Benchmarking HipHopVM against PHP 5.3 on Ubuntu 12.04 | LeaseWeb Labs</b>: [&#8230;] The differences were smaller and less consistent than I expected. Also I was disappointed that HipHopVM did not run my code. [&#8230;]</li>
+      
+        
+        <li><b>Fabien</b>: Just for your information, I've just finished making Twig compatible with HHVM; at least, all tests pass now.</li>
+      
+        
+        <li><b>Ryan Kopf</b>: SilverStripe would be another important Framework to test on. SilverStripe powers quite a few government, political, insurance company, and other large websites.</li>
+      
+        
+        <li><b>Remo</b>: It seems like concrete5 has a similar problem like CakePHP. There's a class called "Collection" which causes HHVM to fail with:
+
+<code>
+HipHop Fatal error: Class Concrete5_Model_Page may not inherit from interface (Collection) in &#47;home&#47;remo&#47;concrete5&#47;web&#47;concrete&#47;core&#47;models&#47;page.php on line 12<&#47;code></li>
+      
+        
+        <li><b>Bert-Jan</b>: I would love to see Propel added to the table.. it's a very popular ORM (like Doctrine) used (among others) in symfony &amp; symfony2, but also stand-alone in other projects.</li>
+      
+        
+        <li><b>Andrey Tserkus</b>: Can you also add Magento 2 to the list?
+It is a newer version under development, it has more unit tests.
+
+GitHub link:
+https:&#47;&#47;github.com&#47;magento&#47;magento2
+
+Thanks!</li>
+      
+        
+        <li><b>Greg</b>: Would love to see Guzzle and the AWS SDK  supported. Great work so far, very excited to see what the future holds for this project!</li>
+      
+        
+        <li><b>grim</b>: Symconf 2 Go~!</li>
+      
+        
+        <li><b>HHVM 2.2.0 &laquo; HipHop Virtual Machine</b>: [&#8230;] was a 17% CPU reduction for running facebook.com compared to HHVM 2.1.0. It also supports many more frameworks out of the box&nbsp;like Symfony, CodeIgniter, Laravel, and many [&#8230;]</li>
+      
+        
+        <li><b>Corey Ballou</b>: In future updates, it'd be great if you included the framework version numbers just for reference. Major release versions of frameworks often include substantial changes. For instances, I can see you're using Laravel 4 for this which was still very much in development at the time so I'm wondering how Laravel 3 faired.</li>
+      
+        
+        <li><b>Ivan Mosiev</b>: Please don't write silly comments. HHVM should support all features of modern PHP, does not matter is it required for frameworks or not. For example we have ArrayAccess interface wich is part of standard PHP library. Unfortunately HHVM does not work correctly with this code:
+<code>
+$array = new ArrayObject();
+$array['foo'] = 'bar';
+array_key_exists('foo', $array);
+<&#47;code>
+This bug break some tests in PHPUnit and other frameworks and if would like to use ArrayAccess in your code will also break your code too. I think frameworks is used there first of all because of huge amount of unit tests that can be used to verify that HHVM supports all existing PHP features. However, if you mean that you don't need OOP in PHP at all you are free to use kPHP anaunced not so long time ago, as I know it supports only old school procedural approach.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: Have you reported the bug on github? And we would love a pull request :)</li>
+      
+        
+        <li><b>Ivan Mosiev</b>: Report no problem, but about pull request I'm unsure. I'm not so good in C++</li>
+      
+        
+        <li><b>sachin</b>: Can I use it with Core PHP(Procedural style) in any way.I am not using any specific Framework for my application but have a custom built mini framework to perform basic operations.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: Yes</li>
+      
+        
+        <li><b>Fernando</b>: What about Kohana Framework tests? http:&#47;&#47;kohanaframework.org
+
+WIll be great to see it!</li>
+      
+        
+        <li><b>Furicane</b>: Rod, HHVM doesn't work in real world (yet). There are numerous extensions PHP has that are in use which HHVM doesn't support and might not support at all. That means you can't use it. If you have a busy website, that assumes it makes money. Investing money in infrastructure to get several times more back is called smart investing. I just hope no one hired you so far, you seem way too green for real world work.</li>
+      
+        
+        <li><b>bob</b>: Using this is far from free. You don't have to pay for a product, but you do have to pay for development time taken to implement this. Then there's the opportunity cost of taking a few hours (or more) to implement HHVM rather than taking less than an hour to throw more hardware at the problem and using the saved time to do something else.</li>
+      
+        
+        <li><b>Josh</b>: Just tested this on 2.3.0 w&#47; concrete5 5.6.1.3 - same issue. I'm pretty sure you're right, it's colliding due to Collection being a reserved name, as evidenced on line 930 here:
+https:&#47;&#47;github.com&#47;facebook&#47;hhvm&#47;blob&#47;master&#47;hphp&#47;runtime&#47;vm&#47;class.cpp#L930
+
+So Collection is already a defined class name and it won't let you define another (indeed that codepath has instantiated Collection objects of its own already.) If I had to choose, I'd say that the "Collection" is the most fundamental part of Concrete5, so it's not something easily refactored. It's old fashioned, but maybe the HHVM guys should consider a prefix to their own naming conventions. hhvmCollection is much less likely to be defined in a PHP script than Collection would be, after all.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: Collection should already be namespaced. Maybe it didn't make it into 2.3.0. Can you try it again with trunk?</li>
+      
+        
+        <li><b>Rafi B.</b>: +1 for Kohana, would be interesting.</li>
+      
+        
+        <li><b>Philipp Gampe</b>: Any time plan for mysqli support? Mysql is deprecated as of PHP 5.5 and many applications move mysqli.
+http:&#47;&#47;www.php.net&#47;manual&#47;en&#47;intro.mysql.php
+
+Also consider adding TYPO3 CMS to the list of tested frameworks - it is the fifth most widely used CMS.
+Unit test examples can be found on travis.</li>
+      
+        
+        <li><b>Philipp Gampe</b>: I just checked ... old stable TYPO3 CMS Version 4.5 LTS runs with hhvm <3 in frontend context.
+
+This is really fast.</li>
+      
+        
+        <li><b>Paul Tarjan</b>: mysqli support will land in the next month or two</li>
+      
+        
+        <li><b>Josh</b>: I found the issue https:&#47;&#47;github.com&#47;facebook&#47;hhvm&#47;issues&#47;1003 , and it looks like it just missed the cutoff on 2.3.1. Trunk (and everything I see that's going in to 2.3.2) has this fix included. I'm visiting family for the holidays for the next week, but will definitely test once I'm back to work. It does look like it will all work though - Concrete5's parity remains to be seen, but this is a huge amount of progress.</li>
+      
+        
+        <li><b>HipHop VM reaches 100% green Unit Tests in Laravel, Drupal, Slim, CodeIgniter etc. | Dev Metal</b>: [&#8230;] September 2013 the PHP HipHop VM dev team wrote a very interesting article [1] about failing Unit Tests of most PHP frameworks when running inside the HipHop VM (HHVM). The [&#8230;]</li>
+      
+        
+        <li><b>Loyd</b>: My programmer is trying to convince me to move to .net from PHP.
+I have always disliked the idea because of the expenses.
+
+But he's tryiong none the less. I've been using Movable-type on a number of websites for about a 
+year and am anxious about switching to another platform.
+
+I have heard excellent things about blogengine.net.
+Is there a way I can transfer all my wordpress posts into it?
+Any kind of help would be really appreciated!</li>
+      
+        
+        <li><b>HHVM and WordPress | Keita&#039;s Blog</b>: [&#8230;] Wow HHVM is fast&hellip;too bad it doesn&rsquo;t run my code&#8617; [&#8230;]</li>
+      
+        
+        <li><b>HHVM: The Next Six Months &laquo; HipHop Virtual Machine</b>: [&#8230;] 20+ top PHP frameworks have 100% unit tests passing [&#8230;]</li>
+      
+        
+        <li><b>besei</b>: I got to be able to run, "HHVM" program somehow.
+There was an error of, "mysqli" startup screen "phpmyadmin". I've found the cause of the error.
+Thank you.
+Plan and would like to run for example "CakePHP", "CodeIgniter", "FuelPHP".
+
+These comments, is the google translation.</li>
+      
+        
+        <li><b>Facebook's Hack, HHVM, and the Future of PHP - Programming - O'Reilly Media</b>: [&#8230;] engine. This is necessary because Facebook&#8217;s existing codebase is largely existing PHP code. There are a few exceptions since HHVM is not 100% compatible with the PHP Zend Engine; there are a few language features (like [&#8230;]</li>
+      
+        
+        <li><b>Hubnest &raquo; What is HHVM?</b>: [&#8230;] not for everybody. Although it runs all our codes out of the box, HHVM&#8217;s PHP implementation&nbsp;isn&#8217;t complete enough&nbsp;to run many popular PHP frameworks. One of the issues&nbsp;is the server requirements &#8211; HHVM is [&#8230;]</li>
+      
+        
+        <li><b>Pavel</b>: Looks very promising but a bit diffucult to deal with some configuration problems. We need to disable php native soapclient because we use nusoap. We failed miserably. Is there a way to disable some soap or some other modules? Traditional way does not work. Is there something fundamental we are missing?</li>
+      
+        
+        <li><b>Major</b>: +1 for Kohana!!!!!</li>
+      
+        
+        <li><b>John Sutton</b>: I used HPHPc and I liked it. Then HHVM came along and I was disappointed since it no longer compiled to C, but that decision wasn't mine. I avoided HHVM as long as I could, but because of Ubuntu upgrades I eventually installed HHVM and FastCGI. When I tried it I discovered HHVM does not support ODBC_CONNECT - a very commonly used function. I have many PHP webservices that pull data using ODBC. I am really disappointed.</li>
+      
+        
+        <li><b>Theodore R. Smith</b>: Hey John, the many database-specific functions from the 1990s are no longer wise to rely on. Indeed, they're starting to be deprecated by Zend PHP itself. Today, in 2014, you really really ought to migrate to PDO (which does support ODBC), the de facto standard for database access.</li>
+      
+        
+        <li><b>k0d3g3ar</b>: How about losing the personal attacks here and actually contributing something that we all can benefit from.  Telling someone that they shouldn't be hired or are too green makes you look like someone I would never hire - not a team player.</li>
+      
+        
+        <li><b>k0d3g3ar</b>: It is used in enterprise projects - lots of them.  Also PHP lacks in any form of true compilation to hide source code.  This is a highly needed and valuable project.</li>
+      
+        
+        <li><b>k0d3g3ar</b>: +1</li>
+      
+        
+        <li><b>HHVM will kompatibel mit den h&auml;ufigsten PHP Frameworks werden - entwickler.de</b>: [&#8230;] man in den vergangenen Monaten gro&szlig;e Fortschritte bei der Performance gemacht hat, wie aus der aktuellen Meldung hervorgeht, will man nun mit h&ouml;chster Priorit&auml;t an der Kompatibilit&auml;t zu Anwendungen aus der [&#8230;]</li>
+      
+      
+        </ul>
+        <br/>
+      
+    
+  
+  
+    <div class="fb-like pluginWrapper likeButtonWrapper" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
+<script>
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '1615782811974223',
+    xfbml      : true,
+    version    : 'v2.3'
+  });
+  };
+
+  (function(d, s, id){
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "//connect.facebook.net/en_US/sdk.js";
+   fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+    <div class="pluginWrapper twitterSharePlugin">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-hashtags="HHVM">Tweet</a>
+</div>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  
+  </article>
+</div>
+
+</div>
+  </div>
+</div>
+
+
+      </div>
+      <div class="footerContainer">
+  <div id="footer_wrap" class="wrapper footerWrapper">
+    <div class="footerBlocks">
+      <div id="fb_oss" class="footerSection fbOpenSourceFooter">
+          <svg class="facebookOSSLogoSvg" viewBox="0 0 1133.9 1133.9" x="0px" y="0px">
+            <g>
+              <path class="logoRing outerRing" d="M 498.3 3.7 c 153.6 88.9 307.3 177.7 461.1 266.2 c 7.6 4.4 10.3 9.1 10.3 17.8 c -0.3 179.1 -0.2 358.3 0 537.4 c 0 8.1 -2.4 12.8 -9.7 17.1 c -154.5 88.9 -308.8 178.1 -462.9 267.5 c -9 5.2 -15.5 5.3 -24.6 0.1 c -153.9 -89.2 -307.9 -178 -462.1 -266.8 C 3 838.8 0 833.9 0 825.1 c 0.3 -179.1 0.2 -358.3 0 -537.4 c 0 -8.6 2.6 -13.6 10.2 -18 C 164.4 180.9 318.4 92 472.4 3 C 477 -1.5 494.3 -0.7 498.3 3.7 Z M 48.8 555.3 c 0 79.9 0.2 159.9 -0.2 239.8 c -0.1 10 3 15.6 11.7 20.6 c 137.2 78.8 274.2 157.8 411 237.3 c 9.9 5.7 17 5.7 26.8 0.1 c 137.5 -79.8 275.2 -159.2 412.9 -238.5 c 7.4 -4.3 10.5 -8.9 10.5 -17.8 c -0.3 -160.2 -0.3 -320.5 0 -480.7 c 0 -8.8 -2.8 -13.6 -10.3 -18 C 772.1 218 633.1 137.8 494.2 57.4 c -6.5 -3.8 -11.5 -4.5 -18.5 -0.5 C 336.8 137.4 197.9 217.7 58.8 297.7 c -7.7 4.4 -10.2 9.2 -10.2 17.9 C 48.9 395.5 48.8 475.4 48.8 555.3 Z" />
+              <path class="logoRing middleRing" d="M 184.4 555.9 c 0 -33.3 -1 -66.7 0.3 -100 c 1.9 -48 24.1 -86 64.7 -110.9 c 54.8 -33.6 110.7 -65.5 167 -96.6 c 45.7 -25.2 92.9 -24.7 138.6 1 c 54.4 30.6 108.7 61.5 162.2 93.7 c 44 26.5 67.3 66.8 68 118.4 c 0.9 63.2 0.9 126.5 0 189.7 c -0.7 50.6 -23.4 90.7 -66.6 116.9 c -55 33.4 -110.8 65.4 -167.1 96.5 c -43.4 24 -89 24.2 -132.3 0.5 c -57.5 -31.3 -114.2 -64 -170 -98.3 c -41 -25.1 -62.9 -63.7 -64.5 -112.2 C 183.5 621.9 184.3 588.9 184.4 555.9 Z M 232.9 556.3 c 0 29.5 0.5 59.1 -0.1 88.6 c -0.8 39.2 16.9 67.1 50.2 86.2 c 51.2 29.4 102.2 59.2 153.4 88.4 c 31.4 17.9 63.6 18.3 95 0.6 c 53.7 -30.3 107.1 -61.2 160.3 -92.5 c 29.7 -17.5 45 -44.5 45.3 -78.8 c 0.6 -61.7 0.5 -123.5 0 -185.2 c -0.3 -34.4 -15.3 -61.5 -44.9 -79 C 637.7 352.6 583 320.8 527.9 290 c -27.5 -15.4 -57.2 -16.1 -84.7 -0.7 c -56.9 31.6 -113.4 64 -169.1 97.6 c -26.4 15.9 -40.7 41.3 -41.1 72.9 C 232.6 491.9 232.9 524.1 232.9 556.3 Z" />
+              <path class="logoRing innerRing" d="M 484.9 424.4 c 69.8 -2.8 133.2 57.8 132.6 132 C 617 630 558.5 688.7 484.9 689.1 c -75.1 0.4 -132.6 -63.6 -132.7 -132.7 C 352.1 485 413.4 421.5 484.9 424.4 Z M 401.3 556.7 c -3.4 37.2 30.5 83.6 83 84.1 c 46.6 0.4 84.8 -37.6 84.9 -84 c 0.1 -46.6 -37.2 -84.4 -84.2 -84.6 C 432.2 472.1 397.9 518.3 401.3 556.7 Z" />
+            </g>
+          </svg>
+        <h2>Facebook Open Source</h2>
+      </div>
+      <div class="footerSection">
+        <a class="footerLink" href="https://code.facebook.com/projects/" target="_blank">开源项目</a>
+        <a class="footerLink" href="https://github.com/facebook/" target="_blank">GitHub</a>
+        <a class="footerLink" href="https://twitter.com/fbOpenSource" target="_blank">Twitter</a>
+      </div>
+      <div class="footerSection rightAlign">
+        <a class="footerLink" href="https://github.com/hhvm-cn/hhvm-cn.com" target="_blank">帮助我们翻译</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49208336-2', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:url" content="http://hhvm-cn.com/blog/9293/lockdown-results-and-hhvm-performance" />
+  <meta property="og:site_name" content="HHVM"/>
+  <meta property="og:title" content="Lockdown Results and HHVM Performance" />
+  <meta property="og:image" content="http://hhvm-cn.com/static/og_image.png" />
+  <meta property="og:description" content="The HHVM team has concluded its first ever open source performance lockdown, and we’re very excited to share the results with you. During our two week lockdo..." />
+
+  <link rel="stylesheet" href="/css/main.css" media="screen">
+  <link rel="icon" href="/static/favicon.png" type="image/x-icon">
+  
+
+  <title>Lockdown Results and HHVM Performance | HHVM</title>
+  <meta name="description" content="The HHVM team has concluded its first ever open source performance lockdown, and we’re very excited to share the results with you. During our two week lockdo...">
+
+  <link rel="canonical" href="http://hhvm-cn.com/blog/9293/lockdown-results-and-hhvm-performance">
+  <link rel="alternate" type="application/rss+xml" title="HHVM" href="http://hhvm-cn.com/feed.xml" />
+</head>
+
+  <body class="docsNavVisible">
+    <div id="fixed_header" class="fixedHeaderContainer visible">
+  <div class="headerWrapper wrapper">
+    <header>
+      <a href="http://hhvm-cn.com/">
+        <img src="/static/logo.svg">
+        <h2>HHVM</h2>
+      </a>
+
+      <div class="navigationWrapper navigationFull" id="flat_nav">
+        <nav class="navigation">
+          <ul>
+            
+              <li class="navItem">
+                
+                  <a href="https://docs.hhvm-cn.com/hhvm/getting-started/getting-started">安装</a>
+                
+              </li>
+            
+              <li class="navItem navItemActive">
+                
+                  <a href="/blog/">博客</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://docs.hhvm-cn.com/hhvm/">文档</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://github.com/facebook/hhvm">GitHub</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://hacklang-cn.org/">Hack</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="https://www.facebook.com/hhvm/">Facebook</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="https://twitter.com/HipHopVM">Twitter</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://webchat.freenode.net/?channels=hhvm">IRC</a>
+                
+              </li>
+            
+              <li class="navItem">
+                
+                  <a href="http://hhvm.h4cc.de/">模块支持</a>
+                
+              </li>
+            
+            
+          </ul>
+        </nav>
+      </div>
+      <div class="navigationWrapper navigationSlider" id="navigation_wrap">
+        <div id="header_nav">
+  <div class="navSlideout">
+    <i class="menuExpand" id="header_nav_expander"><span></span><span></span><span></span></i>
+  </div>
+  <nav class="slidingNav">
+    <ul>
+      
+      <li class="navItem">
+        <a href="https://docs.hhvm-cn.com/hhvm/getting-started/getting-started" target="_blank">安装</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="/blog/">博客</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://docs.hhvm-cn.com/hhvm/" target="_blank">文档</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://github.com/facebook/hhvm" target="_blank">GitHub</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://hacklang-cn.org/" target="_blank">Hack</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="https://www.facebook.com/hhvm/" target="_blank">Facebook</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="https://twitter.com/HipHopVM" target="_blank">Twitter</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://webchat.freenode.net/?channels=hhvm" target="_blank">IRC</a>
+      </li>
+      
+      <li class="navItem">
+        <a href="http://hhvm.h4cc.de/" target="_blank">模块支持</a>
+      </li>
+      
+      
+    </ul>
+  </nav>
+</div>
+<script>
+  var event = document.createEvent('Event');
+  event.initEvent('slide', true, true);
+  document.addEventListener('slide', function (e) {
+    document.body.classList.toggle('sliderActive');
+  }, false);
+  var headerNav = document.getElementById('header_nav');
+  var headerNavExpander = document.getElementById('header_nav_expander');
+  headerNavExpander.addEventListener('click', function(e) {
+    headerNav.classList.toggle('navSlideoutActive');
+    document.dispatchEvent(event);
+  }, false);
+</script>
+      </div>
+    </header>
+  </div>
+</div>
+
+    <div class="navPusher">
+      <div class="docMainWrapper wrapper">
+      <div class="docsNavContainer">
+  <nav class="toc" id="doc_nav">
+    <div class="toggleNav" id="collection_nav">
+      <section class="navWrapper wrapper">
+        <div class="navBreadcrumb wrapper">
+          <div class="navToggle" id="collection_nav_toggler">
+            <i></i>
+          </div>
+          <h2>
+            <a href="/blog/">Blog</a>
+            
+          </h2>
+        </div>
+        <div class="navGroups">
+          
+            
+            
+            <div class="navGroup navGroupActive navGroupCurrent">
+  <h3><i>+</i><span>All Posts</span></h3>
+  <ul>
+    
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/05/04/hhvm-4.56.html">HHVM 4.56</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/30/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/29/hhvm-4.55.html">HHVM 4.55</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/21/hhvm-4.54.html">HHVM 4.54</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/13/hhvm-4.53.html">HHVM 4.53</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/04/07/hhvm-4.52.html">HHVM 4.52</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/31/hhvm-4.51.html">HHVM 4.51</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/24/hhvm-4.50.html">HHVM 4.50</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/18/hhvm-4.49.html">HHVM 4.49</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/09/hhvm-4.48.html">HHVM 4.48</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/03/03/hhvm-4.47.html">HHVM 4.47</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/24/hhvm-4.46.html">HHVM 4.46</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/20/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/19/hhvm-4.45.html">HHVM 4.45</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/10/hhvm-4.44.html">HHVM 4.44</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/02/03/hhvm-4.43.html">HHVM 4.43</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/27/hhvm-4.42.html">HHVM 4.42</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/21/hhvm-4.41.html">HHVM 4.41</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/13/hhvm-4.40.html">HHVM 4.40</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/07/hhvm-4.39.html">HHVM 4.39</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2020/01/02/hhvm-4.38.html">HHVM 4.38</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/17/cancelling-hhvm-4.37.html">Holiday schedule: cancelling HHVM 4.37</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/16/hhvm-4.36.html">HHVM 4.36</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/10/hhvm-4.35.html">HHVM 4.35</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/12/02/hhvm-4.34.html">HHVM 4.34</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/25/hhvm-4.33.html">HHVM 4.33</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/19/hhvm-4.32.html">HHVM 4.32 (LTS)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/19/distribution-support.html">Support lifecycle for older distributions</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/11/hhvm-4.31.html">HHVM 4.31.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/11/06/hhvm-4.30.html">HHVM 4.30.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/29/hhvm-4.29.html">HHVM 4.29.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/28/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/23/hhvm-4.28.html">HHVM 4.28</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/14/hhvm-4.27.0.html">HHVM 4.27.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/09/hhvm-4.26.0.html">HHVM 4.26.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/10/01/deprecating-references.html">Deprecating &$references</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/30/hhvm-4.25.0.html">HHVM 4.25.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/25/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/23/hhvm-4.24.0.html">HHVM 4.24.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/17/hhvm-4.23.0.html">HHVM 4.23.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/09/hhvm-4.22.0.html">HHVM 4.22.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/03/the-hhvm-4.21.0.html">HHVM 4.21.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/09/03/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/27/hhvm-4.20.0.html">HHVM 4.20.0 and 4.20.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/19/hhvm-4.19.0.html">HHVM 4.19.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/14/security-update.html">Security Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/12/hhvm-4.18.0.html">HHVM 4.18.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/07/bugfixes.html">Bugfixes for 3.30, 4.8, and 4.12-17</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/08/05/hhvm-4.17.0.html">HHVM 4.17.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/29/hhvm-4.16.0.html">HHVM 4.16.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/22/hhvm-4.15.0.html">HHVM 4.15.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/15/hhvm-4.14.0.html">HHVM 4.14.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/09/hhvm-4.13.0.html">HHVM 4.13.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/07/01/hhvm-4.12.0.html">HHVM 4.12.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/24/hhvm-4.11.0.html">HHVM 4.11.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/18/hhvm-4.10.0.html">HHVM 4.10.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/13/hhvm-4.9.1.html">HHVM 4.9.1, repository changes</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/10/hhvm-4.9.0.html">HHVM 4.9.0, and security updates for 3.30, and 4.3-4.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/06/03/hhvm-4.8.0.html">HHVM 4.8.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/28/hhvm-4.7.0.html">HHVM 4.7.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/21/hhvm-4.6.0.html">HHVM 4.6.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/13/hhvm-4.5.0.html">HHVM 4.5.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/05/06/hhvm-4.4.0.html">HHVM 4.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/30/hhvm-4.3.0.html">HHVM 4.3.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/23/hhvm-4.2.0.html">HHVM 4.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/09/hhvm-4.1.0.html">HHVM 4.1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/04/03/hhvm-4.0.4.html">HHVM 4.0.4, 3.30.5, and 3.27.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/28/hhvm-4.0.3.html">HHVM 4.0.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/19/hhvm-4.0.2.html">HHVM 4.0.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/14/hhvm-4.0.1.html">HHVM 4.0.1, 3.30.4, and 3.27.7: CVE-2019-3552</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/11/hhvm-4.0.0.html">HHVM 4.0.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/02/01/hhvm-3.30.3.html">HHVM 3.30.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2019/01/14/hhvm-3.30.2.html">HHVM 3.30.2 and 3.27.6</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/12/18/hhvm-3.30.1.html">HHVM 3.30.1 and 3.27.5</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/12/17/hhvm-3.30.html">HHVM 3.30</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/30/hhvm-3.29.1.html">HHVM 3.29.1 and 3.27.4</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/22/hhvm-3.29.html">HHVM 3.29</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/10/01/hhvm-3.28.3.html">HHVM 3.28.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/28/hhvm-3.28.2.html">HHVM 3.28.2 and 3.27.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/26/introducing-hacktest.html">Introducing HackTest</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/09/12/end-of-php-support-future-of-hack.html">Ending PHP Support, and The Future Of Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/30/hhvm-3.28.1.html">HHVM 3.28.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/28/hhvm-3.28.0.html">HHVM 3.28.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/08/15/hhvm-3.27.2.html">HHVM 3.27.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/07/19/hhvm-3.27.1.html">HHVM 3.27.1 and 3.24.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/06/18/hhvm-3.27.0.html">HHVM 3.27.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/24/hhvm-3.26.3.html">HHVM 3.26.3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/15/hhvm-3.26.2.html">HHVM 3.26.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/11/hhvm-3.26.1.html">HHVM 3.26.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/07/hhvm-3.26.html">HHVM 3.26 - Introducing HackC</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/05/04/hhvm-3.25.3.html">HHVM 3.25.3, HHVM 3.24.7, and 3.21.11</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/04/11/relicensing-hack.html">Relicensing Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/30/hhvm-3.25.2.html">HHVM 3.25.2, HHVM 3.24.6, and 3.21.10 (CVE-2018-6334)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/22/hhvm-3.25.1.html">HHVM 3.25.1, HHVM 3.24.5, and 3.21.9</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/15/hhvm-3.25.html">HHVM 3.25.0, 3.24.4, and 3.21.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/03/02/hhvm-3.24.3.html">HHVM 3.24.3 and 3.21.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/02/07/hhvm-3.24.2.html">HHVM 3.24.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/30/hhvm-3.24.1.html">HHVM 3.24.1, 3.21.6, and 3.18.8</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/16/hhvm-3.24.html">HHVM 3.24</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/12/hhvm-3.23.4.html">HHVM 3.23.4, 3.21.5, and 3.18.7</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2018/01/02/hhvm-3.23.3.html">HHVM 3.23.3, 3.21.4, and 3.18.6</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/11/17/hhvm-3-23.html">HHVM 3.23</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/11/14/gpg-key-migration.html">GPG Key Migration</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/10/26/the-hack-standard-library-1-0.html">The Hack Standard Library: v1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/09/26/hhvm-3-22.html">HHVM 3.22</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/09/18/the-future-of-hhvm.html">The Future of HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/08/02/hhvm-3-21.html">HHVM 3.21</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/06/07/hhvm-3-20.html">HHVM 3.20</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/04/13/hhvm-3-19.html">HHVM 3.19</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/03/23/concurrent-jit-compilation.html">Concurrent JIT Compilation</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/03/09/how-the-cyber-elephant-got-his-arm.html">How the Cyber-Elephant Got His ARM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/02/17/region-jit.html">HHVM's Profile-guided Region JIT</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/02/15/hhvm-3-18.html">HHVM 3.18</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2017/01/26/new-year-new-me.html">New Year, New Me</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/11711/hhvm-3-15">HHVM 3.15</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10925/improved-user-documentation">Improved User Documentation</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10859/php-7-support">PHP 7 Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10649/improving-arrays-in-hack">Improving Arrays in Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10205/llvm-code-generation-in-hhvm">LLVM Code Generation in HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10379/hhvm-3-10-0">HHVM 3.10.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/10043/experimental-mac-os-x-support">Experimental Mac OS X Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9995/hhvm-3-9-0">HHVM 3.9.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9803/hhvm-3-8-0">HHVM 3.8.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9773/cve-2015-4663">CVE-2015-4663</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9581/trait-and-interface-requirements-in-hack">Trait and interface requirements in Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9293/lockdown-results-and-hhvm-performance">Lockdown Results and HHVM Performance</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9215/covariance-contravariance-and-super-type-constraints">Covariance, Contravariance, and super Type Constraints</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9089/hhvm-lockdown">HHVM Lockdown</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/9059/hhvm-3-7-0">HHVM 3.7.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8981/announcing-our-book-hack-hhvm">Announcing our book: “Hack & HHVM”</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8939/etsys-transition-to-hhvm">Etsy's Transition to HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8849/hhvm-3-6-0">HHVM 3.6.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8537/announcing-a-specification-for-hack">Announcing a Specification for Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/8405/coming-soon-in-hhvm">Coming Soon in HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7637/hhvm-3-5-0">HHVM 3.5.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7205/wikipedia-on-hhvm">Wikipedia on HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7349/lts-updates">LTS Updates</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/7091/async-cooperative-multitasking-for-hack">Async - Cooperative Multitasking for Hack</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6989/wp-engine-and-box-now-use-hhvm">WP Engine and Box now use HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6899/hhvm-3-4-0">HHVM 3.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6863/announcing-the-hack-transpiler">Announcing the Hack Transpiler</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6473/hack-overriding-constructors-new-static-and-__consistentconstruct">Hack: Overriding Constructors, "new static", and __ConsistentConstruct</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6767/hhvm-3-3-1">HHVM 3.3.1</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6515/using-xhp-with-bootstrap">Using XHP with Bootstrap</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6443/hack-recent-updates">Hack: Recent Updates</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6323/the-journey-of-a-thousand-bytecodes">The Journey of a Thousand Bytecodes</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6239/hhvm-3-3-0">HHVM 3.3.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6083/hhvm-long-term-support">HHVM Long Term Support</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/6005/hack-community-roundup-3">Hack Community Roundup #3</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5723/announcing-a-specification-for-php">Announcing a specification for PHP</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5609/hhvm-3-2-0">HHVM 3.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5399/faster-github-commits">Faster GitHub Commits</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5429/hack-community-roundup-2">Hack Community Roundup #2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/5195/hhvm-3-1-0">HHVM 3.1.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4811/hack-community-roundup">Hack Community Roundup</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4841/compatibility-update">Compatibility Update</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4685/hack-developer-day-2014-keep-hacking">Hack Developer Day 2014: Keep Hacking</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4601/debug-packages">Debug Packages</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4349/hhvm-3-0-0">HHVM 3.0.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4325/hacking-hack-on-heroku">Hacking Hack on Heroku</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4223/introducing-hack-a-programming-language-for-hhvm">Introducing Hack - A Programming Language for HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4103/hhvm-2-4-2">HHVM 2.4.2</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3611/tracking-parity">Tracking Parity</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3689/implementing-mysqli">Implementing MySQLi</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3743/hhvm-the-next-six-months">HHVM: The Next Six Months</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3287/hhvm-2-4-0">HHVM 2.4.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3203/nightly-packages">Nightly Packages</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2813/we-are-the-98-5-and-the-16">We are the 98.5% (and the 16%)</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1817/fastercgi-with-hhvm">FasterCGI with HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2393/hhvm-2-3-0-and-travis-ci">HHVM 2.3.0 and Travis CI</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/2027/faster-and-cheaper-the-evolution-of-the-hhvm-jit">Faster and Cheaper: The Evolution of the hhvm JIT</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1499/locking-down-for-performance-and-parity">Locking Down for Performance and Parity </a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1379/hhvm-on-heroku">HHVM on Heroku</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/1301/hhvm-2-2-0">HHVM 2.2.0</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/875/wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code">Wow HHVM is fast...too bad it doesn’t run my code</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/713/hhvm-optimization-tips">HHVM Optimization Tips</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/575/joining-retirement-testing-and-bankruptcy">Joining, Retirement, Testing, and Bankruptcy</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/521/the-adminserver">The AdminServer</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/431/on-garbage-collection">On Garbage Collection</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/401/spammers-are-still-a-thing-it-seems">Spammers are still a thing, it seems</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/311/adding-an-opcode-to-hhbc">Adding an opcode to HHBC</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/4061/go-faster">Go Faster!</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3095/getting-wordpress-running-on-hhvm">Getting WordPress running on HHVM</a></li>
+
+      
+      <li class="navListItem"><a class="navItem" href="http://hhvm-cn.com/blog/3089/wordpress-3-4-2-running-on-hiphop-hhvm">WordPress 3.4.2 running on HHVM</a></li>
+
+      
+    
+  </ul>
+</div>
+          
+        </div>
+      </section>
+    </div>
+  </nav>
+</div>
+<script>
+  var docsevent = document.createEvent('Event');
+  docsevent.initEvent('docs_slide', true, true);
+  document.addEventListener('docs_slide', function (e) {
+    document.body.classList.toggle('docsSliderActive');
+  }, false);
+
+  var collectionNav = document.getElementById('collection_nav');
+  var collectionNavToggler = 
+    document.getElementById('collection_nav_toggler');
+  collectionNavToggler.addEventListener('click', function(e) {
+    collectionNav.classList.toggle('toggleNavActive');
+    document.dispatchEvent(docsevent);
+  });
+
+  var groups = document.getElementsByClassName('navGroup');
+  for(var i = 0; i < groups.length; i++) {
+    var thisGroup = groups[i];
+    thisGroup.onclick = function() {
+      for(var j = 0; j < groups.length; j++) {
+        var group = groups[j];
+        group.classList.remove('navGroupActive');
+      }
+      this.classList.add('navGroupActive');
+    }
+  }
+</script>
+
+
+      <div class="mainContainer blogContainer postContainer">
+  <div id="main_wrap" class="wrapper mainWrapper">
+    <div class="lonePost">
+<div class="post">
+  
+  <header class="post-header">
+    
+    <div class="authorPhoto">
+      <img src="https://graph.facebook.com/843172280/picture/" alt="" title="" />
+    </div>
+    
+    
+    <p class="post-authorName">Paul Bissonette</p>
+    
+    <h1 class="post-title">Lockdown Results and HHVM Performance</h1>
+    <p class="post-meta">Posted June 09, 2015</p>
+  </header>
+
+  <article class="post-content">
+  
+    <p>The HHVM team has concluded its first ever open source performance lockdown, and we’re very excited to share the results with you. During our two week lockdown, we’ve made strides optimizing builtin functions, dynamic properties, string concatenation, and the file cache. In addition to improving HHVM, we also looked for places in the open source frameworks where we could contribute patches that would benefit all engines. Our efforts centered around maximizing requests per second (RPS) with Wordpress, Drupal 7, and MediaWiki, using our <a href="https://github.com/hhvm/oss-performance">oss-performance</a> benchmarking tool.</p>
+
+<!--truncate-->
+
+<h2 id="summary">Summary</h2>
+
+<p>During lockdown we achieved a 19.4% RPS improvement for MediaWiki workloads, and a 1.8% RPS improvement for Wordpress. We demonstrated that HHVM is 55.5% faster than PHP 7 on a MediaWiki workload, 18.7% faster on a Wordpress workload, and 10.2% faster on a Drupal 7 workload. Improvements made to HHVM to better serve open source frameworks will ship with the next release. As a part of our lockdown effort a patch showing a promising performance improvement for all PHP engines was submitted to MediaWiki. The raw data, configuration settings, and summary statistics are available <a href="http://dl.hhvm.com/resources/lockdown-data/">here</a>.</p>
+
+<p>Lockdowns are always a great opportunity to get the whole community involved, and we’re thrilled with the participation this time around. Our #hhvm and #hhvm-dev channels on Freenode were quite active and a number of contributors even chimed in on <a href="https://github.com/facebook/hhvm/issues">GitHub issues</a>. Special thanks to <a href="https://github.com/Kazanir">Christian Sieber</a> for <a href="https://github.com/hhvm/oss-performance/commit/65983c56be0beaf708a4e974c55dba46e9d1cedb">contributing support</a> for Drupal 8 to our benchmarking tool.</p>
+
+<p>Throughout the lockdown we have made improvements to our benchmarking tools, and optimized our configuration. We’re pleased to report that these frameworks all ran successfully using the high performance <a href="https://github.com/facebook/hhvm/wiki/Performance-Tuning#use-repoauthoritative---20">RepoAuthoritative</a> compilation mode, and file-cache we deploy with at Facebook. New <a href="https://github.com/facebook/hhvm/commit/4bbae3bab9aae9647588637af5518f37f4091fc4">tooling</a> will make it easier to take advantage of these powerful tools in the upcoming 3.8 release.</p>
+
+<h2 id="methodology">Methodology</h2>
+
+<p>While no benchmark will ever perfectly capture the performance profiles of the disparate live sites it seeks to approximate, great care was taken in constructing this tool. We feel that it’s important to carefully explain the decisions we’ve made and the effects they’ve had on performance. Hopefully these notes will shed light on the numbers that we’ve shared, and help others to configure their benchmarking suites or to optimize their sites. Inquiries regarding the benchmarking methodology can be made directly on our <a href="https://github.com/hhvm/oss-performance">oss-performance</a> repository, pull-requests for new features and fixes are also most welcome.</p>
+
+<p>Our hardware setup featured <a href="https://www.apple.com/mac-pro/">Mac Pro</a> computers running a minimal installation of <a href="http://www.ubuntu.com">Ubuntu</a> 14.04 (no virtualization or other layers which would add uncontrolled variables). We chose the Mac Pro because, while being convenient to work with, they also contain components that are representative of hosting servers, including Xeon processors, an abundance of RAM, and flash storage. They are also readily available in an identical configuration (see notes for details). The configuration offered ample RAM to avoid the possibility of swapping, and an SSD to reduce the effect of latency reading from disk. The minimalistic software installation ensured that results were consistent between runs and that benchmarks were run in near isolation.</p>
+
+<p>For HHVM, we choose to run in RepoAuthoritative mode, using the file cache to construct a virtual in-memory file system, and with the <a href="https://github.com/facebook/hhvm/commit/8039dc9e321905441141592bfbd3c6d78158911e">proxygen webserver</a>. This setup closely mirrors the configuration we use to run Facebook, and has been highly optimized. Traffic was proxied through an nginx webserver to allow for a fair comparison with PHP running FastCGI through nginx. We chose a high thread-count, as many frameworks were I/O-bound. For a CPU-bound application, we generally recommend a thread-count no higher than twice the number of available cores.</p>
+
+<p>Our PHP 5 and 7 setups were quite similar; we enabled the opcache, and chose settings tuned for performance. For all engines tested, error reporting and logging were disabled to limit log spew and maximize performance. In production we generally favor a sampling approach that allows for data to still be collected about warnings and notices. For benchmarking, we felt no logging was most appropriate.</p>
+
+<p>The benchmarking tool performs a sanity check once the engine and webserver have started accepting traffic to ensure that the framework is sending reasonable responses on the URLs being benchmarked. We also collect a count of the various HTTP response codes, average bytes received, and failed requests. This data is manually inspected after data collection is complete to ensure that the results from the server are reasonable. Note that some of the URLs benchmarked return non-200 response codes to approximate a realistic distribution of requests to a live server. For all results presented here this sanity check information is available in the raw JSON data provided in the notes.</p>
+
+<p><img src="/static/images/posts/cartoon.png" alt="cartoon" /></p>
+
+<p>Each framework we benchmarked was configured with a sample dataset designed to approximate an average installation. For Wordpress and Drupal 7, bundled tools were used to construct demo sites for benchmarking. MediaWiki was benchmarked using the Barack Obama page from Wikipedia, as was recommended by an engineer from Wikimedia foundation as representative of their load. For Wordpress, the URLs queried were based on data extracted from the <a href="http://hhvm.com">hhvm.com</a> access logs. Drupal 7 query URLs mirrored similar access patterns to Wordpress as access logs from live sites were not readily available. The MediaWiki URL list was generated to stress the Barack Obama page.</p>
+
+<p>Drupal 8 was benchmarked in a manner similar to Drupal 7, including the use of bundled tooling to generate the sample site. A consensus has not developed as to whether the page cache should be used when measuring Drupal 8 performance so for our benchmarking suite we support cached and uncached Drupal 8 as separate targets. An additional setup step was performed to pre-populate Drupal 8 Twig templates so that benchmarking could be performed in RepoAuthoritative mode. This is an ahead of time optimization any sufficiently large deployment of this framework would be likely to benefit from. For both versions of Drupal a small number of additional tweaks were carried out to make the sample data more realistic. The <a href="https://github.com/hhvm/oss-performance/blob/master/README.md">details</a> of these changes as well as details about the configurations of the various other frameworks are available on our oss-performance repository.</p>
+
+<p>When running each engine, we sent both a set of single threaded and a set of concurrent warmup requests to each site before we began measuring performance data. We did this to allow hardware caches to warm up, PHP’s opcache to fill, and HHVM’s JIT compilation to complete. The number and duration of these warmup periods was chosen by examining performance profiles to look for steady state and monitoring the size and growth of the HHVM translation cache to ensure that compilation was largely completed. As we decided to run HHVM in RepoAuthoritative mode, a setup step was also included to build and optimize the bytecode repository using whole-program analysis, and construct the static content portion of the file-cache for efficient in-memory file system access.</p>
+
+<p>Benchmarking requests were sent from 200 concurrent users, using the siege benchmarking tool. A high number of concurrent users best approximated the maximum possible RPS of a server under high load. Ideally concurrency should be the highest number of users possible before requests began to queue, as this was not possible with siege a high number was selected to ensure reliable RPS data. Note that as a consequence of this decision the response time metric now includes time spent queued. A realistic load balancer would prevent such queueing from occurring on machines serving live traffic.</p>
+
+<p>We discovered that, by default, MediaWiki will store a view counter in MySQL, as well as a cache of each translatable string on any given page. Any large-scale deployment of MediaWiki would need to disable these options; so we’ve specifically turned them off. We’ve confirmed that these settings are also disabled in production for Wikipedia. A patch has been submitted to MediaWiki to cache translations more efficiently. The view counters have been deprecated, and will likely be removed entirely in a future release. These particular inefficiencies were discovered by analyzing the queries sent to MySQL by MediaWiki during a single request.</p>
+
+<p>In our initial testing with Drupal 7, we noticed that every request was triggering a scan of the Drupal document root, making the is_dir(), opendir(), and readdir() functions incredibly hot. It has since been brought to our attention that a known bug in Drupal was causing the extension used to generate the sample data to be treated as missing, thus triggering a complete filesystem scan for each request. Currently the only fix for this issue is to manually remove references to the uninstalled extension from the database. After patching the database time spent accessing the filesystem drops substantially and the resulting site behaves identically to a fresh installation of Drupal 7 with manually entered data.</p>
+
+<h2 id="results">Results</h2>
+
+<p>Our results compare pre- and post-lockdown HHVM, and separately PHP 5, 7, and post-lockdown HHVM. We used PHP 5.6.9, and commits from PHP, and HHVM master (see notes below). For the pre- and post-lockdown comparison stable releases of MediaWiki, Drupal 7, and Wordpress were used, post-lockdown numbers include <a href="https://github.com/hhvm/oss-performance/blob/master/targets/mediawiki/patches/0001-LCStoreStaticArray.patch">a patch</a> to MediaWiki that was written during the lockdown. The second set of comparisons uses the same stable releases, with the MediaWiki patch applied for all engines. Data for each engine, framework pair was collected in ten independent runs, and RPS was quantified.</p>
+
+<p>We observed low variability between runs and have a great deal of confidence in the reproducibility of these results. The raw output of each run in JSON form has been made available in the notes below along with the batch run settings used to configure the benchmark tool. The canonical field in the output indicates whether non-standard options were passed during the test run. The only non-standard option passed during our test runs was to apply the MediaWiki patch. All passed options are available in the <a href="http://dl.hhvm.com/resources/lockdown-data/batch-run-config.json">configuration JSON</a>.</p>
+
+<p>In the lockdown, we were able to improve MediaWiki performance by 19.4%, and Wordpress by 1.8%. Unfortunately, Drupal wins were no longer measurable once the Drupal database was patched to fix the aforementioned plugin bug. In addition, we increased RPS for simple pages by 5.2% (this was mostly a measure of the overhead incurred by a request). The lockdown offered an opportunity to evaluate our methodology, and work with the community on realistic configurations for the sample data used in our benchmarking. A number important changes to the benchmarking tools and framework configurations were made throughout the course of the lockdown. The results of the lockdown are summarized below, normalized to pre-lockdown RPS numbers. Drupal 8 was not part of our lockdown and is therefore not measured here.</p>
+
+<p><img src="/static/images/posts/lockdown-fixed2.png" alt="" /></p>
+
+<p>Across the board we found that HHVM performs best on applications where CPU time is maximized. In particular we’re 1.55 times faster than PHP 7 on a MediaWiki workload, 1.1 times faster on a Drupal 7 workload, and 1.19 times faster on a Wordpress workload. As none of these frameworks take advantage of the asynchronous I/O architecture available in HHVM (i.e., async), it’s not surprising that the greatest performance benefits come from the efficient execution of PHP code possible with a JIT compiler. The following figure summarizes the performance difference between PHP 5, PHP 7, and HHVM. Results were normalized to PHP 5 RPS, and Drupal 8 has been included. We benchmarked Drupal 8 with caching both enabled and disabled. In general the results for Drupal 8 were more stable with the cache disabled.</p>
+
+<p><img src="/static/images/posts/engines-fixed.png" alt="" /></p>
+
+<p>For all benchmarks we performed ten independent runs and used the mean RPS result. We also measured standard deviation (see error bars). Standard deviation was highly consistent between runs, and we’re confident that with the proper configuration and hardware these results should be easy to reproduce.</p>
+
+<p>As an exercise, we evaluated the benefits of <a href="https://github.com/facebook/hhvm/tree/master/hphp/runtime/ext/async_mysql">async MySQL</a> in the Wordpress environment. By modifying portions of Wordpress to take advantage of the async capabilities offered by Hack and HHVM, we were able to examine the potential for performance gains through async execution. In our test environment we separated the MySQL and PHP hosting to separate machines within the same datacenter to approximate a realistic Wordpress stack. The introduction of asynchronous query execution can demonstrate performance gains in both RPS and response time. We’ll be writing separately about this in the near future.</p>
+
+<h2 id="lockdown-optimizations">Lockdown Optimizations</h2>
+
+<p>By sharing the details of some select successes and failures from lockdown we’d like to provide a window into the work we’ve been doing and offer a guide to anyone considering working on performance related patches for HHVM. Lockdown issues are available on the HHVM GitHub repository and have been <a href="https://github.com/facebook/hhvm/issues?q=is%3Aopen+is%3Aissue+label%3Alockdown">tagged</a> with “lockdown.” They include our running commentary and notes about our findings as we implemented and measured them.</p>
+
+<p>The issues we focused on fell broadly into several categories: builtin functions, extensions, function dispatch, memory model, JIT compilation, and framework specific patches. In addition to exploring these optimizations we also experimented with introducing async into Wordpress to measure its benefit.</p>
+
+<p>The optimizations to builtin functions included get_object_vars() (<a href="https://github.com/facebook/hhvm/issues/5287">#5287</a>), implode() (<a href="https://github.com/facebook/hhvm/issues/5289">#5289</a>), function_exists() (<a href="https://github.com/facebook/hhvm/issues/5288">#5288</a>), and defined() (<a href="https://github.com/facebook/hhvm/issues/5290">#5290</a>). The first two optimizations were quite fruitful for both Wordpress and MediaWiki. We had previously predicted that function_exists() and defined() would be good targets for Drupal 7. Unfortunately defined() was not hot enough to have a measurable performance effect, and function_exists() was primarily called with non-static strings making it difficult to optimize.</p>
+
+<p>We also looked at optimizing string concatenation in the JIT using a specialized bytecode for multi-string concatenations (<a href="https://github.com/facebook/hhvm/issues/5304">#5304</a>). Although this is a valuable optimization we were unable to measure a performance benefit in any of these frameworks. The majority of multi-string concatenations were in places that retained a reference to the internally joined strings, this prevented an important feature of the optimization allowing reuse of consumed string buffers. A further potential JIT optimization was object destruction (<a href="https://github.com/facebook/hhvm/issues/5281">#5281</a>). Experimentation led us to the conclusion that it would not be worthwhile to explore changes to the object destruction path. Building a non-refcounted garbage-collector is an ongoing HHVM project and may offer more substantial performance benefits in this area.</p>
+
+<p>Several important enhancements to builtin function dispatch were made (<a href="https://github.com/facebook/hhvm/issues/5276">#5276</a>, <a href="https://github.com/facebook/hhvm/issues/5277">#5277</a>) and several more have been planned (<a href="https://github.com/facebook/hhvm/issues/5267">#5267</a>, <a href="https://github.com/facebook/hhvm/issues/5292">#5292</a>). The optimizations now completed have allowed for faster inline dispatch to functions with variadics and improved support for static method dispatch for builtin classes. These changes have already showed measurable performance gains in Wordpress, and we expect a tangible benefit from the remaining patches once they are ready to be merged.</p>
+
+<p>Currently we build using libpcre despite the availability of libpcre2. We decided to see if this new pcre library was any more performant (<a href="https://github.com/facebook/hhvm/issues/5302">#5302</a>). Unfortunately the results here were not encouraging. Further discussions with the maintainers of libpcre2 have led us to conclude that the changes were largely surrounding the API and that optimizing performance was not a goal. In the future we may explore the optional use of a different regular expression processing library for compatible expressions (though to remain feature complete we will always need to provide libpcre as a fallback).</p>
+
+<p>Profiling has demonstrated that dynamic property access is a hot code-path for Wordpress, therefore we worked to optimize dynamic properties and object cloning for objects with such properties (<a href="https://github.com/facebook/hhvm/issues/5285">#5285</a>, <a href="https://github.com/facebook/hhvm/issues/5286">#5286</a>, <a href="https://github.com/facebook/hhvm/issues/5287">#5287</a>). In HHVM dynamic properties are stored in arrays, which had previously been eagerly copied during calls to clone() and get_object_vars(). By allowing copy-on-write behavior for these property arrays, similar to the behavior of regular PHP arrays, we measured performance improvements in Wordpress.</p>
+
+<p>Some of our largest wins have come from examining the frameworks themselves. In particular, reconfiguring MediaWiki to move translatable string caching out of MySQL showed a 14% performance win using HHVM and a 21% win when using PHP 7. We created an alternative implementation that improved RPS by an additional 22% and 5% respectively - bringing the total improvement for HHVM and PHP 7 to 39% and 33%. We’re happy to be able to contribute back to another open source project and are working to upstream these changes.</p>
+
+<p>There are some notable wins that disappeared as we tuned our benchmarking methodology and patched the frameworks themselves. For MediaWiki optimizing str_replace() was a major win, but the hot-path for str_replace() was elided in the subsequent patch to fix localization caching. Likewise optimizations to the file cache showed a great deal of promise for Drupal 7 (<a href="https://github.com/facebook/hhvm/issues/5284">#5284</a>) until it was discovered that the document tree scanning behavior of Drupal was a bug, which we were able to fix with a database change.</p>
+
+<p>Work continues on a number of these changes (<a href="https://github.com/facebook/hhvm/issues/5264">#5264</a>, <a href="https://github.com/facebook/hhvm/issues/5269">#5269</a>, <a href="https://github.com/facebook/hhvm/issues/5270">#5270</a>, <a href="https://github.com/facebook/hhvm/issues/5299">#5299</a>), and others have been completed post-lockdown (<a href="https://github.com/facebook/hhvm/issues/5300">#5300</a>, <a href="https://github.com/facebook/hhvm/issues/5279">#5279</a>). Of the notable post-lockdown completions, work to speedup memcpy showed major performance gains for our internal workload.</p>
+
+<p>We’re all quite thrilled with the progress made during the lockdown and the lessons learned. In particular, we feel that we’ve been able to validate the importance of both JIT compilation and asynchronous execution for optimizing PHP performance. From Amdahl’s law, we know that any attempt to optimize execution efficiency of PHP will be undercut by I/O-bound applications. Async offers us the opportunity to shift latency back to the CPU by improving I/O performance, increasing the importance of efficient PHP execution through JIT compilation. By combining async and JIT compilation, we’re able to run applications such as Facebook at scale.</p>
+
+<h2 id="technical-notes">Technical Notes</h2>
+
+<p><em>Frameworks used</em> — Collected statistics came from stable releases and betas of several popular frameworks. For Drupal we measured <a href="https://www.drupal.org/drupal-7.31-release-notes">7.31</a> and <a href="https://www.drupal.org/node/2496019">8.0.0-beta11</a>. For MediaWiki and Wordpress, version <a href="https://git.wikimedia.org/tag/mediawiki%2Fcore.git/29427008e6971268de6a81cf0b8f1a641959b100">1.24.0</a> and <a href="https://core.svn.wordpress.org/tags/4.2/">4.2.0</a> were used. Data for Wordpress was generated using the demo-data-creator version 1.3.2. The patch developed for MediaWiki and used in cross-engine comparisons and with post-lockdown HHVM is <a href="https://github.com/hhvm/oss-performance/blob/master/targets/mediawiki/patches/0001-LCStoreStaticArray.patch">available</a> on the oss-performence repository. <strong>Update:</strong> this has now <a href="https://github.com/wikimedia/mediawiki/commit/c403d4838dc8662d62902ced3713c1d9be6309cc">been merged into Mediawiki</a>.</p>
+
+<p><em>Hardware details</em> - Benchmark statistics were collected on a late 2013 Mac Pro (MD878LL/A). The machine features a 6-core 3.5 GHz Xeon processor with 64 GB of RAM and a 512 GB SSD.</p>
+
+<p><em>Siege</em> - When benchmarking frameworks we used <a href="http://download.joedog.org/siege/siege-2.78.tar.gz">Siege 2.78</a>, currently all versions of Siege 3 have known problems. In particular Siege 3.0.0 to 3.0.7 send incorrect HOST headers to ports other than 80, and 443, and Siege 3.0.8 and 3.0.9 occasionally send bad paths due to incorrect redirect handling.</p>
+
+<p><em>Nginx</em> - All requests were proxied through nginx, this was required as Siege is unable to talk directly to a FastCGI server. We used nginx 1.4.6. The <a href="https://github.com/hhvm/oss-performance/blob/master/conf/nginx/nginx.conf.in">configuration settings</a> for nginx are available in the oss-performance repository.</p>
+
+<p><em>Engines Benchmarked</em> - To compare pre- and post- lockdown performance of HHVM we measured a build of HHVM master from <a href="https://github.com/facebook/hhvm/commit/a70e46bba40ae1f64dbebee26ebd86c820fd0d67">May 11th</a> and <a href="https://github.com/facebook/hhvm/commit/7c3639aed1143d155397cd3d6e0b7945cc0b8af0">May 22nd</a>. For PHP/HHVM comparisons post-lockdown HHVM, PHP stable <a href="http://php.net/downloads.php#v5.6.9">release 5.6.9</a>, and PHP 7 master from <a href="https://github.com/php/php-src/commit/c63467fe6e92d664d6f51369be821c60d8eead6f">May 22nd</a> were used.</p>
+
+<p><em>Result Details</em> - For all data used here we’ve made the <a href="http://dl.hhvm.com/resources/lockdown-data/raw-results.tgz">raw JSON output</a> of each run of the oss-performance tool available and the <a href="http://dl.hhvm.com/resources/lockdown-data/batch-run-config.json">settings</a> we used, we strongly recommend that anyone wishing to release results from this tool make this diagnostic data available. We are also making available the <a href="http://dl.hhvm.com/resources/lockdown-data/batch-run-results.csv">summary statistics</a> computed across runs.</p>
+
+<p><em>Response Time</em> - We haven’t included response times in this report as lockdown optimizations focused on RPS. Response time is a more important metric for many smaller sites and the numbers we collected are available in the raw data. We hope to make improvements to the benchmarking tool to generate concurrency/response time and concurrency/RPS curves.</p>
+
+<p><em>Sugar CRM</em> - There has been some interest in the SugarCRM performance of the various PHP engines. We were unable to provide these numbers as could not find a recent version of PHP 7 that could execute SugarCRM without encountering a segmentation fault. Hopefully it will be possible to collect these numbers in the future as PHP 7 becomes more mature.</p>
+
+    
+      
+      
+        
+          <h3> Comments </h3>
+          <br/>
+          <ul>
+          
+        
+        <li><b>RobW</b>: Can you link to the drupal bug about searching the file system that you fixed with a db change?</li>
+      
+        
+        <li><b>Tim Siebels</b>: Great article! I really like that you explained what setup was used in detail. Reading the issue's comments during lockdown was fun, as you could see progress.
+Furthermore you included performance gains for PHP which shows that this isn't a fight with vanilla PHP but is a healthy competition. :)
+Keep getting more open, I like it! :)</li>
+      
+        
+        <li><b>Fred Emmott</b>: Thanks :) For reference (sorry we forgot to include it in the post) the MediaWiki issue with full results is here: https:&#47;&#47;phabricator.wikimedia.org&#47;T99740</li>
+      
+        
+        <li><b>Fred Emmott</b>: Sorry, this was from an external contributor and we don't have the source handy. We've asked for details and will get back to you :)</li>
+      
+        
+        <li><b>Joel Marcey</b>: Thanks Tim!</li>
+      
+        
+        <li><b>Kazanir</b>: What happened here was that devel_generate was used to generate the content in the database dump, but the module wasn't actually disabled or uninstalled. Then the database dump was used to drive a codebase that lacked that module. This results in a "zombie" entry in Drupal's system table where a module is recorded as enabled despite not existing. (This is a known issue on the Drupal side.) This results in each page request seeing the "missing" module and scanning the entire filesystem below modules&#47; to try to find it on every request.
+
+Oops.</li>
+      
+        
+        <li><b>Esa</b>: You are leading the whole php community. Mark should be proud of you. You deserve the whole php community comes and welcome you due to your achievements.</li>
+      
+        
+        <li><b>mikeytown2</b>: There are a couple of async MySQL Drupal modules out there, but they are using mysqlng &amp; mysqli &amp; MYSQLI_ASYNC instead of HHVM async as it wasn't available when the code was developed. See https:&#47;&#47;www.drupal.org&#47;project&#47;apdqc &amp; https:&#47;&#47;www.drupal.org&#47;sandbox&#47;gielfeldt&#47;2422171</li>
+      
+        
+        <li><b>mikeytown2</b>: I believe this is the issue - https:&#47;&#47;www.drupal.org&#47;node&#47;1081266</li>
+      
+        
+        <li><b>Meserlian</b>: This is awesome testing. Looking forward for the Async test for WP.</li>
+      
+        
+        <li><b>Nemo</b>: Thanks for your testing. From several things mentioned, it seems you tested an older release of MediaWiki (1.24?) with vanilla settings. For higher realism, it would probably have been more useful to test the settings commonly used by any "serious" MediaWiki wiki, see https:&#47;&#47;www.mediawiki.org&#47;wiki&#47;Manual:Performance_tuning for the basics.</li>
+      
+        
+        <li><b>Radu Murzea</b>: I really love the incredible amount of detail in this post and, obviously, the impressive results of your improvements.
+
+I'm really curious to see how these tweaks affect performance of a much broader collection of PHP frameworks and CMS-es.</li>
+      
+        
+        <li><b>Peter</b>: Awesome, I really fell in love with HHVM over the last couple of months. I can't wait for 3.8.</li>
+      
+        
+        <li><b>Fred Emmott</b>: We're on a slightly older version as:
+ - it's only one minor version behind
+ - we're not aware of significant performance changes
+ - if there are any, we would expect them to mostly benefit HHVM anyway, as that's the engine that Wikipedia have recently switched to
+ - updating releases has a high cost: as well as the basic mechanics, we need to make sure the results are still consistent, re-profile to make sure there's not been any changes in the defaults that are good for 'just works' but aren't realistic (the documentation is not good enough for this), etc
+
+It is not vanilla:
+ - we use a custom file-based localization cache (which is an improvement over Mediawiki's file cache and MySQL caches), which is an improvement on PHP5, PHP7, and HHVM: http:&#47;&#47;cl.ly&#47;image&#47;3I2m2a190G3N
+ - we disable view counters
+
+In general, we aim to optimize and reconfigure by profiling and looking for bottlenecks, rather than trusting often-incorrect or outdated documentation. The Mediawiki docs were good though, so to address them:
+
+ - opcode caching is enabled by default in all recent versions of PHP, and irrelevant in HHVM. Our benchmarking script makes sure it is enabled when running PHP5 or PHP7
+ - memcached is not used both because object caching does not show up as significant in profiles, and because there is not yet a sufficiently complete and stable implementation for PHP7
+ - output caching is not used as this would be nearly a no-op with an HTTP cache in place, and roughly turn the benchmark into 'Hello, world'. The uncached Barack Obama page is representative of the load on Wikipedia's application servers
+- HTTP caching: again, turns it into 'hello, world'. While this does mean that our numbers are not representative of the RPS you'd get on the whole system, presumably if you're looking at PHP performance, performance of the application servers are what you want to focus on
+
+ - mbstring is enabled in PHP5, PHP7, and HHVM
+ - FastStringSearch is not used because it is not available for PHP7, disabling like-for-like comparisons
+ - the MySQL lock options do not have an affect, and should not be particularly relevant as our benchmark does not include writes
+ - We have plenty of RAM for MySQL, $PHP_IMPLEMENTATION, and nginx.</li>
+      
+        
+        <li><b>HHVM Demonstrated to be 18.7% Faster Than PHP 7 on a WordPress Workload</b>: [&#8230;] week HHVM developers shared the results of their first ever open source performance lockdown. HHVM is Facebook&#8217;s open source PHP execution engine, originally created to help make its [&#8230;]</li>
+      
+        
+        <li><b>Guilherme Cardoso</b>: Sorry for asking this here. ATM attributes are available at class level and methods.
+
+Is it in the roadmap to include them as well on properties or is something impossible thanks to PHP dynamic nature?
+
+When looking for web frameworks features, implementing attributes in properties allow us to define most common configs (entities mapping, validations mappings, etc) in a good way, similar to C# attributes features. ATM i'm doing it in properties getters which is ugly of course.</li>
+      
+        
+        <li><b>Nemo</b>: Thanks for the clarifications, in particular on localisation cache; it was not clear to me what you meant by &laquo;we&rsquo;ve specifically turned them off&raquo; before reading https:&#47;&#47;github.com&#47;hhvm&#47;oss-performance&#47;blob&#47;master&#47;README.md#mediawiki .
+
+I still wonder about the effect of some other standard configurations you may have missed, like $wgJobRunRate.</li>
+      
+        
+        <li><b>HHVM Performance Lockdown: Is HHVM Reaching Its Limit?</b>: [&#8230;] latest HHVM blogpost is all about getting performance gains from HHVM in real-life situations. With a noticeable increase for MediaWiki, all other frameworks are [&#8230;]</li>
+      
+        
+        <li><b>L&rsquo;hebdo de l&rsquo;&eacute;cosyst&egrave;me WordPress #22</b>: [&#8230;] vous suivez la guerre que se livre PHP et HHVM pour optimiser les performances de leur interpr&eacute;teur PHP respect&#8230;, hhvm a publi&eacute; cette semaine leurs derni&egrave;res [&#8230;]</li>
+      
+        
+        <li><b>Josh Watzman</b>: No fundamental reason why we haven't allowed it, just haven't gotten around to building it :) I just filed https:&#47;&#47;github.com&#47;facebook&#47;hhvm&#47;issues&#47;5493 for you. In the future, GitHub issues or IRC are, respectively, better ways of filing feature requests or asking questions than a comment on a random blog post :)</li>
+      
+        
+        <li><b>Jani Tarvainen</b>: I strapped the HTTP&#47;2 capable H2O web server to HHVM to go ahead and make it serve like they do in 2020 :)
+
+https:&#47;&#47;www.symfony.fi&#47;entry&#47;serving-php-on-http-2-with-h2o-and-hhvm-symfony-wordpress-drupal</li>
+      
+        
+        <li><b>wwbmmm</b>: You had optimized for RepoAuthoritative mode with proxygen server. What about non RepoAuthoritative mode and fastcgi server? This is more popular use case (except facebook) and is more compatible with zend php.</li>
+      
+        
+        <li><b>Paul Bissonnette</b>: The numbers are based on proxygen running behind nginx, we found that it showed a small performance bump when compared to fastcgi behind nginx, but the difference was very small.
+
+We have in the past published numbers based on non-RepoAuthoratative mode, and will continue to track and improve its performance. For a variety of reasons running in RepoAuthoratative mode will always be a substantial performance benefit. Put simply the use of whole program analysis allows a host of powerful optimizations that depend on the knowledge that all execution paths are both known and stable.
+
+It is worth noting that even in non-RepoAuthoratative mode we are quite performant, and the performance benefit from this mode is probably only going to be important to those operating at a sufficiently large scale. We are aware of other large deployments that use or are exploring the future use of this setting. We've also added tooling to make it easier to experiment with RepoAuthoritative mode (mentioned in the article).
+
+Obviously there is no one ideal configuration that will work for every installation, but we feel strongly that the configuration presented here is a good choice for large sites that deeply care about this kind of performance. The article was already complicated enough with one set of configuration options so we chose the ones that would matter most to anyone operating at scale.</li>
+      
+        
+        <li><b>wwbmmm</b>: Are you going to do some optimization for non-RepoAuthoratative mode? My profiling shows that ExecutionContext::lookupPhpFile cost 11% inclusive cpu in non-RepoAuthoratative mode. Those who says "php7 is faster than hhvm" only compare php7 with hhvm-no-repo.</li>
+      
+        
+        <li><b>Paul Bissonnette</b>: We're committed to improving both modes, though at the end of the day the metric we watch most carefully is repo-mode performance.
+
+We've done a fair bit of profiling in non-repo mode and have made some important improvements. I've never seen lookupPhpFile in any of the profiles I've examined, and the function doesn't appear to be present in master, 3.3, 3.6, or 3.7 (are you benchmarking an old version of hhvm?). I'd be curious to hear more details about how you're performing this profiling and I'd be happy to work with the data to make improvements or review pull-requests.
+
+There's been a lot of confusion about how to benchmark PHP engines in a fashion that's representative of a production environment. A good portion of this article has been about trying to formalize some of the lessons we learned. The hope is that we might provide a sane hhvm configuration as well as a framework for simulating a production environment for others who wish to run their own benchmarks.
+
+I've seen some of the numbers being passed around but so little has been shared of the methodology that I can't really comment on the accuracy of those results.</li>
+      
+        
+        <li><b>wwbmmm</b>: I have profiled in 3.0&#47;3.6, 3.6 is slightly faster. Do you have email address? I can send you more details.</li>
+      
+        
+        <li><b>Paul Bissonnette</b>: Sure, paulbiss (at) fb.com, you can also find me on our Freenode channels #hhvm and #hhvm-dev (I'm usually around during normal business hours in California). Thanks!</li>
+      
+        
+        <li><b>HHVM Now Faster than PHP 7 | Hackers Media</b>: [&#8230;] to the report, various setups were tested, with technologies like WordPress, Drupal, and MediaWiki used in a [&#8230;]</li>
+      
+        
+        <li><b>Craig Carnell</b>: Where are the Magento results? :)</li>
+      
+        
+        <li><b>Fred Emmott</b>: Magneto1:
+
+HHVM 3.7: 119.73 RPS
+HHVM 3.8: 124.47 RPS
+Improvement: 4%
+
+Magento2: pull requests welcome ;) https:&#47;&#47;github.com&#47;hhvm&#47;oss-performance</li>
+      
+        
+        <li><b>Fred Emmott</b>: We didn't include them in the post as Magento wasn't part of the lockdown.</li>
+      
+      
+        </ul>
+        <br/>
+      
+    
+  
+  
+    <div class="fb-like pluginWrapper likeButtonWrapper" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
+<script>
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '1615782811974223',
+    xfbml      : true,
+    version    : 'v2.3'
+  });
+  };
+
+  (function(d, s, id){
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "//connect.facebook.net/en_US/sdk.js";
+   fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+    <div class="pluginWrapper twitterSharePlugin">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-hashtags="HHVM">Tweet</a>
+</div>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  
+  </article>
+</div>
+
+</div>
+  </div>
+</div>
+
+
+      </div>
+      <div class="footerContainer">
+  <div id="footer_wrap" class="wrapper footerWrapper">
+    <div class="footerBlocks">
+      <div id="fb_oss" class="footerSection fbOpenSourceFooter">
+          <svg class="facebookOSSLogoSvg" viewBox="0 0 1133.9 1133.9" x="0px" y="0px">
+            <g>
+              <path class="logoRing outerRing" d="M 498.3 3.7 c 153.6 88.9 307.3 177.7 461.1 266.2 c 7.6 4.4 10.3 9.1 10.3 17.8 c -0.3 179.1 -0.2 358.3 0 537.4 c 0 8.1 -2.4 12.8 -9.7 17.1 c -154.5 88.9 -308.8 178.1 -462.9 267.5 c -9 5.2 -15.5 5.3 -24.6 0.1 c -153.9 -89.2 -307.9 -178 -462.1 -266.8 C 3 838.8 0 833.9 0 825.1 c 0.3 -179.1 0.2 -358.3 0 -537.4 c 0 -8.6 2.6 -13.6 10.2 -18 C 164.4 180.9 318.4 92 472.4 3 C 477 -1.5 494.3 -0.7 498.3 3.7 Z M 48.8 555.3 c 0 79.9 0.2 159.9 -0.2 239.8 c -0.1 10 3 15.6 11.7 20.6 c 137.2 78.8 274.2 157.8 411 237.3 c 9.9 5.7 17 5.7 26.8 0.1 c 137.5 -79.8 275.2 -159.2 412.9 -238.5 c 7.4 -4.3 10.5 -8.9 10.5 -17.8 c -0.3 -160.2 -0.3 -320.5 0 -480.7 c 0 -8.8 -2.8 -13.6 -10.3 -18 C 772.1 218 633.1 137.8 494.2 57.4 c -6.5 -3.8 -11.5 -4.5 -18.5 -0.5 C 336.8 137.4 197.9 217.7 58.8 297.7 c -7.7 4.4 -10.2 9.2 -10.2 17.9 C 48.9 395.5 48.8 475.4 48.8 555.3 Z" />
+              <path class="logoRing middleRing" d="M 184.4 555.9 c 0 -33.3 -1 -66.7 0.3 -100 c 1.9 -48 24.1 -86 64.7 -110.9 c 54.8 -33.6 110.7 -65.5 167 -96.6 c 45.7 -25.2 92.9 -24.7 138.6 1 c 54.4 30.6 108.7 61.5 162.2 93.7 c 44 26.5 67.3 66.8 68 118.4 c 0.9 63.2 0.9 126.5 0 189.7 c -0.7 50.6 -23.4 90.7 -66.6 116.9 c -55 33.4 -110.8 65.4 -167.1 96.5 c -43.4 24 -89 24.2 -132.3 0.5 c -57.5 -31.3 -114.2 -64 -170 -98.3 c -41 -25.1 -62.9 -63.7 -64.5 -112.2 C 183.5 621.9 184.3 588.9 184.4 555.9 Z M 232.9 556.3 c 0 29.5 0.5 59.1 -0.1 88.6 c -0.8 39.2 16.9 67.1 50.2 86.2 c 51.2 29.4 102.2 59.2 153.4 88.4 c 31.4 17.9 63.6 18.3 95 0.6 c 53.7 -30.3 107.1 -61.2 160.3 -92.5 c 29.7 -17.5 45 -44.5 45.3 -78.8 c 0.6 -61.7 0.5 -123.5 0 -185.2 c -0.3 -34.4 -15.3 -61.5 -44.9 -79 C 637.7 352.6 583 320.8 527.9 290 c -27.5 -15.4 -57.2 -16.1 -84.7 -0.7 c -56.9 31.6 -113.4 64 -169.1 97.6 c -26.4 15.9 -40.7 41.3 -41.1 72.9 C 232.6 491.9 232.9 524.1 232.9 556.3 Z" />
+              <path class="logoRing innerRing" d="M 484.9 424.4 c 69.8 -2.8 133.2 57.8 132.6 132 C 617 630 558.5 688.7 484.9 689.1 c -75.1 0.4 -132.6 -63.6 -132.7 -132.7 C 352.1 485 413.4 421.5 484.9 424.4 Z M 401.3 556.7 c -3.4 37.2 30.5 83.6 83 84.1 c 46.6 0.4 84.8 -37.6 84.9 -84 c 0.1 -46.6 -37.2 -84.4 -84.2 -84.6 C 432.2 472.1 397.9 518.3 401.3 556.7 Z" />
+            </g>
+          </svg>
+        <h2>Facebook Open Source</h2>
+      </div>
+      <div class="footerSection">
+        <a class="footerLink" href="https://code.facebook.com/projects/" target="_blank">开源项目</a>
+        <a class="footerLink" href="https://github.com/facebook/" target="_blank">GitHub</a>
+        <a class="footerLink" href="https://twitter.com/fbOpenSource" target="_blank">Twitter</a>
+      </div>
+      <div class="footerSection rightAlign">
+        <a class="footerLink" href="https://github.com/hhvm-cn/hhvm-cn.com" target="_blank">帮助我们翻译</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49208336-2', 'auto');
+  ga('send', 'pageview');
+</script>
+
+    </div>
+  </body>
+</html>

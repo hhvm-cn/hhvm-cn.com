@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>HHVM</title>
+    <description>HHVM 中文社区和 HHVM/Hack 的博客</description>
+    <link>http://hhvm-cn.com//</link>
+    <atom:link href="http://hhvm-cn.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sun, 10 May 2020 03:17:09 +0200</pubDate>
+    <lastBuildDate>Sun, 10 May 2020 03:17:09 +0200</lastBuildDate>
+    <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>HHVM 4.56</title>
+        <description>&lt;p&gt;HHVM 4.56 is released! This release has long term support, so:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;this release will be supported for approximately 48 weeks&lt;/li&gt;
+  &lt;li&gt;the next LTS will be released in approximately 24 weeks&lt;/li&gt;
+  &lt;li&gt;HHVM 4.32 (LTS) and HHVM 4.51–4.55 remain supported.&lt;/li&gt;
+  &lt;li&gt;support has ended for HHVM 4.8 (LTS)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Additionally, 4.56 is the last release with support for several older Linux
+distributions and MacOS versions. In particular, we expect this to be the last
+release with support for Ubuntu 16.04 (Xenial), Debian 8 (Jessie), and
+Debian 9 (Stretch). See ‘Future Changes’ below for details.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;apc_fetch()&lt;/code&gt; expiration is now deferred until the end of the first request
+that sees an expired result; this request will return &lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt;, but any
+concurrent requests will see the old value until the first request has
+finished. This change aims to reduce ‘thundering herd’ problems when many
+requests simultaneously attempt to refresh a hot key.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\HH\INCORRECT_TYPE&amp;lt;T&amp;gt;&lt;/code&gt; has been removed from the HHI definitions.&lt;/li&gt;
+  &lt;li&gt;Support for &lt;code class=&quot;highlighter-rouge&quot;&gt;__get&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;__set&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;__isset&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;__unset&lt;/code&gt; has been removed from
+HHVM and the parser. Builtin classes that used these with fixed property names
+have a new native implementation.&lt;/li&gt;
+  &lt;li&gt;The Redis extension has been removed. This extension contained no native code,
+so can be extracted from past versions of HHVM and updated as a standalone
+library if required, though we do not support this usage.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;future-changes&quot;&gt;Future Changes&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://hhvm.com/blog/2019/11/19/distribution-support.html&quot;&gt;As announced in November&lt;/a&gt;,
+we are changing our distribution support lifecycle, starting with nightly
+builds and the next release:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;MacOS: we aim to support the latest stable release - currently Catalina.
+When a new version of MacOS is released, we plan to support both for 6
+months.&lt;/li&gt;
+  &lt;li&gt;Debian: we aim to support Debian stable. When a new version is promoted to
+stable, we plan to support both for 6 months.&lt;/li&gt;
+  &lt;li&gt;Ubuntu LTS: we aim to support the current LTS release (20.04); when a new
+Ubuntu LTS is released, we plan to support both for the next 6 months.&lt;/li&gt;
+  &lt;li&gt;Ubuntu ‘interim’ releases: we plan to support these for 9 months, matching
+the length of time they are supported by Canonical.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;As long as dependencies are available from official upstream repositories, we
+plan to package &lt;code class=&quot;highlighter-rouge&quot;&gt;x.y.z&lt;/code&gt; releases for any Linux distributions where we packaged
+&lt;code class=&quot;highlighter-rouge&quot;&gt;x.y.0&lt;/code&gt;; we also aim to do this for MacOS as long as the versions are available
+from our build infrastructure provider.&lt;/p&gt;
+
+&lt;p&gt;Concretely, this means that we no longer commit to supporting:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Debian 8 (Jessie)&lt;/li&gt;
+  &lt;li&gt;Debian 9 (Stretch)&lt;/li&gt;
+  &lt;li&gt;Ubuntu 16.04 (Xenial)&lt;/li&gt;
+  &lt;li&gt;MacOS 10.14 (Mojave)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We will generally keep building packages for distributions we no longer support
+as long as they keep working and they do not hold back development. That said,
+starting with 4.57, we are immediately ending support for distributions that
+include GCC6 or below:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Debian 8 (Jessie)&lt;/li&gt;
+  &lt;li&gt;Debian 9 (Stretch).&lt;/li&gt;
+  &lt;li&gt;Ubuntu 16.04 (Xenial)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Other unsupported distributions may be removed from future releases without
+futher notice.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 04 May 2020 00:00:00 +0200</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/05/04/hhvm-4.56.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/05/04/hhvm-4.56.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Security Update</title>
+        <description>&lt;p&gt;A security update has been released for all supported HHVM versions. Please
+update to one of the following versions to make sure you’re secure:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;4.8.8&lt;/li&gt;
+  &lt;li&gt;4.32.2&lt;/li&gt;
+  &lt;li&gt;4.49.1&lt;/li&gt;
+  &lt;li&gt;4.50.1&lt;/li&gt;
+  &lt;li&gt;4.51.1&lt;/li&gt;
+  &lt;li&gt;4.52.2&lt;/li&gt;
+  &lt;li&gt;4.53.1&lt;/li&gt;
+  &lt;li&gt;4.54.1&lt;/li&gt;
+  &lt;li&gt;4.55.1&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This security update addresses the following vulnerabilities:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If the
+&lt;a href=&quot;https://github.com/facebook/hhvm/commit/c59a087967633a37c8cd2389d38a0fb7904428e1&quot;&gt;GlobalDocument&lt;/a&gt;
+request routing mode is used, it is possible to infer
+the existence of arbitrary source code directories.
+This issue doesn’t affect HHVM 4.8, since it doesn’t support GlobalDocument.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The following were originally reported as PHP vulnerabilities, but HHVM is also affected:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-9638&quot;&gt;CVE-2019-9638&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-9639&quot;&gt;CVE-2019-9639&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-9640&quot;&gt;CVE-2019-9640&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11034&quot;&gt;CVE-2019-11034&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11038&quot;&gt;CVE-2019-11038&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11041&quot;&gt;CVE-2019-11041&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;possible buffer overrun in &lt;code class=&quot;highlighter-rouge&quot;&gt;exif_read_data()&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;possible buffer overrun in &lt;code class=&quot;highlighter-rouge&quot;&gt;socket_sendto()&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sodium_crypto_generichash_init()&lt;/code&gt;
+&lt;a href=&quot;https://bugs.php.net/bug.php?id=78510&quot;&gt;leaks data&lt;/a&gt; from uninitialized memory&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Thu, 30 Apr 2020 00:00:00 +0200</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/04/30/security-update.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/04/30/security-update.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>HHVM 4.55</title>
+        <description>&lt;p&gt;HHVM 4.55 is released! This release marks the end of support for 4.49;
+HHVM 4.50–4.54 remain supported, as do the 4.8 and 4.32 LTS releases.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We now also build binary packages for Ubuntu 20.04.&lt;/li&gt;
+  &lt;li&gt;Improved typechecker error messages for various cases where a subclass
+incorrectly overrides a method or property from a parent class.&lt;/li&gt;
+  &lt;li&gt;Fixed a bug that would cause the typechecker to report some instance variables
+or static variables as uninitialized, even if they are nullable.
+    &lt;ul&gt;
+      &lt;li&gt;Instance/class variables
+must be initialized either as part of the variable’s declaration or inside
+the class’ constructor, but only if they are non-nullable. The typechecker
+would previously not correctly detect all nullable variables when generics
+or type aliases were involved.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Comparing Hack arrays (&lt;code class=&quot;highlighter-rouge&quot;&gt;vec&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;dict&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;keyset&lt;/code&gt;) to &lt;code class=&quot;highlighter-rouge&quot;&gt;true&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;null&lt;/code&gt;
+with the “fuzzy” equality operators (&lt;code class=&quot;highlighter-rouge&quot;&gt;==&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;!=&lt;/code&gt;) now considers non-empty Hack arrays &lt;code class=&quot;highlighter-rouge&quot;&gt;== true&lt;/code&gt;, and empty Hack arrays &lt;code class=&quot;highlighter-rouge&quot;&gt;== false&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;== null&lt;/code&gt;.
+    &lt;ul&gt;
+      &lt;li&gt;In HHVM 4.49 to 4.54, the INI option
+&lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.hack_arr_empty_based_bool_eq_cmp=true&lt;/code&gt; can be used to enable this
+behavior.&lt;/li&gt;
+      &lt;li&gt;The new behavior is consistent with legacy arrays, making it easier to
+migrate to Hack arrays.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The typechecker no longer completely ignores arguments of calls on values of type
+&lt;a href=&quot;https://docs.hhvm.com/hack/built-in-types/nothing&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;nothing&lt;/code&gt;&lt;/a&gt;. As before, any number/types of arguments are allowed (due to &lt;code class=&quot;highlighter-rouge&quot;&gt;nothing&lt;/code&gt; being Hack’s bottom
+type), but previously ignored nonsensical arguments like &lt;code class=&quot;highlighter-rouge&quot;&gt;1 + 'foo'&lt;/code&gt; are now rejected.&lt;/li&gt;
+  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;%s&lt;/code&gt; placeholder in &lt;code class=&quot;highlighter-rouge&quot;&gt;printf()&lt;/code&gt; now expects an &lt;code class=&quot;highlighter-rouge&quot;&gt;?arraykey&lt;/code&gt; argument instead
+of &lt;code class=&quot;highlighter-rouge&quot;&gt;mixed&lt;/code&gt;.
+    &lt;ul&gt;
+      &lt;li&gt;In the future, we expect implicit string casts on arrays and objects to
+raise exceptions. This change should make it easier to find such dangerous
+casts earlier.&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Str\format()&lt;/code&gt; is unchanged, it has always expected a &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt; argument.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Boolean &lt;code class=&quot;highlighter-rouge&quot;&gt;.hhconfig&lt;/code&gt; options now treat the value &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; (as well as any other
+value except &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;/&lt;code class=&quot;highlighter-rouge&quot;&gt;true&lt;/code&gt;/&lt;code class=&quot;highlighter-rouge&quot;&gt;yes&lt;/code&gt;/&lt;code class=&quot;highlighter-rouge&quot;&gt;on&lt;/code&gt;) as &lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt;. Previously, the behavior was
+not consistent across all boolean options, sometimes all positive numbers
+were treated as &lt;code class=&quot;highlighter-rouge&quot;&gt;true&lt;/code&gt;.
+    &lt;ul&gt;
+      &lt;li&gt;This is most likely to affect options that previously had &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; as a valid
+value, but later became boolean options (a somewhat common pattern).&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Wed, 29 Apr 2020 00:00:00 +0200</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/04/29/hhvm-4.55.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/04/29/hhvm-4.55.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>HHVM 4.54</title>
+        <description>&lt;p&gt;HHVM 4.54 is released! This release marks the end of support for 4.48;
+HHVM 4.49–4.53 remain supported, as do the 4.8 and 4.32 LTS releases.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;inout&lt;/code&gt; parameters on async functions now only raise a parse error, instead
+of a parse error and a NastCheck error.&lt;/li&gt;
+  &lt;li&gt;improved accuracy of line numbers for errors or backtraces within &lt;code class=&quot;highlighter-rouge&quot;&gt;concurrent&lt;/code&gt;
+blocks&lt;/li&gt;
+  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;ignored_fixme_codes&lt;/code&gt; (errors that can not be suppresed) hack option is
+no longer respected for HHI files; this allows projects to use a stricter
+list than is compatible with builtins.&lt;/li&gt;
+  &lt;li&gt;If using CLI server mode, a warning is now logged if the CLI client does not
+recognize a command sent to the CLI server. We &lt;strong&gt;strongly&lt;/strong&gt; recommend using
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.check_cli_client_commands=2&lt;/code&gt; INI setting to raise an error instead:
+these warnings indicate a bug in HHVM, and can not be safely recovered from.
+If you see this warning, please file a bug report. It can also be set to &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;
+to disable the warnings. Any value other than &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; leads to undefined behavior
+in this error case.&lt;/li&gt;
+  &lt;li&gt;Increased the efficiency of &lt;code class=&quot;highlighter-rouge&quot;&gt;idx()&lt;/code&gt; and array access on empty containers.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Containers are now more consistently checked for valid &lt;code class=&quot;highlighter-rouge&quot;&gt;arraykey&lt;/code&gt;s; this
+behavior can be enabled on old releases with the
+&lt;code class=&quot;highlighter-rouge&quot;&gt;disallow_invalid_arraykey=true&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;.hhconfig&lt;/code&gt; setting.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;future-changes&quot;&gt;Future Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.check_cli_client_commands&lt;/code&gt; INI setting will default to &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; (error)
+in a future release.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Tue, 21 Apr 2020 00:00:00 +0200</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/04/21/hhvm-4.54.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/04/21/hhvm-4.54.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>HHVM 4.53</title>
+        <description>&lt;p&gt;HHVM 4.53 is released! This release marks the end of support for 4.47;
+HHVM 4.48–4.52 remain supported, as do the 4.8 and 4.32 LTS releases.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We now build binary packages for Ubuntu 19.10. Packages for Ubuntu 20.04
+should become available after its final release.&lt;/li&gt;
+  &lt;li&gt;The type-checker now provides more helpful error messages when cyclic shape
+type aliases are detected, pointing out both the invalid type alias and the
+cause of the cycle.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;?&amp;gt;&lt;/code&gt; can no longer be used to terminate &lt;code class=&quot;highlighter-rouge&quot;&gt;//&lt;/code&gt; comments (&lt;code class=&quot;highlighter-rouge&quot;&gt;?&amp;gt;&lt;/code&gt; for all other
+purposes was removed in HHVM 4.52)&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Mon, 13 Apr 2020 00:00:00 +0200</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/04/13/hhvm-4.53.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/04/13/hhvm-4.53.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>HHVM 4.52</title>
+        <description>&lt;p&gt;HHVM 4.52 is released! This release marks the end of support for 4.46;
+HHVM 4.47–4.51 remain supported, as do the 4.8 and 4.32 LTS releases.&lt;/p&gt;
+
+&lt;p&gt;HHVM 4.52.1 fixes a regression introduced in 4.52.0, which made the typechecker
+report Hack parse errors in PHP code, instead of ignoring actual PHP source
+files.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;fixed crash in &lt;code class=&quot;highlighter-rouge&quot;&gt;ext_soap&lt;/code&gt; if a SoapServer’s handler class does not exist.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;?&amp;gt;&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;?=&lt;/code&gt; are no longer recognized by the parser; this has replaced
+dedicated errors with parse errors.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;it is now a type error to &lt;code class=&quot;highlighter-rouge&quot;&gt;use&lt;/code&gt; the same trait twice in the same class; using
+the same trait in related classes (e.g. subclasses and parents) is still
+permitted.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;future-changes&quot;&gt;Future Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Runtime support for casting objects to strings via &lt;code class=&quot;highlighter-rouge&quot;&gt;__toString&lt;/code&gt; will be
+removed shortly; this includes &lt;code class=&quot;highlighter-rouge&quot;&gt;(string) $obj&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;print($obj)&lt;/code&gt;,
+&lt;code class=&quot;highlighter-rouge&quot;&gt;sprintf('%s', $obj)&lt;/code&gt; among others. The
+&lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.notice_on_implicit_invoke_to_string&lt;/code&gt; INI setting can be used to find
+calls that will break.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Tue, 07 Apr 2020 00:00:00 +0200</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/04/07/hhvm-4.52.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/04/07/hhvm-4.52.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>HHVM 4.51</title>
+        <description>&lt;p&gt;HHVM 4.51 is released! This release marks the end of support for 4.45;
+HHVM 4.46–4.50 remain supported, as do the 4.8 and 4.32 LTS releases.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A new method &lt;code class=&quot;highlighter-rouge&quot;&gt;getEnumUnderlyingType()&lt;/code&gt; was added to &lt;code class=&quot;highlighter-rouge&quot;&gt;ReflectionClass&lt;/code&gt;. It
+returns the underlying type of the enum’s values (usually &lt;code class=&quot;highlighter-rouge&quot;&gt;HH\int&lt;/code&gt; or
+&lt;code class=&quot;highlighter-rouge&quot;&gt;HH\string&lt;/code&gt;, but can also be the name of another enum, type alias, or
+&lt;code class=&quot;highlighter-rouge&quot;&gt;HH\arraykey&lt;/code&gt;).
+    &lt;ul&gt;
+      &lt;li&gt;If the &lt;code class=&quot;highlighter-rouge&quot;&gt;ReflectionClass&lt;/code&gt; instance doesn’t represent an enum, the method
+throws.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Improved optimization of async tail calls (&lt;code class=&quot;highlighter-rouge&quot;&gt;return await ...&lt;/code&gt;) can
+significantly improve performance of code that uses a lot of such calls.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Using the array-appending operator &lt;code class=&quot;highlighter-rouge&quot;&gt;[]&lt;/code&gt; on a &lt;code class=&quot;highlighter-rouge&quot;&gt;Map&lt;/code&gt; object
+(&lt;code class=&quot;highlighter-rouge&quot;&gt;$map[] = Pair {$key, $value};&lt;/code&gt;) is now a type-checker error.
+    &lt;ul&gt;
+      &lt;li&gt;Use &lt;code class=&quot;highlighter-rouge&quot;&gt;$map[$key] = $value;&lt;/code&gt; instead.&lt;/li&gt;
+      &lt;li&gt;The runtime still allows both variants, so &lt;code class=&quot;highlighter-rouge&quot;&gt;HH_FIXME&lt;/code&gt; can be used
+temporarily, to help migrating code. Runtime support will likely be removed
+in a future release.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The type-checker no longer supports the
+&lt;a href=&quot;https://www.php.net/manual/en/language.oop5.overloading.php#object.call&quot;&gt;“magic method” &lt;code class=&quot;highlighter-rouge&quot;&gt;__call&lt;/code&gt;&lt;/a&gt;,
+so calling any method that is not explicitly declared is now a type-checker
+error.
+    &lt;ul&gt;
+      &lt;li&gt;Runtime behavior is unchanged, so &lt;code class=&quot;highlighter-rouge&quot;&gt;HH_FIXME&lt;/code&gt; can be used temporarily, to
+help migrating code. Runtime support will likely be removed in a future
+release.&lt;/li&gt;
+      &lt;li&gt;In the long term, we recommend migrating any affected code to only call
+explicitly declared methods.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;future-changes&quot;&gt;Future Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We expect the removed type-checker features listed above to also be removed
+from the runtime in a future release.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Tue, 31 Mar 2020 00:00:00 +0200</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/03/31/hhvm-4.51.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/03/31/hhvm-4.51.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>HHVM 4.50</title>
+        <description>&lt;p&gt;HHVM 4.50 is released! This release marks the end of support for 4.44;
+HHVM 4.45–4.49 remain supported, as do the 4.8 and 4.32 LTS releases.&lt;/p&gt;
+
+&lt;p&gt;Additionally, we are no longer building binary packages for MacOS High Sierra
+for any version of HHVM, as High Sierra is no longer offered by our build
+infrastructure provider.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;added the &lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.hack_arr_is_shape_tuple_notices&lt;/code&gt; INI setting, which raises
+a notice on &lt;code class=&quot;highlighter-rouge&quot;&gt;$dict is shape()&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;$vec is tuple()&lt;/code&gt;; these are currently
+always false, but may be true in the future, so are unsafe to depend on.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;HH\BuiltinEnum&amp;lt;T&amp;gt;&lt;/code&gt; is now covariant.&lt;/li&gt;
+  &lt;li&gt;Improve hackfmt’s range formatting when suppressions outside the requested
+range affect code within the requested range.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;magic methods (&lt;code class=&quot;highlighter-rouge&quot;&gt;__get&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;__set&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;__isset&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;__unset&lt;/code&gt;) have been removed from
+the typechecker definitions of builtins, such as the XMLReader, Imagick,
+DateTime, and SimpleXML extensions.&lt;/li&gt;
+  &lt;li&gt;it is now a type error to use argument unpacking when invoking a default
+constructor. It was already an error to make a variadic call to functions that
+take exactly zero arguments, and as default constructors always have exactly
+zero arguments, this makes the behavior consistent. This was previously
+a runtime error.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;future-changes&quot;&gt;Future Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;array()&lt;/code&gt; literals will be removed; the &lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.hack.lang.disable_array=true&lt;/code&gt;
+INI setting can be used to enable a runtime fatal when they are used, in
+addition to the preexisting &lt;code class=&quot;highlighter-rouge&quot;&gt;disallow_array_literal=true&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;.hhconfig&lt;/code&gt; option.&lt;/li&gt;
+  &lt;li&gt;The magic methods on builtins that were removed from the typechecker in this
+release will be removed from the runtime in a future release.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Tue, 24 Mar 2020 00:00:00 +0100</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/03/24/hhvm-4.50.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/03/24/hhvm-4.50.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>HHVM 4.49</title>
+        <description>&lt;p&gt;HHVM 4.49 is released! This release marks the end of support for 4.43;
+HHVM 4.44–4.48 remain supported, as do the 4.8 and 4.32 LTS releases.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;New &lt;code class=&quot;highlighter-rouge&quot;&gt;.hhconfig&lt;/code&gt; option &lt;code class=&quot;highlighter-rouge&quot;&gt;disable_modes&lt;/code&gt; (previously &lt;code class=&quot;highlighter-rouge&quot;&gt;disable_partial&lt;/code&gt;) will
+cause the typechecker to treat all files as strict (comments after &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;?hh&lt;/code&gt;
+no longer have special meaning).
+    &lt;ul&gt;
+      &lt;li&gt;The default value will be &lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt; for the foreseeable future.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;New &lt;code class=&quot;highlighter-rouge&quot;&gt;hackfmt&lt;/code&gt; flag &lt;code class=&quot;highlighter-rouge&quot;&gt;--format-generated-code&lt;/code&gt; can be used to format generated
+and partially generated files.&lt;/li&gt;
+  &lt;li&gt;Fixed a bug that could cause part of &lt;code class=&quot;highlighter-rouge&quot;&gt;hackfmt&lt;/code&gt; output to be missing when
+formatting partially generated files, and other minor fixes and improvements
+for &lt;code class=&quot;highlighter-rouge&quot;&gt;hackfmt&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Fixed a bug that could prevent the “go to type” IDE feature from working
+inside async functions.&lt;/li&gt;
+  &lt;li&gt;Improved various typechecker error messages, e.g. when accessing an optional
+shape field it now recommends using &lt;code class=&quot;highlighter-rouge&quot;&gt;Shapes::idx&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;??&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Comparing (&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;gt;&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;=&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;gt;=&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;=&amp;gt;&lt;/code&gt;) a legacy PHP array with a non-array
+now throws &lt;code class=&quot;highlighter-rouge&quot;&gt;InvalidOperationException&lt;/code&gt; (previously only raised a Notice). It
+had already been a typechecker error.&lt;/li&gt;
+  &lt;li&gt;It is now a runtime error if &lt;code class=&quot;highlighter-rouge&quot;&gt;class_meth&lt;/code&gt; is used with arguments that are not
+a &lt;code class=&quot;highlighter-rouge&quot;&gt;::class&lt;/code&gt; and a string literal (a string literal as the 1st argument will
+also not cause a runtime error, but &lt;code class=&quot;highlighter-rouge&quot;&gt;::class&lt;/code&gt; literal is recommended). It had
+already been a typechecker error.
+    &lt;ul&gt;
+      &lt;li&gt;If a dynamic pointer is required, annotate the method with
+&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;&amp;lt;__DynamicallyCallable&amp;gt;&amp;gt;&lt;/code&gt; and use &lt;code class=&quot;highlighter-rouge&quot;&gt;HH\dynamic_class_meth()&lt;/code&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;future-changes&quot;&gt;Future Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We are working towards deprecating (and eventually removing from the language)
+&lt;a href=&quot;https://www.php.net/manual/en/language.oop5.magic.php&quot;&gt;“magic methods”&lt;/a&gt;
+such as &lt;code class=&quot;highlighter-rouge&quot;&gt;__call&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;__get&lt;/code&gt;. Currently, you can use the INI option
+&lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.no_use_magic_methods=true&lt;/code&gt; to trigger warnings whenever a magic method
+is invoked, e.g. when an undefined method is called on a class that has the
+&lt;code class=&quot;highlighter-rouge&quot;&gt;__call&lt;/code&gt; magic method.&lt;/li&gt;
+  &lt;li&gt;Comparing Hack arrays to &lt;code class=&quot;highlighter-rouge&quot;&gt;true&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;null&lt;/code&gt; with the “fuzzy” equality
+operators (&lt;code class=&quot;highlighter-rouge&quot;&gt;==&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;!=&lt;/code&gt;) will be changed so that non-empty Hack arrays are
+&lt;code class=&quot;highlighter-rouge&quot;&gt;== true&lt;/code&gt; and empty Hack arrays are &lt;code class=&quot;highlighter-rouge&quot;&gt;== false&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;== null&lt;/code&gt;.
+    &lt;ul&gt;
+      &lt;li&gt;The INI option &lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.hack_arr_empty_based_bool_eq_cmp=true&lt;/code&gt; can be used to
+enable this behavior now.&lt;/li&gt;
+      &lt;li&gt;The new behavior is consistent with legacy arrays, making it easier to
+migrate to Hack arrays.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Wed, 18 Mar 2020 00:00:00 +0100</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/03/18/hhvm-4.49.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/03/18/hhvm-4.49.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>HHVM 4.48</title>
+        <description>&lt;p&gt;HHVM 4.48 is released! This release marks the end of support for 4.42;
+HHVM 4.43–4.47 remain supported, as do the 4.8 and 4.32 LTS releases.&lt;/p&gt;
+
+&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If a non-abstract class contains an abstract method, report the error at the
+location of the class name (where the &lt;code class=&quot;highlighter-rouge&quot;&gt;abstract&lt;/code&gt; modifier should be), instead
+of at the function declaration.&lt;/li&gt;
+  &lt;li&gt;Some error code suppressions apply to line ranges, instead of nodes. &lt;code class=&quot;highlighter-rouge&quot;&gt;hackfmt&lt;/code&gt;
+will now ignore any code in such a range, as formatting it could un-suppress
+errors.&lt;/li&gt;
+  &lt;li&gt;If a file generated by &lt;code class=&quot;highlighter-rouge&quot;&gt;hack-codegen&lt;/code&gt; is partially generated, &lt;code class=&quot;highlighter-rouge&quot;&gt;hackfmt&lt;/code&gt; will
+only format the manual sections.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;hackfmt&lt;/code&gt; will not modify files containing &lt;code class=&quot;highlighter-rouge&quot;&gt;@generated&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Updated and clarified error message for private methods - now “must be public
+or protected”, previously (incorrectly) “Access type […] must be omitted”.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;hh_client lsp --config&lt;/code&gt; now accepts &lt;code class=&quot;highlighter-rouge&quot;&gt;.hhconfig&lt;/code&gt; settings, in addition to
+&lt;code class=&quot;highlighter-rouge&quot;&gt;hh.conf&lt;/code&gt; (system-wide) settings.&lt;/li&gt;
+  &lt;li&gt;Error for unitialized members now suggest making the property “nullable”
+instead of “optional”, to avoid confusion with shape terminology.&lt;/li&gt;
+  &lt;li&gt;Suggest using &lt;code class=&quot;highlighter-rouge&quot;&gt;$x is SomeEnum&lt;/code&gt; if an exhaustive switch statement contains a
+&lt;code class=&quot;highlighter-rouge&quot;&gt;default:&lt;/code&gt; block.&lt;/li&gt;
+  &lt;li&gt;The CLI client/server protocol version has changed; if you have configured
+CLI client/server and deploy them separately, this may lead to fallback to
+standalone CLI mode.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;It is again an error to have a default case in exhaustive &lt;code class=&quot;highlighter-rouge&quot;&gt;switch ($enum)&lt;/code&gt;
+blocks; while the enum is not enforced at runtime, we feel this behavior is
+better as it raises an error when the enum is expanded but switch statements
+are not. Note that a switch statement that does not match (no matching case,
+no &lt;code class=&quot;highlighter-rouge&quot;&gt;default&lt;/code&gt;) are still expected to throw an exception in a future release, or
+now with the &lt;code class=&quot;highlighter-rouge&quot;&gt;hhvm.throw_on_non_exhaustive_switch=2&lt;/code&gt; setting.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;HHVM_VERSION_ID&lt;/code&gt; is of the form &lt;code class=&quot;highlighter-rouge&quot;&gt;XXYYYZZ&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;XXYYZZ&lt;/code&gt;; if you are
+extracting parts, please use the &lt;code class=&quot;highlighter-rouge&quot;&gt;HHVM_VERSION_MAJOR&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;HHVM_VERSION_MINOR&lt;/code&gt;,
+and &lt;code class=&quot;highlighter-rouge&quot;&gt;HHVM_VERSION_PATCH&lt;/code&gt; constants instead.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;future-changes&quot;&gt;Future Changes&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;added &lt;code class=&quot;highlighter-rouge&quot;&gt;disable_partial&lt;/code&gt; (will be renamed &lt;code class=&quot;highlighter-rouge&quot;&gt;disable_modes&lt;/code&gt; shortly) - a boolean flag that disables partial mode (and all other modes!) from Hack completely. Comments after the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;?hh&lt;/code&gt; are just comments, and non-hhi files are inherently strict. The default value will be false for the foreseeable future.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Mon, 09 Mar 2020 00:00:00 +0100</pubDate>
+        <link>http://hhvm-cn.com/blog/2020/03/09/hhvm-4.48.html</link>
+        <guid isPermaLink="true">http://hhvm-cn.com/blog/2020/03/09/hhvm-4.48.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+  </channel>
+</rss>
