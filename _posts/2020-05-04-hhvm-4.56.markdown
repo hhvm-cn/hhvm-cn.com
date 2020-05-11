@@ -5,72 +5,52 @@ author: fred
 category: blog
 ---
 
-HHVM 4.56 is released! This release has long term support, so:
+HHVM 4.56 发布了！这个版本是 LTS 长期支持版本，因此:
 
-- this release will be supported for approximately 48 weeks
-- the next LTS will be released in approximately 24 weeks
-- HHVM 4.32 (LTS) and HHVM 4.51&ndash;4.55 remain supported.
-- support has ended for HHVM 4.8 (LTS)
+- 这个版本将提供大约 48 个星期的支持；
+- 下一个 LTS 版本将在大约 24 个星期内发布；
+- 我们将继续支持 HHVM 4.32 (LTS) 和 HHVM 4.51&ndash;4.55 版本；
+- 我们已结束对 HHVM 4.8 (LTS) 版本的支持。
 
-Additionally, 4.56 is the last release with support for several older Linux
-distributions and MacOS versions. In particular, we expect this to be the last
-release with support for Ubuntu 16.04 (Xenial), Debian 8 (Jessie), and
-Debian 9 (Stretch). See 'Future Changes' below for details.
+HHVM 4.56 是最新版本，支持多个较旧的 Linux 发行版和 MacOS 系统。需要注意的是，我们希望这将是最后一次支持 Ubuntu 16.04 (Xenial)，Debian 8 (Jessie) 和 Debian 9 (Stretch) 系统的更新。如果你想了解详细的信息，请阅读下文中的「更新计划」部分。
 
-# Highlights
+# 亮点聚焦
 
-- `apc_fetch()` expiration is now deferred until the end of the first request
-  that sees an expired result; this request will return `false`, but any
-  concurrent requests will see the old value until the first request has
-  finished. This change aims to reduce 'thundering herd' problems when many
-  requests simultaneously attempt to refresh a hot key.
+- 现在已经将 `apc_fetch()` 的过期时间推迟到看到过期结果的第一个请求结束的时候；这个请求会返回 `false`，但是在第一个请求完成之前，并发请求得到的都是旧值。这个更新的目的是减少当多个请求同时尝试刷新一个 hot key 时引起的[「惊群问题」](https://zh.wikipedia.org/wiki/%E6%83%8A%E7%BE%A4%E9%97%AE%E9%A2%98)。
 
-# Breaking Changes
+# 重大改动
 
-- `\HH\INCORRECT_TYPE<T>` has been removed from the HHI definitions.
-- Support for `__get`, `__set`, `__isset`, and `__unset` has been removed from
-  HHVM and the parser. Builtin classes that used these with fixed property names
-  have a new native implementation.
-- The Redis extension has been removed. This extension contained no native code,
-  so can be extracted from past versions of HHVM and updated as a standalone
-  library if required, though we do not support this usage.
+- HHI 的定义中已经移除了 `\HH\INCORRECT_TYPE<T>`。
+- 从 HHVM 和语法分析器中已经移除了对 `__get`，`__set`，`__isset`，和 `__unset` 的支持。但是实现了新的内置类，可以通过固定属性名调用它们。
+- 已经移除了 Redis 拓展。这个扩展不包含任何原生代码，所以可以从旧的 HHVM 版本中提取出来，尽管我们不建议把它作为一个独立的库进行更新，但是如果需要的话，你也可以这样做。
 
-# Future Changes
+# 更新计划
 
-[As announced in November](https://hhvm.com/blog/2019/11/19/distribution-support.html),
-we are changing our distribution support lifecycle, starting with nightly
-builds and the next release:
+[正如11月宣布的那样](https://hhvm-cn.com/blog/2019/11/19/distribution-support.html)，
+我们正在改变我们对各种系统支持的生命周期，从 Nightly 版本到下一次更新发布过程中：
 
-- MacOS: we aim to support the latest stable release - currently Catalina.
-  When a new version of MacOS is released, we plan to support both for 6
-  months.
-- Debian: we aim to support Debian stable. When a new version is promoted to
-  stable, we plan to support both for 6 months.
-- Ubuntu LTS: we aim to support the current LTS release (20.04); when a new
-  Ubuntu LTS is released, we plan to support both for the next 6 months.
-- Ubuntu 'interim' releases: we plan to support these for 9 months, matching
-  the length of time they are supported by Canonical.
+- MacOS：我们的目标是支持最新稳定版本的系统 —— 当前为 Catalina（版本10.15）。当新版本的 MacOS 发布后，我们计划在接下来的6个月中同时支持这两个版本的系统。
+- Debian：我们的目标是支持 Debian 稳定版。当新版本成为稳定版本后，我们计划在接下来的6个月中同时支持这两个版本的系统。
+- Ubuntu LTS：我们的目标是支持当前的 LTS 版本（20.04）；当新版本的 Ubuntu LTS 发布后，我们计划在接下来的6个月中同时支持这两个版本的系统。
+- Ubuntu「临时」版本：我们计划和 Canonical 支持它们的时间一样，在9个月内支持这些版本。
 
-As long as dependencies are available from official upstream repositories, we
-plan to package `x.y.z` releases for any Linux distributions where we packaged
-`x.y.0`; we also aim to do this for MacOS as long as the versions are available
-from our build infrastructure provider.
+在官方原始仓库中提供了依赖项之后，我们计划先打包 `x.y.0` 版本，然后针对其他 Linux 发行版打包成 `x.y.z` 发布；如果我们有 MacOS 系统的版本，我们也会为 MacOS 打包。
 
-Concretely, this means that we no longer commit to supporting:
+具体而言，这意味着我们不再继续支持以下版本的系统：
 
 - Debian 8 (Jessie)
 - Debian 9 (Stretch)
 - Ubuntu 16.04 (Xenial)
 - MacOS 10.14 (Mojave)
 
-We will generally keep building packages for distributions we no longer support
-as long as they keep working and they do not hold back development. That said,
-starting with 4.57, we are immediately ending support for distributions that
-include GCC6 or below:
+如果这些我们不再支持的系统可以继续运行，并且不会阻碍我们的开发，我们也会继续为它们构建软件包。也就是说，从 4.57 版本开始，我们将会立即停止对以下包含 GCC6 或更低版本系统的支持：
 
 - Debian 8 (Jessie)
 - Debian 9 (Stretch).
 - Ubuntu 16.04 (Xenial)
 
-Other unsupported distributions may be removed from future releases without
-futher notice.
+其他我们不再支持的发行版可能会在没有通知的情况下，从以后更新的版本中移除。
+
+---
+
+> *本文由 [Evilran](https://github.com/Evilran) 翻译*
