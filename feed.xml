@@ -5,72 +5,52 @@
     <description>HHVM 中文社区和 HHVM/Hack 的博客</description>
     <link>http://hhvm-cn.com//</link>
     <atom:link href="http://hhvm-cn.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 10 May 2020 13:43:45 +0200</pubDate>
-    <lastBuildDate>Sun, 10 May 2020 13:43:45 +0200</lastBuildDate>
+    <pubDate>Mon, 11 May 2020 10:56:50 +0200</pubDate>
+    <lastBuildDate>Mon, 11 May 2020 10:56:50 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
         <title>HHVM 4.56</title>
-        <description>&lt;p&gt;HHVM 4.56 is released! This release has long term support, so:&lt;/p&gt;
+        <description>&lt;p&gt;HHVM 4.56 发布了！这个版本是 LTS 长期支持版本，因此:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;this release will be supported for approximately 48 weeks&lt;/li&gt;
-  &lt;li&gt;the next LTS will be released in approximately 24 weeks&lt;/li&gt;
-  &lt;li&gt;HHVM 4.32 (LTS) and HHVM 4.51–4.55 remain supported.&lt;/li&gt;
-  &lt;li&gt;support has ended for HHVM 4.8 (LTS)&lt;/li&gt;
+  &lt;li&gt;这个版本将提供大约 48 个星期的支持；&lt;/li&gt;
+  &lt;li&gt;下一个 LTS 版本将在大约 24 个星期内发布；&lt;/li&gt;
+  &lt;li&gt;我们将继续支持 HHVM 4.32 (LTS) 和 HHVM 4.51–4.55 版本；&lt;/li&gt;
+  &lt;li&gt;我们已结束对 HHVM 4.8 (LTS) 版本的支持。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Additionally, 4.56 is the last release with support for several older Linux
-distributions and MacOS versions. In particular, we expect this to be the last
-release with support for Ubuntu 16.04 (Xenial), Debian 8 (Jessie), and
-Debian 9 (Stretch). See ‘Future Changes’ below for details.&lt;/p&gt;
+&lt;p&gt;HHVM 4.56 是最新版本，支持多个较旧的 Linux 发行版和 MacOS 系统。需要注意的是，我们希望这将是最后一次支持 Ubuntu 16.04 (Xenial)，Debian 8 (Jessie) 和 Debian 9 (Stretch) 系统的更新。如果你想了解详细的信息，请阅读下文中的「更新计划」部分。&lt;/p&gt;
 
-&lt;h1 id=&quot;highlights&quot;&gt;Highlights&lt;/h1&gt;
+&lt;h1 id=&quot;亮点聚焦&quot;&gt;亮点聚焦&lt;/h1&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;apc_fetch()&lt;/code&gt; expiration is now deferred until the end of the first request
-that sees an expired result; this request will return &lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt;, but any
-concurrent requests will see the old value until the first request has
-finished. This change aims to reduce ‘thundering herd’ problems when many
-requests simultaneously attempt to refresh a hot key.&lt;/li&gt;
+  &lt;li&gt;现在已经将 &lt;code class=&quot;highlighter-rouge&quot;&gt;apc_fetch()&lt;/code&gt; 的过期时间推迟到看到过期结果的第一个请求结束的时候；这个请求会返回 &lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt;，但是在第一个请求完成之前，并发请求得到的都是旧值。这个更新的目的是减少当多个请求同时尝试刷新一个 hot key 时引起的&lt;a href=&quot;https://zh.wikipedia.org/wiki/%E6%83%8A%E7%BE%A4%E9%97%AE%E9%A2%98&quot;&gt;「惊群问题」&lt;/a&gt;。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;breaking-changes&quot;&gt;Breaking Changes&lt;/h1&gt;
+&lt;h1 id=&quot;重大改动&quot;&gt;重大改动&lt;/h1&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\HH\INCORRECT_TYPE&amp;lt;T&amp;gt;&lt;/code&gt; has been removed from the HHI definitions.&lt;/li&gt;
-  &lt;li&gt;Support for &lt;code class=&quot;highlighter-rouge&quot;&gt;__get&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;__set&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;__isset&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;__unset&lt;/code&gt; has been removed from
-HHVM and the parser. Builtin classes that used these with fixed property names
-have a new native implementation.&lt;/li&gt;
-  &lt;li&gt;The Redis extension has been removed. This extension contained no native code,
-so can be extracted from past versions of HHVM and updated as a standalone
-library if required, though we do not support this usage.&lt;/li&gt;
+  &lt;li&gt;HHI 的定义中已经移除了 &lt;code class=&quot;highlighter-rouge&quot;&gt;\HH\INCORRECT_TYPE&amp;lt;T&amp;gt;&lt;/code&gt;。&lt;/li&gt;
+  &lt;li&gt;从 HHVM 和语法分析器中已经移除了对 &lt;code class=&quot;highlighter-rouge&quot;&gt;__get&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;__set&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;__isset&lt;/code&gt;，和 &lt;code class=&quot;highlighter-rouge&quot;&gt;__unset&lt;/code&gt; 的支持。但是实现了新的内置类，可以通过固定属性名调用它们。&lt;/li&gt;
+  &lt;li&gt;已经移除了 Redis 拓展。这个扩展不包含任何原生代码，所以可以从旧的 HHVM 版本中提取出来，尽管我们不建议把它作为一个独立的库进行更新，但是如果需要的话，你也可以这样做。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;future-changes&quot;&gt;Future Changes&lt;/h1&gt;
+&lt;h1 id=&quot;更新计划&quot;&gt;更新计划&lt;/h1&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://hhvm.com/blog/2019/11/19/distribution-support.html&quot;&gt;As announced in November&lt;/a&gt;,
-we are changing our distribution support lifecycle, starting with nightly
-builds and the next release:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://hhvm-cn.com/blog/2019/11/19/distribution-support.html&quot;&gt;正如11月宣布的那样&lt;/a&gt;，
+我们正在改变我们对各种系统支持的生命周期，从 Nightly 版本到下一次更新发布过程中：&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;MacOS: we aim to support the latest stable release - currently Catalina.
-When a new version of MacOS is released, we plan to support both for 6
-months.&lt;/li&gt;
-  &lt;li&gt;Debian: we aim to support Debian stable. When a new version is promoted to
-stable, we plan to support both for 6 months.&lt;/li&gt;
-  &lt;li&gt;Ubuntu LTS: we aim to support the current LTS release (20.04); when a new
-Ubuntu LTS is released, we plan to support both for the next 6 months.&lt;/li&gt;
-  &lt;li&gt;Ubuntu ‘interim’ releases: we plan to support these for 9 months, matching
-the length of time they are supported by Canonical.&lt;/li&gt;
+  &lt;li&gt;MacOS：我们的目标是支持最新稳定版本的系统 —— 当前为 Catalina（版本10.15）。当新版本的 MacOS 发布后，我们计划在接下来的6个月中同时支持这两个版本的系统。&lt;/li&gt;
+  &lt;li&gt;Debian：我们的目标是支持 Debian 稳定版。当新版本成为稳定版本后，我们计划在接下来的6个月中同时支持这两个版本的系统。&lt;/li&gt;
+  &lt;li&gt;Ubuntu LTS：我们的目标是支持当前的 LTS 版本（20.04）；当新版本的 Ubuntu LTS 发布后，我们计划在接下来的6个月中同时支持这两个版本的系统。&lt;/li&gt;
+  &lt;li&gt;Ubuntu「临时」版本：我们计划和 Canonical 支持它们的时间一样，在9个月内支持这些版本。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;As long as dependencies are available from official upstream repositories, we
-plan to package &lt;code class=&quot;highlighter-rouge&quot;&gt;x.y.z&lt;/code&gt; releases for any Linux distributions where we packaged
-&lt;code class=&quot;highlighter-rouge&quot;&gt;x.y.0&lt;/code&gt;; we also aim to do this for MacOS as long as the versions are available
-from our build infrastructure provider.&lt;/p&gt;
+&lt;p&gt;在官方原始仓库中提供了依赖项之后，我们计划先打包 &lt;code class=&quot;highlighter-rouge&quot;&gt;x.y.0&lt;/code&gt; 版本，然后针对其他 Linux 发行版打包成 &lt;code class=&quot;highlighter-rouge&quot;&gt;x.y.z&lt;/code&gt; 发布；如果我们有 MacOS 系统的版本，我们也会为 MacOS 打包。&lt;/p&gt;
 
-&lt;p&gt;Concretely, this means that we no longer commit to supporting:&lt;/p&gt;
+&lt;p&gt;具体而言，这意味着我们不再继续支持以下版本的系统：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Debian 8 (Jessie)&lt;/li&gt;
@@ -79,10 +59,7 @@ from our build infrastructure provider.&lt;/p&gt;
   &lt;li&gt;MacOS 10.14 (Mojave)&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;We will generally keep building packages for distributions we no longer support
-as long as they keep working and they do not hold back development. That said,
-starting with 4.57, we are immediately ending support for distributions that
-include GCC6 or below:&lt;/p&gt;
+&lt;p&gt;如果这些我们不再支持的系统可以继续运行，并且不会阻碍我们的开发，我们也会继续为它们构建软件包。也就是说，从 4.57 版本开始，我们将会立即停止对以下包含 GCC6 或更低版本系统的支持：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Debian 8 (Jessie)&lt;/li&gt;
@@ -90,8 +67,13 @@ include GCC6 or below:&lt;/p&gt;
   &lt;li&gt;Ubuntu 16.04 (Xenial)&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Other unsupported distributions may be removed from future releases without
-futher notice.&lt;/p&gt;
+&lt;p&gt;其他我们不再支持的发行版可能会在没有通知的情况下，从以后更新的版本中移除。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;em&gt;本文由 &lt;a href=&quot;https://github.com/Evilran&quot;&gt;Evilran&lt;/a&gt; 翻译&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
 </description>
         <pubDate>Mon, 04 May 2020 00:00:00 +0200</pubDate>
         <link>http://hhvm-cn.com/blog/2020/05/04/hhvm-4.56.html</link>

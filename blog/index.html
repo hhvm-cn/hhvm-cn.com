@@ -789,72 +789,52 @@
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/05/04/hhvm-4.56.html">HHVM 4.56</a></h1>
-    <p class="post-meta">Posted May 04, 2020</p>
+    <p class="post-meta">发布于 2020 年 5 月 4 日</p>
   </header>
 
   <article class="post-content">
   
     
-      <p>HHVM 4.56 is released! This release has long term support, so:</p>
+      <p>HHVM 4.56 发布了！这个版本是 LTS 长期支持版本，因此:</p>
 
 <ul>
-  <li>this release will be supported for approximately 48 weeks</li>
-  <li>the next LTS will be released in approximately 24 weeks</li>
-  <li>HHVM 4.32 (LTS) and HHVM 4.51–4.55 remain supported.</li>
-  <li>support has ended for HHVM 4.8 (LTS)</li>
+  <li>这个版本将提供大约 48 个星期的支持；</li>
+  <li>下一个 LTS 版本将在大约 24 个星期内发布；</li>
+  <li>我们将继续支持 HHVM 4.32 (LTS) 和 HHVM 4.51–4.55 版本；</li>
+  <li>我们已结束对 HHVM 4.8 (LTS) 版本的支持。</li>
 </ul>
 
-<p>Additionally, 4.56 is the last release with support for several older Linux
-distributions and MacOS versions. In particular, we expect this to be the last
-release with support for Ubuntu 16.04 (Xenial), Debian 8 (Jessie), and
-Debian 9 (Stretch). See ‘Future Changes’ below for details.</p>
+<p>HHVM 4.56 是最新版本，支持多个较旧的 Linux 发行版和 MacOS 系统。需要注意的是，我们希望这将是最后一次支持 Ubuntu 16.04 (Xenial)，Debian 8 (Jessie) 和 Debian 9 (Stretch) 系统的更新。如果你想了解详细的信息，请阅读下文中的「更新计划」部分。</p>
 
-<h1 id="highlights">Highlights</h1>
+<h1 id="亮点聚焦">亮点聚焦</h1>
 
 <ul>
-  <li><code class="highlighter-rouge">apc_fetch()</code> expiration is now deferred until the end of the first request
-that sees an expired result; this request will return <code class="highlighter-rouge">false</code>, but any
-concurrent requests will see the old value until the first request has
-finished. This change aims to reduce ‘thundering herd’ problems when many
-requests simultaneously attempt to refresh a hot key.</li>
+  <li>现在已经将 <code class="highlighter-rouge">apc_fetch()</code> 的过期时间推迟到看到过期结果的第一个请求结束的时候；这个请求会返回 <code class="highlighter-rouge">false</code>，但是在第一个请求完成之前，并发请求得到的都是旧值。这个更新的目的是减少当多个请求同时尝试刷新一个 hot key 时引起的<a href="https://zh.wikipedia.org/wiki/%E6%83%8A%E7%BE%A4%E9%97%AE%E9%A2%98">「惊群问题」</a>。</li>
 </ul>
 
-<h1 id="breaking-changes">Breaking Changes</h1>
+<h1 id="重大改动">重大改动</h1>
 
 <ul>
-  <li><code class="highlighter-rouge">\HH\INCORRECT_TYPE&lt;T&gt;</code> has been removed from the HHI definitions.</li>
-  <li>Support for <code class="highlighter-rouge">__get</code>, <code class="highlighter-rouge">__set</code>, <code class="highlighter-rouge">__isset</code>, and <code class="highlighter-rouge">__unset</code> has been removed from
-HHVM and the parser. Builtin classes that used these with fixed property names
-have a new native implementation.</li>
-  <li>The Redis extension has been removed. This extension contained no native code,
-so can be extracted from past versions of HHVM and updated as a standalone
-library if required, though we do not support this usage.</li>
+  <li>HHI 的定义中已经移除了 <code class="highlighter-rouge">\HH\INCORRECT_TYPE&lt;T&gt;</code>。</li>
+  <li>从 HHVM 和语法分析器中已经移除了对 <code class="highlighter-rouge">__get</code>，<code class="highlighter-rouge">__set</code>，<code class="highlighter-rouge">__isset</code>，和 <code class="highlighter-rouge">__unset</code> 的支持。但是实现了新的内置类，可以通过固定属性名调用它们。</li>
+  <li>已经移除了 Redis 拓展。这个扩展不包含任何原生代码，所以可以从旧的 HHVM 版本中提取出来，尽管我们不建议把它作为一个独立的库进行更新，但是如果需要的话，你也可以这样做。</li>
 </ul>
 
-<h1 id="future-changes">Future Changes</h1>
+<h1 id="更新计划">更新计划</h1>
 
-<p><a href="https://hhvm.com/blog/2019/11/19/distribution-support.html">As announced in November</a>,
-we are changing our distribution support lifecycle, starting with nightly
-builds and the next release:</p>
+<p><a href="https://hhvm-cn.com/blog/2019/11/19/distribution-support.html">正如11月宣布的那样</a>，
+我们正在改变我们对各种系统支持的生命周期，从 Nightly 版本到下一次更新发布过程中：</p>
 
 <ul>
-  <li>MacOS: we aim to support the latest stable release - currently Catalina.
-When a new version of MacOS is released, we plan to support both for 6
-months.</li>
-  <li>Debian: we aim to support Debian stable. When a new version is promoted to
-stable, we plan to support both for 6 months.</li>
-  <li>Ubuntu LTS: we aim to support the current LTS release (20.04); when a new
-Ubuntu LTS is released, we plan to support both for the next 6 months.</li>
-  <li>Ubuntu ‘interim’ releases: we plan to support these for 9 months, matching
-the length of time they are supported by Canonical.</li>
+  <li>MacOS：我们的目标是支持最新稳定版本的系统 —— 当前为 Catalina（版本10.15）。当新版本的 MacOS 发布后，我们计划在接下来的6个月中同时支持这两个版本的系统。</li>
+  <li>Debian：我们的目标是支持 Debian 稳定版。当新版本成为稳定版本后，我们计划在接下来的6个月中同时支持这两个版本的系统。</li>
+  <li>Ubuntu LTS：我们的目标是支持当前的 LTS 版本（20.04）；当新版本的 Ubuntu LTS 发布后，我们计划在接下来的6个月中同时支持这两个版本的系统。</li>
+  <li>Ubuntu「临时」版本：我们计划和 Canonical 支持它们的时间一样，在9个月内支持这些版本。</li>
 </ul>
 
-<p>As long as dependencies are available from official upstream repositories, we
-plan to package <code class="highlighter-rouge">x.y.z</code> releases for any Linux distributions where we packaged
-<code class="highlighter-rouge">x.y.0</code>; we also aim to do this for MacOS as long as the versions are available
-from our build infrastructure provider.</p>
+<p>在官方原始仓库中提供了依赖项之后，我们计划先打包 <code class="highlighter-rouge">x.y.0</code> 版本，然后针对其他 Linux 发行版打包成 <code class="highlighter-rouge">x.y.z</code> 发布；如果我们有 MacOS 系统的版本，我们也会为 MacOS 打包。</p>
 
-<p>Concretely, this means that we no longer commit to supporting:</p>
+<p>具体而言，这意味着我们不再继续支持以下版本的系统：</p>
 
 <ul>
   <li>Debian 8 (Jessie)</li>
@@ -863,10 +843,7 @@ from our build infrastructure provider.</p>
   <li>MacOS 10.14 (Mojave)</li>
 </ul>
 
-<p>We will generally keep building packages for distributions we no longer support
-as long as they keep working and they do not hold back development. That said,
-starting with 4.57, we are immediately ending support for distributions that
-include GCC6 or below:</p>
+<p>如果这些我们不再支持的系统可以继续运行，并且不会阻碍我们的开发，我们也会继续为它们构建软件包。也就是说，从 4.57 版本开始，我们将会立即停止对以下包含 GCC6 或更低版本系统的支持：</p>
 
 <ul>
   <li>Debian 8 (Jessie)</li>
@@ -874,8 +851,13 @@ include GCC6 or below:</p>
   <li>Ubuntu 16.04 (Xenial)</li>
 </ul>
 
-<p>Other unsupported distributions may be removed from future releases without
-futher notice.</p>
+<p>其他我们不再支持的发行版可能会在没有通知的情况下，从以后更新的版本中移除。</p>
+
+<hr />
+
+<blockquote>
+  <p><em>本文由 <a href="https://github.com/Evilran">Evilran</a> 翻译</em></p>
+</blockquote>
 
     
   
@@ -895,7 +877,7 @@ futher notice.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/04/30/security-update.html">Security Update</a></h1>
-    <p class="post-meta">Posted April 30, 2020</p>
+    <p class="post-meta">发布于 2020 年 4 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -959,7 +941,7 @@ This issue doesn’t affect HHVM 4.8, since it doesn’t support GlobalDocument.
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/04/29/hhvm-4.55.html">HHVM 4.55</a></h1>
-    <p class="post-meta">Posted April 29, 2020</p>
+    <p class="post-meta">发布于 2020 年 4 月 29 日</p>
   </header>
 
   <article class="post-content">
@@ -1040,7 +1022,7 @@ value, but later became boolean options (a somewhat common pattern).</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/04/21/hhvm-4.54.html">HHVM 4.54</a></h1>
-    <p class="post-meta">Posted April 21, 2020</p>
+    <p class="post-meta">发布于 2020 年 4 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -1102,7 +1084,7 @@ in a future release.</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/04/13/hhvm-4.53.html">HHVM 4.53</a></h1>
-    <p class="post-meta">Posted April 13, 2020</p>
+    <p class="post-meta">发布于 2020 年 4 月 13 日</p>
   </header>
 
   <article class="post-content">
@@ -1146,7 +1128,7 @@ purposes was removed in HHVM 4.52)</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/04/07/hhvm-4.52.html">HHVM 4.52</a></h1>
-    <p class="post-meta">Posted April 07, 2020</p>
+    <p class="post-meta">发布于 2020 年 4 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -1203,7 +1185,7 @@ calls that will break.</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/03/31/hhvm-4.51.html">HHVM 4.51</a></h1>
-    <p class="post-meta">Posted March 31, 2020</p>
+    <p class="post-meta">发布于 2020 年 3 月 31 日</p>
   </header>
 
   <article class="post-content">
@@ -1279,7 +1261,7 @@ from the runtime in a future release.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/03/24/hhvm-4.50.html">HHVM 4.50</a></h1>
-    <p class="post-meta">Posted March 24, 2020</p>
+    <p class="post-meta">发布于 2020 年 3 月 24 日</p>
   </header>
 
   <article class="post-content">
@@ -1344,7 +1326,7 @@ release will be removed from the runtime in a future release.</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/03/18/hhvm-4.49.html">HHVM 4.49</a></h1>
-    <p class="post-meta">Posted March 18, 2020</p>
+    <p class="post-meta">发布于 2020 年 3 月 18 日</p>
   </header>
 
   <article class="post-content">
@@ -1430,7 +1412,7 @@ migrate to Hack arrays.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/03/09/hhvm-4.48.html">HHVM 4.48</a></h1>
-    <p class="post-meta">Posted March 09, 2020</p>
+    <p class="post-meta">发布于 2020 年 3 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -1502,7 +1484,7 @@ and <code class="highlighter-rouge">HHVM_VERSION_PATCH</code> constants instead.
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/03/03/hhvm-4.47.html">HHVM 4.47</a></h1>
-    <p class="post-meta">Posted March 03, 2020</p>
+    <p class="post-meta">发布于 2020 年 3 月 3 日</p>
   </header>
 
   <article class="post-content">
@@ -1604,7 +1586,7 @@ to get the future behavior now.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/02/24/hhvm-4.46.html">HHVM 4.46</a></h1>
-    <p class="post-meta">Posted February 24, 2020</p>
+    <p class="post-meta">发布于 2020 年 2 月 24 日</p>
   </header>
 
   <article class="post-content">
@@ -1669,7 +1651,7 @@ code, they can be replaced with normal interfaces.</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/02/20/security-update.html">Security Update</a></h1>
-    <p class="post-meta">Posted February 20, 2020</p>
+    <p class="post-meta">发布于 2020 年 2 月 20 日</p>
   </header>
 
   <article class="post-content">
@@ -1737,7 +1719,7 @@ provide those libraries.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/02/19/hhvm-4.45.html">HHVM 4.45</a></h1>
-    <p class="post-meta">Posted February 19, 2020</p>
+    <p class="post-meta">发布于 2020 年 2 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -1901,7 +1883,7 @@ the result may be affected by this future change.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/02/10/hhvm-4.44.html">HHVM 4.44</a></h1>
-    <p class="post-meta">Posted February 10, 2020</p>
+    <p class="post-meta">发布于 2020 年 2 月 10 日</p>
   </header>
 
   <article class="post-content">
@@ -2003,7 +1985,7 @@ function break_it():void {
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/02/03/hhvm-4.43.html">HHVM 4.43</a></h1>
-    <p class="post-meta">Posted February 03, 2020</p>
+    <p class="post-meta">发布于 2020 年 2 月 3 日</p>
   </header>
 
   <article class="post-content">
@@ -2057,7 +2039,7 @@ at runtime when called with any non-<code class="highlighter-rouge">arraykey</co
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/01/27/hhvm-4.42.html">HHVM 4.42</a></h1>
-    <p class="post-meta">Posted January 27, 2020</p>
+    <p class="post-meta">发布于 2020 年 1 月 27 日</p>
   </header>
 
   <article class="post-content">
@@ -2141,7 +2123,7 @@ notices for this behavior at runtime.</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/01/21/hhvm-4.41.html">HHVM 4.41</a></h1>
-    <p class="post-meta">Posted January 21, 2020</p>
+    <p class="post-meta">发布于 2020 年 1 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -2222,7 +2204,7 @@ any new errors.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/01/13/hhvm-4.40.html">HHVM 4.40</a></h1>
-    <p class="post-meta">Posted January 13, 2020</p>
+    <p class="post-meta">发布于 2020 年 1 月 13 日</p>
   </header>
 
   <article class="post-content">
@@ -2295,7 +2277,7 @@ this time.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/01/07/hhvm-4.39.html">HHVM 4.39</a></h1>
-    <p class="post-meta">Posted January 07, 2020</p>
+    <p class="post-meta">发布于 2020 年 1 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -2347,7 +2329,7 @@ class.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2020/01/02/hhvm-4.38.html">HHVM 4.38</a></h1>
-    <p class="post-meta">Posted January 02, 2020</p>
+    <p class="post-meta">发布于 2020 年 1 月 2 日</p>
   </header>
 
   <article class="post-content">
@@ -2400,7 +2382,7 @@ temporarily be disabled by setting the <code class="highlighter-rouge">disable_l
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/12/17/cancelling-hhvm-4.37.html">Holiday schedule: cancelling HHVM 4.37</a></h1>
-    <p class="post-meta">Posted December 17, 2019</p>
+    <p class="post-meta">发布于 2019 年 12 月 17 日</p>
   </header>
 
   <article class="post-content">
@@ -2438,7 +2420,7 @@ support them during this time.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/12/16/hhvm-4.36.html">HHVM 4.36</a></h1>
-    <p class="post-meta">Posted December 16, 2019</p>
+    <p class="post-meta">发布于 2019 年 12 月 16 日</p>
   </header>
 
   <article class="post-content">
@@ -2496,7 +2478,7 @@ that uses these functions.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/12/10/hhvm-4.35.html">HHVM 4.35</a></h1>
-    <p class="post-meta">Posted December 10, 2019</p>
+    <p class="post-meta">发布于 2019 年 12 月 10 日</p>
   </header>
 
   <article class="post-content">
@@ -2548,7 +2530,7 @@ modifying FIXMEs (4110 to 4105 or 4357) in unsafe/invalid Hack code.</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/12/02/hhvm-4.34.html">HHVM 4.34</a></h1>
-    <p class="post-meta">Posted December 02, 2019</p>
+    <p class="post-meta">发布于 2019 年 12 月 2 日</p>
   </header>
 
   <article class="post-content">
@@ -2607,7 +2589,7 @@ to its child classes.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/11/25/hhvm-4.33.html">HHVM 4.33</a></h1>
-    <p class="post-meta">Posted November 25, 2019</p>
+    <p class="post-meta">发布于 2019 年 11 月 25 日</p>
   </header>
 
   <article class="post-content">
@@ -2667,7 +2649,7 @@ generics are unaffected</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/11/19/hhvm-4.32.html">HHVM 4.32 (LTS)</a></h1>
-    <p class="post-meta">Posted November 19, 2019</p>
+    <p class="post-meta">发布于 2019 年 11 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -2757,7 +2739,7 @@ the type is used.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/11/19/distribution-support.html">Support lifecycle for older distributions</a></h1>
-    <p class="post-meta">Posted November 19, 2019</p>
+    <p class="post-meta">发布于 2019 年 11 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -2894,7 +2876,7 @@ dependencies.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/11/11/hhvm-4.31.html">HHVM 4.31.0</a></h1>
-    <p class="post-meta">Posted November 11, 2019</p>
+    <p class="post-meta">发布于 2019 年 11 月 11 日</p>
   </header>
 
   <article class="post-content">
@@ -2951,7 +2933,7 @@ used instead</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/11/06/hhvm-4.30.html">HHVM 4.30.0</a></h1>
-    <p class="post-meta">Posted November 06, 2019</p>
+    <p class="post-meta">发布于 2019 年 11 月 6 日</p>
   </header>
 
   <article class="post-content">
@@ -3034,7 +3016,7 @@ flags</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/10/29/hhvm-4.29.html">HHVM 4.29.0</a></h1>
-    <p class="post-meta">Posted October 29, 2019</p>
+    <p class="post-meta">发布于 2019 年 10 月 29 日</p>
   </header>
 
   <article class="post-content">
@@ -3106,7 +3088,7 @@ stricter handling of key (<a href="https://github.com/hhvm/user-documentation/co
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/10/28/security-update.html">Security Update</a></h1>
-    <p class="post-meta">Posted October 28, 2019</p>
+    <p class="post-meta">发布于 2019 年 10 月 28 日</p>
   </header>
 
   <article class="post-content">
@@ -3156,7 +3138,7 @@ running a new fuzzer over the HHVM codebase.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/10/23/hhvm-4.28.html">HHVM 4.28</a></h1>
-    <p class="post-meta">Posted October 23, 2019</p>
+    <p class="post-meta">发布于 2019 年 10 月 23 日</p>
   </header>
 
   <article class="post-content">
@@ -3239,7 +3221,7 @@ is expected, which had already been the default behavior)</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/10/14/hhvm-4.27.0.html">HHVM 4.27.0</a></h1>
-    <p class="post-meta">Posted October 14, 2019</p>
+    <p class="post-meta">发布于 2019 年 10 月 14 日</p>
   </header>
 
   <article class="post-content">
@@ -3298,7 +3280,7 @@ infrastructure provider</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/10/09/hhvm-4.26.0.html">HHVM 4.26.0</a></h1>
-    <p class="post-meta">Posted October 09, 2019</p>
+    <p class="post-meta">发布于 2019 年 10 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -3401,7 +3383,7 @@ See <a href="https://hhvm.com/blog/2019/10/01/deprecating-references.html">detai
     <p class="post-authorName">Daniel Neiter</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/10/01/deprecating-references.html">Deprecating &$references</a></h1>
-    <p class="post-meta">Posted October 01, 2019</p>
+    <p class="post-meta">发布于 2019 年 10 月 1 日</p>
   </header>
 
   <article class="post-content">
@@ -3619,7 +3601,7 @@ sites</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/09/30/hhvm-4.25.0.html">HHVM 4.25.0</a></h1>
-    <p class="post-meta">Posted September 30, 2019</p>
+    <p class="post-meta">发布于 2019 年 9 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -3693,7 +3675,7 @@ be publishing details in a separate post.</li>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/09/25/security-update.html">Security Update</a></h1>
-    <p class="post-meta">Posted September 25, 2019</p>
+    <p class="post-meta">发布于 2019 年 9 月 25 日</p>
   </header>
 
   <article class="post-content">
@@ -3741,7 +3723,7 @@ update to one of the following versions to make sure you’re secure:</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/09/23/hhvm-4.24.0.html">HHVM 4.24.0</a></h1>
-    <p class="post-meta">Posted September 23, 2019</p>
+    <p class="post-meta">发布于 2019 年 9 月 23 日</p>
   </header>
 
   <article class="post-content">
@@ -3829,7 +3811,7 @@ update to one of the following versions to make sure you’re secure:</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/09/17/hhvm-4.23.0.html">HHVM 4.23.0</a></h1>
-    <p class="post-meta">Posted September 17, 2019</p>
+    <p class="post-meta">发布于 2019 年 9 月 17 日</p>
   </header>
 
   <article class="post-content">
@@ -3939,7 +3921,7 @@ automatically migrate many of these cases.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/09/09/hhvm-4.22.0.html">HHVM 4.22.0</a></h1>
-    <p class="post-meta">Posted September 09, 2019</p>
+    <p class="post-meta">发布于 2019 年 9 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -4006,7 +3988,7 @@ differences in behavior or other issues, please
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/09/03/the-hhvm-4.21.0.html">HHVM 4.21.0</a></h1>
-    <p class="post-meta">Posted September 03, 2019</p>
+    <p class="post-meta">发布于 2019 年 9 月 3 日</p>
   </header>
 
   <article class="post-content">
@@ -4134,7 +4116,7 @@ You can enable this behavior now by adding
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/09/03/security-update.html">Security Update</a></h1>
-    <p class="post-meta">Posted September 03, 2019</p>
+    <p class="post-meta">发布于 2019 年 9 月 3 日</p>
   </header>
 
   <article class="post-content">
@@ -4183,7 +4165,7 @@ when a carefully constructed invalid JPEG input is passed in.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/08/27/hhvm-4.20.0.html">HHVM 4.20.0 and 4.20.1</a></h1>
-    <p class="post-meta">Posted August 27, 2019</p>
+    <p class="post-meta">发布于 2019 年 8 月 27 日</p>
   </header>
 
   <article class="post-content">
@@ -4265,7 +4247,7 @@ this behavior now by running HHVM with
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/08/19/hhvm-4.19.0.html">HHVM 4.19.0</a></h1>
-    <p class="post-meta">Posted August 19, 2019</p>
+    <p class="post-meta">发布于 2019 年 8 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -4366,7 +4348,7 @@ These changes can be found now with the <code class="highlighter-rouge">use_new_
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/08/14/security-update.html">Security Update</a></h1>
-    <p class="post-meta">Posted August 14, 2019</p>
+    <p class="post-meta">发布于 2019 年 8 月 14 日</p>
   </header>
 
   <article class="post-content">
@@ -4420,7 +4402,7 @@ eye out for updates to other HTTP/2 server and client packages.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/08/12/hhvm-4.18.0.html">HHVM 4.18.0</a></h1>
-    <p class="post-meta">Posted August 12, 2019</p>
+    <p class="post-meta">发布于 2019 年 8 月 12 日</p>
   </header>
 
   <article class="post-content">
@@ -4459,7 +4441,7 @@ may need to be updated to avoid typechecker errors.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/08/07/bugfixes.html">Bugfixes for 3.30, 4.8, and 4.12-17</a></h1>
-    <p class="post-meta">Posted August 07, 2019</p>
+    <p class="post-meta">发布于 2019 年 8 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -4514,7 +4496,7 @@ from later releases.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/08/05/hhvm-4.17.0.html">HHVM 4.17.0</a></h1>
-    <p class="post-meta">Posted August 05, 2019</p>
+    <p class="post-meta">发布于 2019 年 8 月 5 日</p>
   </header>
 
   <article class="post-content">
@@ -4593,7 +4575,7 @@ of reified generic classes.</p>
     <p class="post-authorName">Ján</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/07/29/hhvm-4.16.0.html">HHVM 4.16.0</a></h1>
-    <p class="post-meta">Posted July 29, 2019</p>
+    <p class="post-meta">发布于 2019 年 7 月 29 日</p>
   </header>
 
   <article class="post-content">
@@ -4644,7 +4626,7 @@ of reified generic classes.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/07/22/hhvm-4.15.0.html">HHVM 4.15.0</a></h1>
-    <p class="post-meta">Posted July 22, 2019</p>
+    <p class="post-meta">发布于 2019 年 7 月 22 日</p>
   </header>
 
   <article class="post-content">
@@ -4705,7 +4687,7 @@ be used to enforce this immediately.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/07/15/hhvm-4.14.0.html">HHVM 4.14.0</a></h1>
-    <p class="post-meta">Posted July 15, 2019</p>
+    <p class="post-meta">发布于 2019 年 7 月 15 日</p>
   </header>
 
   <article class="post-content">
@@ -4990,7 +4972,7 @@ automatically convert these expressions.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/07/09/hhvm-4.13.0.html">HHVM 4.13.0</a></h1>
-    <p class="post-meta">Posted July 09, 2019</p>
+    <p class="post-meta">发布于 2019 年 7 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -5064,7 +5046,7 @@ type hints will be changing from <code class="highlighter-rouge">@sometype $foo<
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/07/01/hhvm-4.12.0.html">HHVM 4.12.0</a></h1>
-    <p class="post-meta">Posted July 01, 2019</p>
+    <p class="post-meta">发布于 2019 年 7 月 1 日</p>
   </header>
 
   <article class="post-content">
@@ -5115,7 +5097,7 @@ with HHVM built against libc++ instead of libstdc++ (e.g. MacOS).</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/06/24/hhvm-4.11.0.html">HHVM 4.11.0</a></h1>
-    <p class="post-meta">Posted June 24, 2019</p>
+    <p class="post-meta">发布于 2019 年 6 月 24 日</p>
   </header>
 
   <article class="post-content">
@@ -5172,7 +5154,7 @@ autoimported, so this change only breaks fully-qualified references.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/06/18/hhvm-4.10.0.html">HHVM 4.10.0</a></h1>
-    <p class="post-meta">Posted June 18, 2019</p>
+    <p class="post-meta">发布于 2019 年 6 月 18 日</p>
   </header>
 
   <article class="post-content">
@@ -5219,7 +5201,7 @@ to match the type.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/06/13/hhvm-4.9.1.html">HHVM 4.9.1, repository changes</a></h1>
-    <p class="post-meta">Posted June 13, 2019</p>
+    <p class="post-meta">发布于 2019 年 6 月 13 日</p>
   </header>
 
   <article class="post-content">
@@ -5273,7 +5255,7 @@ in homebrew.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/06/10/hhvm-4.9.0.html">HHVM 4.9.0, and security updates for 3.30, and 4.3-4.7</a></h1>
-    <p class="post-meta">Posted June 10, 2019</p>
+    <p class="post-meta">发布于 2019 年 6 月 10 日</p>
   </header>
 
   <article class="post-content">
@@ -5432,7 +5414,7 @@ the sodium extension:</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/06/03/hhvm-4.8.0.html">HHVM 4.8.0</a></h1>
-    <p class="post-meta">Posted June 03, 2019</p>
+    <p class="post-meta">发布于 2019 年 6 月 3 日</p>
   </header>
 
   <article class="post-content">
@@ -5501,7 +5483,7 @@ this may lead to the typechecker raising errors in more places.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/05/28/hhvm-4.7.0.html">HHVM 4.7.0</a></h1>
-    <p class="post-meta">Posted May 28, 2019</p>
+    <p class="post-meta">发布于 2019 年 5 月 28 日</p>
   </header>
 
   <article class="post-content">
@@ -5558,7 +5540,7 @@ HHVM 4.6</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/05/21/hhvm-4.6.0.html">HHVM 4.6.0</a></h1>
-    <p class="post-meta">Posted May 21, 2019</p>
+    <p class="post-meta">发布于 2019 年 5 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -5652,7 +5634,7 @@ unless another behavior is specified with CLI arguments.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/05/13/hhvm-4.5.0.html">HHVM 4.5.0</a></h1>
-    <p class="post-meta">Posted May 13, 2019</p>
+    <p class="post-meta">发布于 2019 年 5 月 13 日</p>
   </header>
 
   <article class="post-content">
@@ -5728,7 +5710,7 @@ avoiding <code class="highlighter-rouge">Async\Poll</code> when alternatives exi
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/05/06/hhvm-4.4.0.html">HHVM 4.4.0</a></h1>
-    <p class="post-meta">Posted May 06, 2019</p>
+    <p class="post-meta">发布于 2019 年 5 月 6 日</p>
   </header>
 
   <article class="post-content">
@@ -5783,7 +5765,7 @@ has any effect</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/04/30/hhvm-4.3.0.html">HHVM 4.3.0</a></h1>
-    <p class="post-meta">Posted April 30, 2019</p>
+    <p class="post-meta">发布于 2019 年 4 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -5850,7 +5832,7 @@ option from 3.23.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/04/23/hhvm-4.2.0.html">HHVM 4.2.0</a></h1>
-    <p class="post-meta">Posted April 23, 2019</p>
+    <p class="post-meta">发布于 2019 年 4 月 23 日</p>
   </header>
 
   <article class="post-content">
@@ -5952,7 +5934,7 @@ can be disabled with the <code class="highlighter-rouge">disable_instanceof=true
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/04/09/hhvm-4.1.0.html">HHVM 4.1.0</a></h1>
-    <p class="post-meta">Posted April 09, 2019</p>
+    <p class="post-meta">发布于 2019 年 4 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -6159,7 +6141,7 @@ enforcement of property types. This enables additional optimizations.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/04/03/hhvm-4.0.4.html">HHVM 4.0.4, 3.30.5, and 3.27.8</a></h1>
-    <p class="post-meta">Posted April 03, 2019</p>
+    <p class="post-meta">发布于 2019 年 4 月 3 日</p>
   </header>
 
   <article class="post-content">
@@ -6197,7 +6179,7 @@ unintended memory locations if invalid offsets were passed to <code class="highl
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/02/28/hhvm-4.0.3.html">HHVM 4.0.3</a></h1>
-    <p class="post-meta">Posted February 28, 2019</p>
+    <p class="post-meta">发布于 2019 年 2 月 28 日</p>
   </header>
 
   <article class="post-content">
@@ -6249,7 +6231,7 @@ over Homebrew’s defaults for some real-world workloads.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/02/19/hhvm-4.0.2.html">HHVM 4.0.2</a></h1>
-    <p class="post-meta">Posted February 19, 2019</p>
+    <p class="post-meta">发布于 2019 年 2 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -6281,7 +6263,7 @@ the <code class="highlighter-rouge">hhvm.php_file.extensions[hack]=1</code> INI 
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/02/14/hhvm-4.0.1.html">HHVM 4.0.1, 3.30.4, and 3.27.7: CVE-2019-3552</a></h1>
-    <p class="post-meta">Posted February 14, 2019</p>
+    <p class="post-meta">发布于 2019 年 2 月 14 日</p>
   </header>
 
   <article class="post-content">
@@ -6308,7 +6290,7 @@ a potential denial of service if Thrift is used to process untrusted input.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/02/11/hhvm-4.0.0.html">HHVM 4.0.0</a></h1>
-    <p class="post-meta">Posted February 11, 2019</p>
+    <p class="post-meta">发布于 2019 年 2 月 11 日</p>
   </header>
 
   <article class="post-content">
@@ -6465,7 +6447,7 @@ function main(): noreturn {
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/02/01/hhvm-3.30.3.html">HHVM 3.30.3</a></h1>
-    <p class="post-meta">Posted February 01, 2019</p>
+    <p class="post-meta">发布于 2019 年 2 月 1 日</p>
   </header>
 
   <article class="post-content">
@@ -6498,7 +6480,7 @@ rendered as markdown headings.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2019/01/14/hhvm-3.30.2.html">HHVM 3.30.2 and 3.27.6</a></h1>
-    <p class="post-meta">Posted January 14, 2019</p>
+    <p class="post-meta">发布于 2019 年 1 月 14 日</p>
   </header>
 
   <article class="post-content">
@@ -6530,7 +6512,7 @@ rendered as markdown headings.</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/12/18/hhvm-3.30.1.html">HHVM 3.30.1 and 3.27.5</a></h1>
-    <p class="post-meta">Posted December 18, 2018</p>
+    <p class="post-meta">发布于 2018 年 12 月 18 日</p>
   </header>
 
   <article class="post-content">
@@ -6565,7 +6547,7 @@ later). This provides a 10x performance improvement on some common workloads.</l
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/12/17/hhvm-3.30.html">HHVM 3.30</a></h1>
-    <p class="post-meta">Posted December 17, 2018</p>
+    <p class="post-meta">发布于 2018 年 12 月 17 日</p>
   </header>
 
   <article class="post-content">
@@ -6655,7 +6637,7 @@ later). This provides a 10x performance improvement on some common workloads.</l
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/10/30/hhvm-3.29.1.html">HHVM 3.29.1 and 3.27.4</a></h1>
-    <p class="post-meta">Posted October 30, 2018</p>
+    <p class="post-meta">发布于 2018 年 10 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -6703,7 +6685,7 @@ improvement in the vast majority of cases.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/10/22/hhvm-3.29.html">HHVM 3.29</a></h1>
-    <p class="post-meta">Posted October 22, 2018</p>
+    <p class="post-meta">发布于 2018 年 10 月 22 日</p>
   </header>
 
   <article class="post-content">
@@ -6893,7 +6875,7 @@ invariant($my_attr is MyAttribute, 'we get an instance of the class');
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/10/01/hhvm-3.28.3.html">HHVM 3.28.3</a></h1>
-    <p class="post-meta">Posted October 01, 2018</p>
+    <p class="post-meta">发布于 2018 年 10 月 1 日</p>
   </header>
 
   <article class="post-content">
@@ -6926,7 +6908,7 @@ option (though the feature is still experimental)</li>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/09/28/hhvm-3.28.2.html">HHVM 3.28.2 and 3.27.3</a></h1>
-    <p class="post-meta">Posted September 28, 2018</p>
+    <p class="post-meta">发布于 2018 年 9 月 28 日</p>
   </header>
 
   <article class="post-content">
@@ -7092,7 +7074,7 @@ The <code class="highlighter-rouge">Regex\</code> namespace requires limited for
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/09/26/introducing-hacktest.html">Introducing HackTest</a></h1>
-    <p class="post-meta">Posted September 26, 2018</p>
+    <p class="post-meta">发布于 2018 年 9 月 26 日</p>
   </header>
 
   <article class="post-content">
@@ -7347,7 +7329,7 @@ projects.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/09/12/end-of-php-support-future-of-hack.html">Ending PHP Support, and The Future Of Hack</a></h1>
-    <p class="post-meta">Posted September 12, 2018</p>
+    <p class="post-meta">发布于 2018 年 9 月 12 日</p>
   </header>
 
   <article class="post-content">
@@ -7421,7 +7403,7 @@ projects.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/08/30/hhvm-3.28.1.html">HHVM 3.28.1</a></h1>
-    <p class="post-meta">Posted August 30, 2018</p>
+    <p class="post-meta">发布于 2018 年 8 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -7448,7 +7430,7 @@ recent MySQL server implementations.</p>
     <p class="post-authorName">Kunal Mehta</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/08/28/hhvm-3.28.0.html">HHVM 3.28.0</a></h1>
-    <p class="post-meta">Posted August 28, 2018</p>
+    <p class="post-meta">发布于 2018 年 8 月 28 日</p>
   </header>
 
   <article class="post-content">
@@ -7890,7 +7872,7 @@ $x as ID; // UNSUPPORTED
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/08/15/hhvm-3.27.2.html">HHVM 3.27.2</a></h1>
-    <p class="post-meta">Posted August 15, 2018</p>
+    <p class="post-meta">发布于 2018 年 8 月 15 日</p>
   </header>
 
   <article class="post-content">
@@ -7926,7 +7908,7 @@ $x as ID; // UNSUPPORTED
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/07/19/hhvm-3.27.1.html">HHVM 3.27.1 and 3.24.8</a></h1>
-    <p class="post-meta">Posted July 19, 2018</p>
+    <p class="post-meta">发布于 2018 年 7 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -7976,7 +7958,7 @@ $x as ID; // UNSUPPORTED
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/06/18/hhvm-3.27.0.html">HHVM 3.27.0</a></h1>
-    <p class="post-meta">Posted June 18, 2018</p>
+    <p class="post-meta">发布于 2018 年 6 月 18 日</p>
   </header>
 
   <article class="post-content">
@@ -8166,7 +8148,7 @@ enable_experimental_tc_features=shape_field_check,sealed_classes
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/05/24/hhvm-3.26.3.html">HHVM 3.26.3</a></h1>
-    <p class="post-meta">Posted May 24, 2018</p>
+    <p class="post-meta">发布于 2018 年 5 月 24 日</p>
   </header>
 
   <article class="post-content">
@@ -8203,7 +8185,7 @@ enable_experimental_tc_features=shape_field_check,sealed_classes
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/05/15/hhvm-3.26.2.html">HHVM 3.26.2</a></h1>
-    <p class="post-meta">Posted May 15, 2018</p>
+    <p class="post-meta">发布于 2018 年 5 月 15 日</p>
   </header>
 
   <article class="post-content">
@@ -8235,7 +8217,7 @@ enable_experimental_tc_features=shape_field_check,sealed_classes
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/05/11/hhvm-3.26.1.html">HHVM 3.26.1</a></h1>
-    <p class="post-meta">Posted May 11, 2018</p>
+    <p class="post-meta">发布于 2018 年 5 月 11 日</p>
   </header>
 
   <article class="post-content">
@@ -8272,7 +8254,7 @@ enable_experimental_tc_features=shape_field_check,sealed_classes
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/05/07/hhvm-3.26.html">HHVM 3.26 - Introducing HackC</a></h1>
-    <p class="post-meta">Posted May 07, 2018</p>
+    <p class="post-meta">发布于 2018 年 5 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -8434,7 +8416,7 @@ function f(mixed $x) : void {
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/05/04/hhvm-3.25.3.html">HHVM 3.25.3, HHVM 3.24.7, and 3.21.11</a></h1>
-    <p class="post-meta">Posted May 04, 2018</p>
+    <p class="post-meta">发布于 2018 年 5 月 4 日</p>
   </header>
 
   <article class="post-content">
@@ -8474,7 +8456,7 @@ function f(mixed $x) : void {
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/04/11/relicensing-hack.html">Relicensing Hack</a></h1>
-    <p class="post-meta">Posted April 11, 2018</p>
+    <p class="post-meta">发布于 2018 年 4 月 11 日</p>
   </header>
 
   <article class="post-content">
@@ -8509,7 +8491,7 @@ to avoid holding back adoption for non-technical reasons.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/03/30/hhvm-3.25.2.html">HHVM 3.25.2, HHVM 3.24.6, and 3.21.10 (CVE-2018-6334)</a></h1>
-    <p class="post-meta">Posted March 30, 2018</p>
+    <p class="post-meta">发布于 2018 年 3 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -8542,7 +8524,7 @@ to avoid holding back adoption for non-technical reasons.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/03/22/hhvm-3.25.1.html">HHVM 3.25.1, HHVM 3.24.5, and 3.21.9</a></h1>
-    <p class="post-meta">Posted March 22, 2018</p>
+    <p class="post-meta">发布于 2018 年 3 月 22 日</p>
   </header>
 
   <article class="post-content">
@@ -8573,7 +8555,7 @@ to avoid holding back adoption for non-technical reasons.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/03/15/hhvm-3.25.html">HHVM 3.25.0, 3.24.4, and 3.21.8</a></h1>
-    <p class="post-meta">Posted March 15, 2018</p>
+    <p class="post-meta">发布于 2018 年 3 月 15 日</p>
   </header>
 
   <article class="post-content">
@@ -8988,7 +8970,7 @@ function bar(): void {
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/03/02/hhvm-3.24.3.html">HHVM 3.24.3 and 3.21.7</a></h1>
-    <p class="post-meta">Posted March 02, 2018</p>
+    <p class="post-meta">发布于 2018 年 3 月 2 日</p>
   </header>
 
   <article class="post-content">
@@ -9020,7 +9002,7 @@ function bar(): void {
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/02/07/hhvm-3.24.2.html">HHVM 3.24.2</a></h1>
-    <p class="post-meta">Posted February 07, 2018</p>
+    <p class="post-meta">发布于 2018 年 2 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -9054,7 +9036,7 @@ function bar(): void {
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/01/30/hhvm-3.24.1.html">HHVM 3.24.1, 3.21.6, and 3.18.8</a></h1>
-    <p class="post-meta">Posted January 30, 2018</p>
+    <p class="post-meta">发布于 2018 年 1 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -9088,7 +9070,7 @@ function bar(): void {
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/01/16/hhvm-3.24.html">HHVM 3.24</a></h1>
-    <p class="post-meta">Posted January 16, 2018</p>
+    <p class="post-meta">发布于 2018 年 1 月 16 日</p>
   </header>
 
   <article class="post-content">
@@ -9369,7 +9351,7 @@ $xhp2 = &lt;foo-new color="blue" /&gt;;
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/01/12/hhvm-3.23.4.html">HHVM 3.23.4, 3.21.5, and 3.18.7</a></h1>
-    <p class="post-meta">Posted January 12, 2018</p>
+    <p class="post-meta">发布于 2018 年 1 月 12 日</p>
   </header>
 
   <article class="post-content">
@@ -9404,7 +9386,7 @@ $xhp2 = &lt;foo-new color="blue" /&gt;;
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2018/01/02/hhvm-3.23.3.html">HHVM 3.23.3, 3.21.4, and 3.18.6</a></h1>
-    <p class="post-meta">Posted January 02, 2018</p>
+    <p class="post-meta">发布于 2018 年 1 月 2 日</p>
   </header>
 
   <article class="post-content">
@@ -9446,7 +9428,7 @@ $xhp2 = &lt;foo-new color="blue" /&gt;;
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/11/17/hhvm-3-23.html">HHVM 3.23</a></h1>
-    <p class="post-meta">Posted November 17, 2017</p>
+    <p class="post-meta">发布于 2017 年 11 月 17 日</p>
   </header>
 
   <article class="post-content">
@@ -9668,7 +9650,7 @@ var_dump(__COMPILER_FRONTEND__);
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/11/14/gpg-key-migration.html">GPG Key Migration</a></h1>
-    <p class="post-meta">Posted November 14, 2017</p>
+    <p class="post-meta">发布于 2017 年 11 月 14 日</p>
   </header>
 
   <article class="post-content">
@@ -9864,7 +9846,7 @@ Po7IgHHd574CLddZrzCslCsnhISm/ARHA2MZBLhfgl71eqz4nqiSwQ4IkUHEMGQ=
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/10/26/the-hack-standard-library-1-0.html">The Hack Standard Library: v1.0</a></h1>
-    <p class="post-meta">Posted October 26, 2017</p>
+    <p class="post-meta">发布于 2017 年 10 月 26 日</p>
   </header>
 
   <article class="post-content">
@@ -9905,7 +9887,7 @@ Po7IgHHd574CLddZrzCslCsnhISm/ARHA2MZBLhfgl71eqz4nqiSwQ4IkUHEMGQ=
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/09/26/hhvm-3-22.html">HHVM 3.22</a></h1>
-    <p class="post-meta">Posted September 26, 2017</p>
+    <p class="post-meta">发布于 2017 年 9 月 26 日</p>
   </header>
 
   <article class="post-content">
@@ -9937,7 +9919,7 @@ Po7IgHHd574CLddZrzCslCsnhISm/ARHA2MZBLhfgl71eqz4nqiSwQ4IkUHEMGQ=
     <p class="post-authorName">Max Wang</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/09/18/the-future-of-hhvm.html">The Future of HHVM</a></h1>
-    <p class="post-meta">Posted September 18, 2017</p>
+    <p class="post-meta">发布于 2017 年 9 月 18 日</p>
   </header>
 
   <article class="post-content">
@@ -9975,7 +9957,7 @@ we’ve decided to do so as well.</p>
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/08/02/hhvm-3-21.html">HHVM 3.21</a></h1>
-    <p class="post-meta">Posted August 02, 2017</p>
+    <p class="post-meta">发布于 2017 年 8 月 2 日</p>
   </header>
 
   <article class="post-content">
@@ -10008,7 +9990,7 @@ we’ve decided to do so as well.</p>
     <p class="post-authorName">Michael O'Farrell</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/06/07/hhvm-3-20.html">HHVM 3.20</a></h1>
-    <p class="post-meta">Posted June 07, 2017</p>
+    <p class="post-meta">发布于 2017 年 6 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -10045,7 +10027,7 @@ information.</p>
     <p class="post-authorName">Michael O'Farrell</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/04/13/hhvm-3-19.html">HHVM 3.19</a></h1>
-    <p class="post-meta">Posted April 13, 2017</p>
+    <p class="post-meta">发布于 2017 年 4 月 13 日</p>
   </header>
 
   <article class="post-content">
@@ -10081,7 +10063,7 @@ information.</p>
     <p class="post-authorName">Brett Simmers</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/03/23/concurrent-jit-compilation.html">Concurrent JIT Compilation</a></h1>
-    <p class="post-meta">Posted March 23, 2017</p>
+    <p class="post-meta">发布于 2017 年 3 月 23 日</p>
   </header>
 
   <article class="post-content">
@@ -10113,7 +10095,7 @@ information.</p>
     <p class="post-authorName">Max Wang</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/03/09/how-the-cyber-elephant-got-his-arm.html">How the Cyber-Elephant Got His ARM</a></h1>
-    <p class="post-meta">Posted March 09, 2017</p>
+    <p class="post-meta">发布于 2017 年 3 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -10146,7 +10128,7 @@ our ARM port came to be.</p>
     <p class="post-authorName">Guilherme Ottoni</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/02/17/region-jit.html">HHVM's Profile-guided Region JIT</a></h1>
-    <p class="post-meta">Posted February 17, 2017</p>
+    <p class="post-meta">发布于 2017 年 2 月 17 日</p>
   </header>
 
   <article class="post-content">
@@ -10184,7 +10166,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Michael O'Farrell</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/02/15/hhvm-3-18.html">HHVM 3.18</a></h1>
-    <p class="post-meta">Posted February 15, 2017</p>
+    <p class="post-meta">发布于 2017 年 2 月 15 日</p>
   </header>
 
   <article class="post-content">
@@ -10216,7 +10198,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Michael O'Farrell</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2017/01/26/new-year-new-me.html">New Year, New Me</a></h1>
-    <p class="post-meta">Posted January 26, 2017</p>
+    <p class="post-meta">发布于 2017 年 1 月 26 日</p>
   </header>
 
   <article class="post-content">
@@ -10248,7 +10230,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Bissonette</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/11711/hhvm-3-15">HHVM 3.15</a></h1>
-    <p class="post-meta">Posted September 15, 2016</p>
+    <p class="post-meta">发布于 2016 年 9 月 15 日</p>
   </header>
 
   <article class="post-content">
@@ -10280,7 +10262,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/10925/improved-user-documentation">Improved User Documentation</a></h1>
-    <p class="post-meta">Posted December 09, 2015</p>
+    <p class="post-meta">发布于 2015 年 12 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -10312,7 +10294,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/10859/php-7-support">PHP 7 Support</a></h1>
-    <p class="post-meta">Posted December 04, 2015</p>
+    <p class="post-meta">发布于 2015 年 12 月 4 日</p>
   </header>
 
   <article class="post-content">
@@ -10344,7 +10326,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Dwayne Reeves</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/10649/improving-arrays-in-hack">Improving Arrays in Hack</a></h1>
-    <p class="post-meta">Posted October 30, 2015</p>
+    <p class="post-meta">发布于 2015 年 10 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -10380,7 +10362,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Brett Simmers</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/10205/llvm-code-generation-in-hhvm">LLVM Code Generation in HHVM</a></h1>
-    <p class="post-meta">Posted October 23, 2015</p>
+    <p class="post-meta">发布于 2015 年 10 月 23 日</p>
   </header>
 
   <article class="post-content">
@@ -10412,7 +10394,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/10379/hhvm-3-10-0">HHVM 3.10.0</a></h1>
-    <p class="post-meta">Posted October 21, 2015</p>
+    <p class="post-meta">发布于 2015 年 10 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -10444,7 +10426,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/10043/experimental-mac-os-x-support">Experimental Mac OS X Support</a></h1>
-    <p class="post-meta">Posted August 31, 2015</p>
+    <p class="post-meta">发布于 2015 年 8 月 31 日</p>
   </header>
 
   <article class="post-content">
@@ -10482,7 +10464,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Bissonette</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/9995/hhvm-3-9-0">HHVM 3.9.0</a></h1>
-    <p class="post-meta">Posted August 19, 2015</p>
+    <p class="post-meta">发布于 2015 年 8 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -10514,7 +10496,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/9803/hhvm-3-8-0">HHVM 3.8.0</a></h1>
-    <p class="post-meta">Posted July 13, 2015</p>
+    <p class="post-meta">发布于 2015 年 7 月 13 日</p>
   </header>
 
   <article class="post-content">
@@ -10546,7 +10528,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/9773/cve-2015-4663">CVE-2015-4663</a></h1>
-    <p class="post-meta">Posted July 07, 2015</p>
+    <p class="post-meta">发布于 2015 年 7 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -10578,7 +10560,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Kasper Kopec</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/9581/trait-and-interface-requirements-in-hack">Trait and interface requirements in Hack</a></h1>
-    <p class="post-meta">Posted June 16, 2015</p>
+    <p class="post-meta">发布于 2015 年 6 月 16 日</p>
   </header>
 
   <article class="post-content">
@@ -10610,7 +10592,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Bissonette</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/9293/lockdown-results-and-hhvm-performance">Lockdown Results and HHVM Performance</a></h1>
-    <p class="post-meta">Posted June 09, 2015</p>
+    <p class="post-meta">发布于 2015 年 6 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -10642,7 +10624,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Jez Ng</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/9215/covariance-contravariance-and-super-type-constraints">Covariance, Contravariance, and super Type Constraints</a></h1>
-    <p class="post-meta">Posted May 28, 2015</p>
+    <p class="post-meta">发布于 2015 年 5 月 28 日</p>
   </header>
 
   <article class="post-content">
@@ -10674,7 +10656,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Bissonette</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/9089/hhvm-lockdown">HHVM Lockdown</a></h1>
-    <p class="post-meta">Posted May 08, 2015</p>
+    <p class="post-meta">发布于 2015 年 5 月 8 日</p>
   </header>
 
   <article class="post-content">
@@ -10708,7 +10690,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/9059/hhvm-3-7-0">HHVM 3.7.0</a></h1>
-    <p class="post-meta">Posted May 04, 2015</p>
+    <p class="post-meta">发布于 2015 年 5 月 4 日</p>
   </header>
 
   <article class="post-content">
@@ -10740,7 +10722,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Owen Yamauchi</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/8981/announcing-our-book-hack-hhvm">Announcing our book: “Hack & HHVM”</a></h1>
-    <p class="post-meta">Posted April 23, 2015</p>
+    <p class="post-meta">发布于 2015 年 4 月 23 日</p>
   </header>
 
   <article class="post-content">
@@ -10774,7 +10756,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/8939/etsys-transition-to-hhvm">Etsy's Transition to HHVM</a></h1>
-    <p class="post-meta">Posted April 06, 2015</p>
+    <p class="post-meta">发布于 2015 年 4 月 6 日</p>
   </header>
 
   <article class="post-content">
@@ -10806,7 +10788,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Sara Golemon</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/8849/hhvm-3-6-0">HHVM 3.6.0</a></h1>
-    <p class="post-meta">Posted March 11, 2015</p>
+    <p class="post-meta">发布于 2015 年 3 月 11 日</p>
   </header>
 
   <article class="post-content">
@@ -10838,7 +10820,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/8537/announcing-a-specification-for-hack">Announcing a Specification for Hack</a></h1>
-    <p class="post-meta">Posted February 19, 2015</p>
+    <p class="post-meta">发布于 2015 年 2 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -10872,7 +10854,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/8405/coming-soon-in-hhvm">Coming Soon in HHVM</a></h1>
-    <p class="post-meta">Posted February 17, 2015</p>
+    <p class="post-meta">发布于 2015 年 2 月 17 日</p>
   </header>
 
   <article class="post-content">
@@ -10904,7 +10886,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/7637/hhvm-3-5-0">HHVM 3.5.0</a></h1>
-    <p class="post-meta">Posted January 20, 2015</p>
+    <p class="post-meta">发布于 2015 年 1 月 20 日</p>
   </header>
 
   <article class="post-content">
@@ -10936,7 +10918,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Brett Simmers</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/7205/wikipedia-on-hhvm">Wikipedia on HHVM</a></h1>
-    <p class="post-meta">Posted January 06, 2015</p>
+    <p class="post-meta">发布于 2015 年 1 月 6 日</p>
   </header>
 
   <article class="post-content">
@@ -10968,7 +10950,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/7349/lts-updates">LTS Updates</a></h1>
-    <p class="post-meta">Posted January 06, 2015</p>
+    <p class="post-meta">发布于 2015 年 1 月 6 日</p>
   </header>
 
   <article class="post-content">
@@ -11000,7 +10982,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Sara Golemon</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/7091/async-cooperative-multitasking-for-hack">Async - Cooperative Multitasking for Hack</a></h1>
-    <p class="post-meta">Posted December 05, 2014</p>
+    <p class="post-meta">发布于 2014 年 12 月 5 日</p>
   </header>
 
   <article class="post-content">
@@ -11032,7 +11014,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6989/wp-engine-and-box-now-use-hhvm">WP Engine and Box now use HHVM</a></h1>
-    <p class="post-meta">Posted November 20, 2014</p>
+    <p class="post-meta">发布于 2014 年 11 月 20 日</p>
   </header>
 
   <article class="post-content">
@@ -11066,7 +11048,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6899/hhvm-3-4-0">HHVM 3.4.0</a></h1>
-    <p class="post-meta">Posted November 20, 2014</p>
+    <p class="post-meta">发布于 2014 年 11 月 20 日</p>
   </header>
 
   <article class="post-content">
@@ -11098,7 +11080,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6863/announcing-the-hack-transpiler">Announcing the Hack Transpiler</a></h1>
-    <p class="post-meta">Posted November 11, 2014</p>
+    <p class="post-meta">发布于 2014 年 11 月 11 日</p>
   </header>
 
   <article class="post-content">
@@ -11124,7 +11106,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6473/hack-overriding-constructors-new-static-and-__consistentconstruct">Hack: Overriding Constructors, "new static", and __ConsistentConstruct</a></h1>
-    <p class="post-meta">Posted October 29, 2014</p>
+    <p class="post-meta">发布于 2014 年 10 月 29 日</p>
   </header>
 
   <article class="post-content">
@@ -11156,7 +11138,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6767/hhvm-3-3-1">HHVM 3.3.1</a></h1>
-    <p class="post-meta">Posted October 28, 2014</p>
+    <p class="post-meta">发布于 2014 年 10 月 28 日</p>
   </header>
 
   <article class="post-content">
@@ -11188,7 +11170,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6515/using-xhp-with-bootstrap">Using XHP with Bootstrap</a></h1>
-    <p class="post-meta">Posted October 23, 2014</p>
+    <p class="post-meta">发布于 2014 年 10 月 23 日</p>
   </header>
 
   <article class="post-content">
@@ -11222,7 +11204,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6443/hack-recent-updates">Hack: Recent Updates</a></h1>
-    <p class="post-meta">Posted October 21, 2014</p>
+    <p class="post-meta">发布于 2014 年 10 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -11254,7 +11236,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Sara Golemon</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6323/the-journey-of-a-thousand-bytecodes">The Journey of a Thousand Bytecodes</a></h1>
-    <p class="post-meta">Posted October 03, 2014</p>
+    <p class="post-meta">发布于 2014 年 10 月 3 日</p>
   </header>
 
   <article class="post-content">
@@ -11286,7 +11268,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6239/hhvm-3-3-0">HHVM 3.3.0</a></h1>
-    <p class="post-meta">Posted September 19, 2014</p>
+    <p class="post-meta">发布于 2014 年 9 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -11318,7 +11300,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">David Martinez</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6083/hhvm-long-term-support">HHVM Long Term Support</a></h1>
-    <p class="post-meta">Posted September 02, 2014</p>
+    <p class="post-meta">发布于 2014 年 9 月 2 日</p>
   </header>
 
   <article class="post-content">
@@ -11350,7 +11332,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/6005/hack-community-roundup-3">Hack Community Roundup #3</a></h1>
-    <p class="post-meta">Posted August 21, 2014</p>
+    <p class="post-meta">发布于 2014 年 8 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -11384,7 +11366,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/5723/announcing-a-specification-for-php">Announcing a specification for PHP</a></h1>
-    <p class="post-meta">Posted July 30, 2014</p>
+    <p class="post-meta">发布于 2014 年 7 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -11418,7 +11400,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/5609/hhvm-3-2-0">HHVM 3.2.0</a></h1>
-    <p class="post-meta">Posted July 23, 2014</p>
+    <p class="post-meta">发布于 2014 年 7 月 23 日</p>
   </header>
 
   <article class="post-content">
@@ -11450,7 +11432,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/5399/faster-github-commits">Faster GitHub Commits</a></h1>
-    <p class="post-meta">Posted July 08, 2014</p>
+    <p class="post-meta">发布于 2014 年 7 月 8 日</p>
   </header>
 
   <article class="post-content">
@@ -11482,7 +11464,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/5429/hack-community-roundup-2">Hack Community Roundup #2</a></h1>
-    <p class="post-meta">Posted June 25, 2014</p>
+    <p class="post-meta">发布于 2014 年 6 月 25 日</p>
   </header>
 
   <article class="post-content">
@@ -11516,7 +11498,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/5195/hhvm-3-1-0">HHVM 3.1.0</a></h1>
-    <p class="post-meta">Posted May 29, 2014</p>
+    <p class="post-meta">发布于 2014 年 5 月 29 日</p>
   </header>
 
   <article class="post-content">
@@ -11548,7 +11530,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Josh Watzman</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4811/hack-community-roundup">Hack Community Roundup</a></h1>
-    <p class="post-meta">Posted May 09, 2014</p>
+    <p class="post-meta">发布于 2014 年 5 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -11582,7 +11564,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4841/compatibility-update">Compatibility Update</a></h1>
-    <p class="post-meta">Posted April 21, 2014</p>
+    <p class="post-meta">发布于 2014 年 4 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -11614,7 +11596,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4685/hack-developer-day-2014-keep-hacking">Hack Developer Day 2014: Keep Hacking</a></h1>
-    <p class="post-meta">Posted April 10, 2014</p>
+    <p class="post-meta">发布于 2014 年 4 月 10 日</p>
   </header>
 
   <article class="post-content">
@@ -11646,7 +11628,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4601/debug-packages">Debug Packages</a></h1>
-    <p class="post-meta">Posted April 07, 2014</p>
+    <p class="post-meta">发布于 2014 年 4 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -11680,7 +11662,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4349/hhvm-3-0-0">HHVM 3.0.0</a></h1>
-    <p class="post-meta">Posted March 28, 2014</p>
+    <p class="post-meta">发布于 2014 年 3 月 28 日</p>
   </header>
 
   <article class="post-content">
@@ -11714,7 +11696,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4325/hacking-hack-on-heroku">Hacking Hack on Heroku</a></h1>
-    <p class="post-meta">Posted March 21, 2014</p>
+    <p class="post-meta">发布于 2014 年 3 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -11746,7 +11728,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Julien Verlaguet</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4223/introducing-hack-a-programming-language-for-hhvm">Introducing Hack - A Programming Language for HHVM</a></h1>
-    <p class="post-meta">Posted March 20, 2014</p>
+    <p class="post-meta">发布于 2014 年 3 月 20 日</p>
   </header>
 
   <article class="post-content">
@@ -11778,7 +11760,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4103/hhvm-2-4-2">HHVM 2.4.2</a></h1>
-    <p class="post-meta">Posted March 08, 2014</p>
+    <p class="post-meta">发布于 2014 年 3 月 8 日</p>
   </header>
 
   <article class="post-content">
@@ -11810,7 +11792,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Fred Emmott</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/3611/tracking-parity">Tracking Parity</a></h1>
-    <p class="post-meta">Posted March 03, 2014</p>
+    <p class="post-meta">发布于 2014 年 3 月 3 日</p>
   </header>
 
   <article class="post-content">
@@ -11842,7 +11824,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Emil Hesslow</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/3689/implementing-mysqli">Implementing MySQLi</a></h1>
-    <p class="post-meta">Posted February 26, 2014</p>
+    <p class="post-meta">发布于 2014 年 2 月 26 日</p>
   </header>
 
   <article class="post-content">
@@ -11874,7 +11856,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Pobar</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/3743/hhvm-the-next-six-months">HHVM: The Next Six Months</a></h1>
-    <p class="post-meta">Posted February 25, 2014</p>
+    <p class="post-meta">发布于 2014 年 2 月 25 日</p>
   </header>
 
   <article class="post-content">
@@ -11920,7 +11902,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/3287/hhvm-2-4-0">HHVM 2.4.0</a></h1>
-    <p class="post-meta">Posted February 01, 2014</p>
+    <p class="post-meta">发布于 2014 年 2 月 1 日</p>
   </header>
 
   <article class="post-content">
@@ -11952,7 +11934,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/3203/nightly-packages">Nightly Packages</a></h1>
-    <p class="post-meta">Posted January 21, 2014</p>
+    <p class="post-meta">发布于 2014 年 1 月 21 日</p>
   </header>
 
   <article class="post-content">
@@ -11984,7 +11966,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2813/we-are-the-98-5-and-the-16">We are the 98.5% (and the 16%)</a></h1>
-    <p class="post-meta">Posted December 19, 2013</p>
+    <p class="post-meta">发布于 2013 年 12 月 19 日</p>
   </header>
 
   <article class="post-content">
@@ -12016,7 +11998,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Julek Kopczewski</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/1817/fastercgi-with-hhvm">FasterCGI with HHVM</a></h1>
-    <p class="post-meta">Posted December 17, 2013</p>
+    <p class="post-meta">发布于 2013 年 12 月 17 日</p>
   </header>
 
   <article class="post-content">
@@ -12048,7 +12030,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2393/hhvm-2-3-0-and-travis-ci">HHVM 2.3.0 and Travis CI</a></h1>
-    <p class="post-meta">Posted December 13, 2013</p>
+    <p class="post-meta">发布于 2013 年 12 月 13 日</p>
   </header>
 
   <article class="post-content">
@@ -12080,7 +12062,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Brett Simmers</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/2027/faster-and-cheaper-the-evolution-of-the-hhvm-jit">Faster and Cheaper: The Evolution of the hhvm JIT</a></h1>
-    <p class="post-meta">Posted December 11, 2013</p>
+    <p class="post-meta">发布于 2013 年 12 月 11 日</p>
   </header>
 
   <article class="post-content">
@@ -12112,7 +12094,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/1499/locking-down-for-performance-and-parity">Locking Down for Performance and Parity </a></h1>
-    <p class="post-meta">Posted November 07, 2013</p>
+    <p class="post-meta">发布于 2013 年 11 月 7 日</p>
   </header>
 
   <article class="post-content">
@@ -12144,7 +12126,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/1379/hhvm-on-heroku">HHVM on Heroku</a></h1>
-    <p class="post-meta">Posted October 30, 2013</p>
+    <p class="post-meta">发布于 2013 年 10 月 30 日</p>
   </header>
 
   <article class="post-content">
@@ -12176,7 +12158,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/1301/hhvm-2-2-0">HHVM 2.2.0</a></h1>
-    <p class="post-meta">Posted October 18, 2013</p>
+    <p class="post-meta">发布于 2013 年 10 月 18 日</p>
   </header>
 
   <article class="post-content">
@@ -12208,7 +12190,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Joel Marcey</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/875/wow-hhvm-is-fast-too-bad-it-doesnt-run-my-code">Wow HHVM is fast...too bad it doesn’t run my code</a></h1>
-    <p class="post-meta">Posted September 12, 2013</p>
+    <p class="post-meta">发布于 2013 年 9 月 12 日</p>
   </header>
 
   <article class="post-content">
@@ -12240,7 +12222,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Owen Yamauchi</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/713/hhvm-optimization-tips">HHVM Optimization Tips</a></h1>
-    <p class="post-meta">Posted May 29, 2013</p>
+    <p class="post-meta">发布于 2013 年 5 月 29 日</p>
   </header>
 
   <article class="post-content">
@@ -12274,7 +12256,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Paul Tarjan</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/575/joining-retirement-testing-and-bankruptcy">Joining, Retirement, Testing, and Bankruptcy</a></h1>
-    <p class="post-meta">Posted May 13, 2013</p>
+    <p class="post-meta">发布于 2013 年 5 月 13 日</p>
   </header>
 
   <article class="post-content">
@@ -12306,7 +12288,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Sara Golemon</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/521/the-adminserver">The AdminServer</a></h1>
-    <p class="post-meta">Posted December 11, 2012</p>
+    <p class="post-meta">发布于 2012 年 12 月 11 日</p>
   </header>
 
   <article class="post-content">
@@ -12338,7 +12320,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Owen Yamauchi</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/431/on-garbage-collection">On Garbage Collection</a></h1>
-    <p class="post-meta">Posted November 29, 2012</p>
+    <p class="post-meta">发布于 2012 年 11 月 29 日</p>
   </header>
 
   <article class="post-content">
@@ -12372,7 +12354,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Sara Golemon</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/401/spammers-are-still-a-thing-it-seems">Spammers are still a thing, it seems</a></h1>
-    <p class="post-meta">Posted November 12, 2012</p>
+    <p class="post-meta">发布于 2012 年 11 月 12 日</p>
   </header>
 
   <article class="post-content">
@@ -12404,7 +12386,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Owen Yamauchi</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/311/adding-an-opcode-to-hhbc">Adding an opcode to HHBC</a></h1>
-    <p class="post-meta">Posted November 09, 2012</p>
+    <p class="post-meta">发布于 2012 年 11 月 9 日</p>
   </header>
 
   <article class="post-content">
@@ -12436,7 +12418,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Sara Golemon</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/4061/go-faster">Go Faster!</a></h1>
-    <p class="post-meta">Posted October 22, 2012</p>
+    <p class="post-meta">发布于 2012 年 10 月 22 日</p>
   </header>
 
   <article class="post-content">
@@ -12468,7 +12450,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Sara Golemon</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/3095/getting-wordpress-running-on-hhvm">Getting WordPress running on HHVM</a></h1>
-    <p class="post-meta">Posted September 24, 2012</p>
+    <p class="post-meta">发布于 2012 年 9 月 24 日</p>
   </header>
 
   <article class="post-content">
@@ -12500,7 +12482,7 @@ optimizations and HHVM’s performance.
     <p class="post-authorName">Sara Golemon</p>
     
     <h1 class="post-title"><a href="http://hhvm-cn.com/blog/3089/wordpress-3-4-2-running-on-hiphop-hhvm">WordPress 3.4.2 running on HHVM</a></h1>
-    <p class="post-meta">Posted September 22, 2012</p>
+    <p class="post-meta">发布于 2012 年 9 月 22 日</p>
   </header>
 
   <article class="post-content">
